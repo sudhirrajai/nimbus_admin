@@ -1,8 +1,12 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { onMounted } from 'vue';
+
+const generateFreeLicense = () => {
+    router.post(route('licenses.free'));
+}
 
 onMounted(() => {
     // Load Razorpay script
@@ -95,10 +99,16 @@ const buyPlan = async (plan) => {
                     </h2>
                     <p class="text-slate-400">Manage and deploy your VMCORE licenses.</p>
                 </div>
-                <button @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 premium-gradient">
-                    <span class="material-symbols-rounded">add</span>
-                    Purchase New
-                </button>
+                <div class="flex items-center gap-3">
+                    <button @click="generateFreeLicense" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-emerald-500/25 flex items-center gap-2 premium-gradient">
+                        <span class="material-symbols-rounded">check_circle</span>
+                        Claim Free License
+                    </button>
+                    <button @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 premium-gradient">
+                        <span class="material-symbols-rounded">add</span>
+                        Purchase New
+                    </button>
+                </div>
             </div>
         </template>
 

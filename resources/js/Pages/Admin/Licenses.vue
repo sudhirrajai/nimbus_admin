@@ -12,7 +12,23 @@ const form = useForm({
     expires_at: '',
 });
 
+const generateForm = useForm({
+    email: '',
+    plan: 'free',
+    expires_at: '',
+});
+
 const editingLicense = ref(null);
+const generatingLicense = ref(false);
+
+const generateLicense = () => {
+    generateForm.post(route('admin.licenses.generate'), {
+        onSuccess: () => {
+            generatingLicense.value = false;
+            generateForm.reset();
+        }
+    });
+};
 
 const editLicense = (license) => {
     editingLicense.value = license;
@@ -38,10 +54,18 @@ const deleteLicense = (id) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-3xl font-bold tracking-tight text-white">
-                Admin Panel: Licenses
-            </h2>
-            <p class="text-slate-400 mt-2">Oversee and manage all issued VMCORE licenses.</p>
+            <div class="flex justify-between items-end">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight text-white">
+                        Admin Panel: Licenses
+                    </h2>
+                    <p class="text-slate-400 mt-2">Oversee and manage all issued VMCORE licenses.</p>
+                </div>
+                <button @click="generatingLicense = true" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 premium-gradient">
+                    <span class="material-symbols-rounded">add</span>
+                    Generate License
+                </button>
+            </div>
         </template>
 
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -136,6 +160,41 @@ const deleteLicense = (id) => {
                     <div class="flex gap-4 pt-4">
                         <button type="button" @click="editingLicense = null" class="flex-1 px-6 py-4 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-all">Cancel</button>
                         <button type="submit" class="flex-1 px-6 py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all premium-gradient shadow-lg shadow-indigo-600/20">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Generate Modal -->
+        <div v-if="generatingLicense" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div class="glass-morphism rounded-[2.5rem] p-10 w-full max-w-md border border-white/10 animate-fade-in">
+                <h3 class="text-2xl font-bold text-white mb-6">Generate License</h3>
+                
+                <form @submit.prevent="generateLicense" class="space-y-6">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">User Email</label>
+                        <input type="email" v-model="generateForm.email" required placeholder="user@example.com" class="w-full bg-slate-900 border border-white/10 rounded-xl text-white p-4 focus:ring-indigo-500 focus:border-indigo-500" />
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Plan</label>
+                        <select v-model="generateForm.plan" class="w-full bg-slate-900 border border-white/10 rounded-xl text-white p-4 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="free">Free</option>
+                            <option value="pro">Pro</option>
+                            <option value="enterprise">Enterprise</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Expiry Date (Optional)</label>
+                        <input type="date" v-model="generateForm.expires_at" class="w-full bg-slate-900 border border-white/10 rounded-xl text-white p-4 focus:ring-indigo-500 focus:border-indigo-500" />
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                        <button type="button" @click="generatingLicense = false; generateForm.reset()" class="flex-1 px-6 py-4 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-all">Cancel</button>
+                        <button type="submit" class="flex-1 px-6 py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all premium-gradient shadow-lg shadow-indigo-600/20" :disabled="generateForm.processing">
+                            {{ generateForm.processing ? 'Generating...' : 'Generate' }}
+                        </button>
                     </div>
                 </form>
             </div>

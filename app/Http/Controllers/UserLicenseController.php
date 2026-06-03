@@ -19,4 +19,17 @@ class UserLicenseController extends Controller
             'licenses' => $licenses
         ]);
     }
+
+    public function generateFree(Request $request)
+    {
+        License::create([
+            'user_id' => auth()->id(),
+            'license_key' => License::generateKey('free'),
+            'plan' => 'free',
+            'status' => 'active',
+            'expires_at' => null,
+        ]);
+
+        return back()->with('success', 'Free license generated successfully.');
+    }
 }
