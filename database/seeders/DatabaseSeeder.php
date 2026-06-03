@@ -15,11 +15,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Seed Admin User
+        if (!User::where('email', 'admin@vmcore.in')->exists()) {
+            User::create([
+                'name' => 'Admin',
+                'email' => 'admin@vmcore.in',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'is_admin' => true,
+            ]);
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Seed Test User
+        if (!User::where('email', 'test@example.com')->exists()) {
+            User::create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'is_admin' => false,
+            ]);
+        }
     }
 }
