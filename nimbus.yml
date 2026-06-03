@@ -1,0 +1,20 @@
+version: 1
+
+runtime:
+  php: '8.2'
+  node: '18.0'
+
+install:
+  - composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+  - npm ci
+
+build:
+  - php artisan migrate --force
+  - npm run build
+  - php artisan config:cache
+  - php artisan route:cache
+  - php artisan view:cache
+
+nginx:
+  root: public
+  php_version: '8.3'
