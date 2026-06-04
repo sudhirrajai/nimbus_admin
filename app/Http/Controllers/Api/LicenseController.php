@@ -89,4 +89,54 @@ class LicenseController extends Controller
             'message' => 'License is valid.'
         ]);
     }
+
+    /**
+     * Deactivate / Disconnect a license from a machine
+     */
+    public function deactivate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'license_key' => 'required|string',
+            'machine_id' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid validation parameters.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $license = License::where('license_key', $request->license_key)->first();
+
+        if (!$license) {
+            return response()->json([
+                'status' => false,
+                'message' => 'License key not found.'
+            ], 404);
+        }
+
+        // Verify machine lock matches
+        if ($license->machine_id !== $request->machine_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'License is not active on this machine.'
+            ], 403);
+        }
+
+        // Disconnect
+        $license->update([
+            'server_ip' => null,
+            'machine_id' => null,
+            'domain' => null,
+            'admin_name' => null,
+            'admin_email' => null,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'License deactivated successfully from this machine.'
+        ]);
+    }
 }
