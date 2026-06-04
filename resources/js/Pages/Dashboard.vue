@@ -2,10 +2,31 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
+
+const props = defineProps({
+    licenses: Array
+});
+
+const hasActiveFreeLicense = computed(() => {
+    return props.licenses.some(l => l.plan === 'free' && l.status === 'active');
+});
 
 const generateFreeLicense = () => {
+    if (hasActiveFreeLicense.value) return;
     router.post(route('licenses.free'));
+}
+
+const disconnectMachine = (license) => {
+    if (confirm('Are you sure you want to disconnect this machine installation? The device using this license will stop working until it registers again or another device claims it.')) {
+        router.post(route('licenses.disconnect', { license: license.id }));
+    }
+}
+
+const revokeLicense = (license) => {
+    if (confirm('Are you sure you want to revoke this license? This action cannot be undone, and the devices having this license will stop working immediately. You will not be able to use this key again.')) {
+        router.post(route('licenses.revoke', { license: license.id }));
+    }
 }
 
 onMounted(() => {
@@ -14,11 +35,6 @@ onMounted(() => {
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
     document.body.appendChild(script);
-});
-
-
-defineProps({
-    licenses: Array
 });
 
 const copyToClipboard = (text) => {
@@ -100,9 +116,14 @@ const buyPlan = async (plan) => {
                     <p class="text-slate-400">Manage and deploy your VMCORE licenses.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button @click="generateFreeLicense" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-emerald-500/25 flex items-center gap-2 premium-gradient">
+                    <button 
+                        @click="generateFreeLicense" 
+                        :disabled="hasActiveFreeLicense"
+                        :class="hasActiveFreeLicense ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-white/5 opacity-60' : 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 premium-gradient'"
+                        class="px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
+                    >
                         <span class="material-symbols-rounded">check_circle</span>
-                        Claim Free License
+                        {{ hasActiveFreeLicense ? 'Free License Claimed' : 'Claim Free License' }}
                     </button>
                     <button @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 premium-gradient">
                         <span class="material-symbols-rounded">add</span>
@@ -114,6 +135,18 @@ const buyPlan = async (plan) => {
 
         <div class="">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <!-- Success/Error Alert -->
+                <div v-if="$page.props.flash?.success || $page.props.errors?.error || $page.props.flash?.error" class="mb-8 animate-fade-in">
+                    <div v-if="$page.props.flash?.success" class="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                        <span class="material-symbols-rounded">check_circle</span>
+                        <p class="font-medium text-sm">{{ $page.props.flash.success }}</p>
+                    </div>
+                    <div v-if="$page.props.errors?.error || $page.props.flash?.error" class="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                        <span class="material-symbols-rounded">error</span>
+                        <p class="font-medium text-sm">{{ $page.props.errors?.error || $page.props.flash?.error }}</p>
+                    </div>
+                </div>
+
                 <!-- Stats Overview -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     <div class="glass-morphism rounded-2xl p-6 border border-white/5">
@@ -192,6 +225,26 @@ const buyPlan = async (plan) => {
                                             </button>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- License Actions (only for active licenses) -->
+                                <div v-if="license.status === 'active'" class="flex gap-4 mt-8 pt-8 border-t border-white/5">
+                                    <button 
+                                        @click="disconnectMachine(license)" 
+                                        :disabled="!license.machine_id && !license.server_ip"
+                                        :class="(!license.machine_id && !license.server_ip) ? 'text-slate-600 bg-white/5 border-white/5 cursor-not-allowed' : 'text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 hover:text-amber-300'"
+                                        class="flex-1 px-4 py-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <span class="material-symbols-rounded text-lg">phonelink_off</span>
+                                        Disconnect Machine
+                                    </button>
+                                    <button 
+                                        @click="revokeLicense(license)"
+                                        class="flex-1 px-4 py-3 rounded-xl text-sm font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <span class="material-symbols-rounded text-lg">cancel</span>
+                                        Revoke License
+                                    </button>
                                 </div>
                             </div>
                         </div>

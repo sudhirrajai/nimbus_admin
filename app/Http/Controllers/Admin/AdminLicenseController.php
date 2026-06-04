@@ -40,7 +40,7 @@ class AdminLicenseController extends Controller
     public function update(Request $request, License $license)
     {
         $request->validate([
-            'status' => 'required|in:active,suspended,expired',
+            'status' => 'required|in:active,suspended,expired,revoked',
             'expires_at' => 'nullable|date',
         ]);
 

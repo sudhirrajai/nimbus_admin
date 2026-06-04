@@ -24,6 +24,12 @@ Route::get('/dashboard', [UserLicenseController::class, 'index'])
 Route::post('/licenses/free', [UserLicenseController::class, 'generateFree'])
     ->middleware(['auth', 'verified'])->name('licenses.free');
 
+Route::post('/licenses/{license}/disconnect', [UserLicenseController::class, 'disconnect'])
+    ->middleware(['auth', 'verified'])->name('licenses.disconnect');
+
+Route::post('/licenses/{license}/revoke', [UserLicenseController::class, 'revoke'])
+    ->middleware(['auth', 'verified'])->name('licenses.revoke');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

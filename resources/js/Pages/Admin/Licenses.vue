@@ -114,7 +114,12 @@ const deleteLicense = (id) => {
                             </td>
                             <td class="p-6">
                                 <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter"
-                                    :class="license.status === 'active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'">
+                                    :class="{
+                                        'bg-emerald-500/10 text-emerald-400': license.status === 'active',
+                                        'bg-amber-500/10 text-amber-400': license.status === 'suspended',
+                                        'bg-red-500/10 text-red-400': license.status === 'expired',
+                                        'bg-rose-500/10 text-rose-400 border border-rose-500/20': license.status === 'revoked'
+                                    }">
                                     {{ license.status }}
                                 </span>
                             </td>
@@ -149,6 +154,7 @@ const deleteLicense = (id) => {
                             <option value="active">Active</option>
                             <option value="suspended">Suspended</option>
                             <option value="expired">Expired</option>
+                            <option value="revoked">Revoked</option>
                         </select>
                     </div>
 
