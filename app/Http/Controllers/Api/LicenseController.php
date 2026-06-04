@@ -64,8 +64,11 @@ class LicenseController extends Controller
             $license->machine_id = $request->machine_id;
         }
 
-        // Validate Lock
-        if ($license->server_ip !== $request->server_ip || $license->machine_id !== $request->machine_id) {
+        // Validate Lock (matches either the client's reported SERVER_ADDR or their public IP seen by the server)
+        $clientIp = $request->ip();
+        $ipMatches = ($license->server_ip === $request->server_ip) || ($license->server_ip === $clientIp);
+
+        if (!$ipMatches || $license->machine_id !== $request->machine_id) {
              return response()->json([
                 'status' => false,
                 'message' => 'License is locked to another server.'
