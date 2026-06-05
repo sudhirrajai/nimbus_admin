@@ -24,13 +24,15 @@ class License extends Model
         'expires_at',
         'last_checked_at',
         'razorpay_payment_id',
-        'razorpay_order_id'
+        'razorpay_order_id',
+        'last_heartbeat_at',
     ];
 
 
     protected $casts = [
         'expires_at' => 'datetime',
         'last_checked_at' => 'datetime',
+        'last_heartbeat_at' => 'datetime',
     ];
 
     /**
