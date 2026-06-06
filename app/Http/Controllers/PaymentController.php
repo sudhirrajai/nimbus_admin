@@ -22,22 +22,26 @@ class PaymentController extends Controller
     public function initiatePayment(Request $request)
     {
         $request->validate([
-            'plan' => 'required|in:pro,enterprise',
+            'plan' => 'required|string',
         ]);
 
-        $plans = [
-            'pro' => 49900, // INR 499.00
-            'enterprise' => 199900, // INR 1999.00
-        ];
+        $plan = \App\Models\Plan::where('slug', $request->plan)
+            ->where('is_active', true)
+            ->where('price_inr', '>', 0)
+            ->first();
+
+        if (!$plan) {
+            return response()->json(['message' => 'Invalid plan requested.'], 422);
+        }
 
         $api = new Api($this->razorpayId, $this->razorpayKey);
 
         $orderData = [
             'receipt'         => 'rcpt_' . Auth::id() . '_' . time(),
-            'amount'          => $plans[$request->plan],
+            'amount'          => $plan->price_inr * 100, // amount in paise
             'currency'        => 'INR',
             'notes'           => [
-                'plan' => $request->plan,
+                'plan' => $plan->slug,
                 'user_id' => Auth::id(),
             ]
         ];
@@ -48,7 +52,7 @@ class PaymentController extends Controller
             'order_id' => $razorpayOrder['id'],
             'amount' => $razorpayOrder['amount'],
             'key_id' => $this->razorpayId,
-            'plan' => $request->plan,
+            'plan' => $plan->slug,
             'user' => [
                 'name' => Auth::user()->name,
                 'email' => Auth::user()->email,

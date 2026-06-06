@@ -5,11 +5,17 @@ import axios from 'axios';
 import { onMounted, computed } from 'vue';
 
 const props = defineProps({
-    licenses: Array
+    licenses: Array,
+    plans: Array
 });
 
 const hasActiveFreeLicense = computed(() => {
     return props.licenses.some(l => l.plan === 'free' && l.status === 'active');
+});
+
+const activePaidPlans = computed(() => {
+    const list = props.plans || [];
+    return list.filter(p => p.price_inr > 0 && p.is_active);
 });
 
 const generateFreeLicense = () => {
@@ -294,77 +300,41 @@ const buyPlan = async (plan) => {
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <!-- Pro Card -->
-                    <div class="bg-white border border-gray-200 rounded-lg p-8 flex flex-col justify-between relative shadow-sm">
+                    <div 
+                        v-for="plan in activePaidPlans" 
+                        :key="plan.id" 
+                        class="bg-white border rounded-lg p-8 flex flex-col justify-between relative shadow-sm"
+                        :class="[plan.is_popular ? 'border-emerald-500 shadow-emerald-500/5' : 'border-gray-200']"
+                    >
                         <div class="space-y-6">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">Pro Plan</h4>
-                                    <p class="text-xs text-gray-500 mt-1">Excellent choice for growing platforms.</p>
+                                    <h4 class="text-lg font-bold text-gray-900">{{ plan.name }}</h4>
+                                    <p class="text-xs text-gray-500 mt-1">{{ plan.description }}</p>
                                 </div>
-                                <span class="bg-slate-100 text-gray-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-gray-200">Popular</span>
+                                <span v-if="plan.is_popular" class="bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">Popular</span>
                             </div>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-bold text-gray-900">₹499</span>
-                                <span class="text-xs text-gray-400">/year</span>
+                                <span class="text-3xl font-bold text-gray-900">₹{{ plan.price_inr }}</span>
+                                <span class="text-xs text-gray-400">{{ plan.billing_period }}</span>
                             </div>
                             <ul class="space-y-3.5 border-t border-gray-200 pt-6">
-                                <li class="flex items-center gap-2.5 text-xs text-gray-600">
+                                <li v-for="feat in plan.features" :key="feat" class="flex items-center gap-2.5 text-xs text-gray-600">
                                     <span class="material-symbols-rounded text-emerald-500 text-sm">check_circle</span>
-                                    1 Premium License
-                                </li>
-                                <li class="flex items-center gap-2.5 text-xs text-gray-600">
-                                    <span class="material-symbols-rounded text-emerald-500 text-sm">check_circle</span>
-                                    Automatic Domain Locking
-                                </li>
-                                <li class="flex items-center gap-2.5 text-xs text-gray-600">
-                                    <span class="material-symbols-rounded text-emerald-500 text-sm">check_circle</span>
-                                    Priority Email Support
+                                    {{ feat }}
                                 </li>
                             </ul>
                         </div>
                         <button 
-                            @click="buyPlan('pro')" 
-                            class="w-full bg-slate-100 hover:bg-slate-200 text-gray-800 text-xs font-semibold py-3 rounded-lg mt-8 transition-colors border border-gray-200 shadow-sm"
+                            @click="buyPlan(plan.slug)" 
+                            class="w-full text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm"
+                            :class="[
+                                plan.is_popular 
+                                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/10' 
+                                    : 'bg-slate-100 hover:bg-slate-200 text-gray-800 border border-gray-200'
+                            ]"
                         >
-                            Buy Pro Now
-                        </button>
-                    </div>
-
-                    <!-- Enterprise Card -->
-                    <div class="bg-white border border-emerald-500 rounded-lg p-8 flex flex-col justify-between relative shadow-sm shadow-emerald-500/5">
-                        <div class="space-y-6">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="text-lg font-bold text-gray-900">Enterprise</h4>
-                                    <p class="text-xs text-gray-500 mt-1">Ideal for large scale networks.</p>
-                                </div>
-                                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">Max Performance</span>
-                            </div>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-bold text-gray-900">₹1,999</span>
-                                <span class="text-xs text-gray-400">/year</span>
-                            </div>
-                            <ul class="space-y-3.5 border-t border-gray-200 pt-6">
-                                <li class="flex items-center gap-2.5 text-xs text-gray-600">
-                                    <span class="material-symbols-rounded text-emerald-500 text-sm">check_circle</span>
-                                    Unlimited Licenses
-                                </li>
-                                <li class="flex items-center gap-2.5 text-xs text-gray-600">
-                                    <span class="material-symbols-rounded text-emerald-500 text-sm">check_circle</span>
-                                    Multi-Server Support
-                                </li>
-                                <li class="flex items-center gap-2.5 text-xs text-gray-600">
-                                    <span class="material-symbols-rounded text-emerald-500 text-sm">check_circle</span>
-                                    24/7 Dedicated Support
-                                </li>
-                            </ul>
-                        </div>
-                        <button 
-                            @click="buyPlan('enterprise')" 
-                            class="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm shadow-emerald-500/10"
-                        >
-                            Buy Enterprise Now
+                            {{ plan.cta_text || 'Buy ' + plan.name + ' Now' }}
                         </button>
                     </div>
                 </div>

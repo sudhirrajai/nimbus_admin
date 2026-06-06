@@ -56,6 +56,11 @@ class LicenseController extends Controller
      */
     private function getMaxDomains(string $plan): int
     {
+        $dbPlan = \App\Models\Plan::where('slug', $plan)->first();
+        if ($dbPlan) {
+            return $dbPlan->max_domains;
+        }
+
         return match ($plan) {
             'free'       => 3,
             'pro'        => 50,

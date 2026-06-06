@@ -1,10 +1,11 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
+    plans: Array,
 });
 
 const scrolled = ref(false);
@@ -39,32 +40,42 @@ const features = [
     { icon: 'web', title: 'WordPress Manager', desc: 'Manage themes, plugins, and users for WordPress installations with upcoming one-click install support.' },
 ];
 
-const plans = [
+const defaultPlans = [
     {
         name: 'Free',
-        price: '$0',
-        period: 'forever',
-        popular: false,
-        features: ['1 Server', 'Unlimited Domains', 'SSL Automation', 'File Manager', 'Community Support', 'Basic Monitoring'],
-        cta: 'Start Free'
+        slug: 'free',
+        price_usd: 0,
+        price_inr: 0,
+        billing_period: 'forever',
+        is_popular: false,
+        features: ['1 Server', '3 Domains Limit', 'SSL Automation', 'File Manager', 'Community Support', 'Basic Monitoring'],
+        cta_text: 'Start Free'
     },
     {
         name: 'Pro',
-        price: '$19',
-        period: '/month',
-        popular: true,
-        features: ['5 Servers', 'Everything in Free', 'Git Auto-Deploy', 'Priority Support', 'Team Access', 'Advanced Security', 'WordPress Manager'],
-        cta: 'Get Pro'
+        slug: 'pro',
+        price_usd: 19,
+        price_inr: 499,
+        billing_period: '/year',
+        is_popular: true,
+        features: ['5 Servers Support', '50 Domains Limit', 'Git Auto-Deploy', 'Priority Support', 'Team Access', 'Advanced Security', 'WordPress Manager'],
+        cta_text: 'Buy Pro Now'
     },
     {
         name: 'Enterprise',
-        price: 'Custom',
-        period: '',
-        popular: false,
-        features: ['Unlimited Servers', 'Everything in Pro', 'White Label', 'SLA Guarantee', 'Dedicated Manager', 'API Access', 'Custom Integrations'],
-        cta: 'Contact Sales'
+        slug: 'enterprise',
+        price_usd: 49,
+        price_inr: 1999,
+        billing_period: '/year',
+        is_popular: false,
+        features: ['Unlimited Servers', '9999 Domains Limit', 'White Label Support', 'SLA Guarantee', 'Dedicated Manager', 'API Access', 'Custom Integrations'],
+        cta_text: 'Buy Enterprise Now'
     }
 ];
+
+const activePlans = computed(() => {
+    return props.plans && props.plans.length > 0 ? props.plans : defaultPlans;
+});
 
 const testimonials = [
     {
@@ -429,12 +440,12 @@ const faqs = [
                 </div>
 
                 <div class="pricing__grid">
-                    <div class="pricing-card" :class="{ 'pricing-card--popular': plan.popular }" v-for="(plan, i) in plans" :key="i">
-                        <div v-if="plan.popular" class="pricing-card__badge">Most Popular</div>
+                    <div class="pricing-card" :class="{ 'pricing-card--popular': plan.is_popular }" v-for="(plan, i) in activePlans" :key="plan.slug || i">
+                        <div v-if="plan.is_popular" class="pricing-card__badge">Most Popular</div>
                         <h3 class="pricing-card__name">{{ plan.name }}</h3>
                         <div class="pricing-card__price">
-                            <span class="pricing-card__amount">{{ plan.price }}</span>
-                            <span class="pricing-card__period">{{ plan.period }}</span>
+                            <span class="pricing-card__amount">{{ plan.price_usd === 0 ? '$0' : '$' + plan.price_usd }}</span>
+                            <span class="pricing-card__period">{{ plan.billing_period }}</span>
                         </div>
                         <ul class="pricing-card__features">
                             <li v-for="feat in plan.features" :key="feat">
@@ -442,8 +453,8 @@ const faqs = [
                                 {{ feat }}
                             </li>
                         </ul>
-                        <Link :href="route('register')" class="btn btn--full" :class="plan.popular ? 'btn--primary' : 'btn--outline'">
-                            {{ plan.cta }}
+                        <Link :href="$page.props.auth?.user ? route('dashboard') : route('register')" class="btn btn--full" :class="plan.is_popular ? 'btn--primary' : 'btn--outline'">
+                            {{ plan.cta_text || (plan.price_usd > 0 ? 'Get Started' : 'Start Free') }}
                         </Link>
                     </div>
                 </div>

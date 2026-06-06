@@ -15,8 +15,13 @@ class UserLicenseController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $plans = \App\Models\Plan::where('is_active', true)
+            ->orderBy('price_inr')
+            ->get();
+
         return Inertia::render('Dashboard', [
-            'licenses' => $licenses
+            'licenses' => $licenses,
+            'plans' => $plans
         ]);
     }
 

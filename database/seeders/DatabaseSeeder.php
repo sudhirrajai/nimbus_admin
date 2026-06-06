@@ -62,5 +62,55 @@ class DatabaseSeeder extends Seeder
                 ['title' => $pageData['title'], 'content' => $pageData['content']]
             );
         }
+
+        // Seed Default Plans
+        $defaultPlans = [
+            [
+                'name' => 'Free',
+                'slug' => 'free',
+                'price_inr' => 0,
+                'price_usd' => 0,
+                'billing_period' => 'forever',
+                'max_domains' => 3,
+                'features' => ['1 Server', '3 Domains Limit', 'SSL Automation', 'File Manager', 'Community Support', 'Basic Monitoring'],
+                'is_active' => true,
+                'is_popular' => false,
+                'cta_text' => 'Start Free',
+                'description' => 'Free plan for personal use.',
+            ],
+            [
+                'name' => 'Pro',
+                'slug' => 'pro',
+                'price_inr' => 499,
+                'price_usd' => 19,
+                'billing_period' => '/year',
+                'max_domains' => 50,
+                'features' => ['5 Servers Support', '50 Domains Limit', 'Git Auto-Deploy', 'Priority Support', 'Team Access', 'Advanced Security', 'WordPress Manager'],
+                'is_active' => true,
+                'is_popular' => true,
+                'cta_text' => 'Buy Pro Now',
+                'description' => 'Excellent choice for growing platforms.',
+            ],
+            [
+                'name' => 'Enterprise',
+                'slug' => 'enterprise',
+                'price_inr' => 1999,
+                'price_usd' => 49,
+                'billing_period' => '/year',
+                'max_domains' => 9999,
+                'features' => ['Unlimited Servers', '9999 Domains Limit', 'White Label Support', 'SLA Guarantee', 'Dedicated Manager', 'API Access', 'Custom Integrations'],
+                'is_active' => true,
+                'is_popular' => false,
+                'cta_text' => 'Buy Enterprise Now',
+                'description' => 'Ideal for large scale networks.',
+            ]
+        ];
+
+        foreach ($defaultPlans as $planData) {
+            \App\Models\Plan::updateOrCreate(
+                ['slug' => $planData['slug']],
+                $planData
+            );
+        }
     }
 }
