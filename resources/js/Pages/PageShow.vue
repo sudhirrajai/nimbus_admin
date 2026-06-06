@@ -184,6 +184,7 @@ const mobileMenuOpen = ref(false);
 .btn--primary:hover {
     background: var(--color-primary-hover);
     border-color: var(--color-primary-hover);
+    color: #ffffff !important;
 }
 .btn--outline {
     background: #ffffff;
@@ -193,6 +194,7 @@ const mobileMenuOpen = ref(false);
 .btn--outline:hover {
     border-color: #d1d5db;
     background: #f9fafb;
+    color: var(--color-heading) !important;
 }
 
 /* Layout Grid */

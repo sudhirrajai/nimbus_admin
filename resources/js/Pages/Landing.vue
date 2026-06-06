@@ -647,9 +647,9 @@ const faqs = [
 .btn--lg { padding: 14px 32px; font-size: 15px; }
 .btn--full { width: 100%; padding: 12px 24px; }
 .btn--primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
-.btn--primary:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); transform: translateY(-1px); }
+.btn--primary:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); transform: translateY(-1px); color: #fff !important; }
 .btn--outline { background: var(--color-card); color: var(--color-heading); border-color: var(--color-border); }
-.btn--outline:hover { border-color: #d1d5db; background: #f9fafb; }
+.btn--outline:hover { border-color: #d1d5db; background: #f9fafb; color: var(--color-heading) !important; }
 .btn--ghost { background: transparent; color: var(--color-body); border-color: transparent; }
 .btn--ghost:hover { color: var(--color-heading); }
 
