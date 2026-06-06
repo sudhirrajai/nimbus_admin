@@ -108,222 +108,264 @@ const buyPlan = async (plan) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex justify-between items-end">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-3xl font-bold tracking-tight text-white mb-2">
+                    <h2 class="text-2xl font-bold tracking-tight text-white">
                         My Workspace
                     </h2>
-                    <p class="text-slate-400">Manage and deploy your VMCORE licenses.</p>
+                    <p class="text-sm text-slate-400 mt-1">Manage and deploy your VMCORE licenses.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <button 
                         @click="generateFreeLicense" 
                         :disabled="hasActiveFreeLicense"
-                        :class="hasActiveFreeLicense ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-white/5 opacity-60' : 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 premium-gradient'"
-                        class="px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
+                        :class="[
+                            hasActiveFreeLicense 
+                                ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-800/80 opacity-60' 
+                                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/10'
+                        ]"
+                        class="px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all flex items-center gap-2"
                     >
-                        <span class="material-symbols-rounded">check_circle</span>
+                        <span class="material-symbols-rounded text-sm">check_circle</span>
                         {{ hasActiveFreeLicense ? 'Free License Claimed' : 'Claim Free License' }}
                     </button>
-                    <button @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-indigo-500/25 flex items-center gap-2 premium-gradient">
-                        <span class="material-symbols-rounded">add</span>
+                    <button 
+                        @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" 
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm shadow-indigo-600/10 flex items-center gap-2"
+                    >
+                        <span class="material-symbols-rounded text-sm">add</span>
                         Purchase New
                     </button>
                 </div>
             </div>
         </template>
 
-        <div class="">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <!-- Success/Error Alert -->
-                <div v-if="$page.props.flash?.success || $page.props.errors?.error || $page.props.flash?.error" class="mb-8 animate-fade-in">
-                    <div v-if="$page.props.flash?.success" class="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                        <span class="material-symbols-rounded">check_circle</span>
-                        <p class="font-medium text-sm">{{ $page.props.flash.success }}</p>
+        <div class="space-y-8">
+            <!-- Success/Error Alert -->
+            <div v-if="$page.props.flash?.success || $page.props.errors?.error || $page.props.flash?.error" class="animate-fade-in">
+                <div v-if="$page.props.flash?.success" class="flex items-center gap-3 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                    <span class="material-symbols-rounded text-lg">check_circle</span>
+                    <p class="text-xs font-medium">{{ $page.props.flash.success }}</p>
+                </div>
+                <div v-if="$page.props.errors?.error || $page.props.flash?.error" class="flex items-center gap-3 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                    <span class="material-symbols-rounded text-lg">error</span>
+                    <p class="text-xs font-medium">{{ $page.props.errors?.error || $page.props.flash?.error }}</p>
+                </div>
+            </div>
+
+            <!-- Stats Overview (Filament widgets style) -->
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Licenses</span>
+                        <span class="material-symbols-rounded text-slate-500 text-xl">receipt_long</span>
                     </div>
-                    <div v-if="$page.props.errors?.error || $page.props.flash?.error" class="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
-                        <span class="material-symbols-rounded">error</span>
-                        <p class="font-medium text-sm">{{ $page.props.errors?.error || $page.props.flash?.error }}</p>
+                    <div class="text-2xl font-bold text-white mt-2">{{ licenses.length }}</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Active Now</span>
+                        <span class="material-symbols-rounded text-emerald-500 text-xl">sensors</span>
+                    </div>
+                    <div class="text-2xl font-bold text-emerald-400 mt-2">
+                        {{ licenses.filter(l => l.status === 'active').length }}
                     </div>
                 </div>
-
-                <!-- Stats Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="glass-morphism rounded-2xl p-6 border border-white/5">
-                        <div class="text-slate-400 text-sm font-medium mb-1">Total Licenses</div>
-                        <div class="text-3xl font-bold text-white">{{ licenses.length }}</div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Support Plan</span>
+                        <span class="material-symbols-rounded text-indigo-400 text-xl">verified_user</span>
                     </div>
-                    <div class="glass-morphism rounded-2xl p-6 border border-white/5">
-                        <div class="text-slate-400 text-sm font-medium mb-1">Active Now</div>
-                        <div class="text-3xl font-bold text-emerald-400">{{ licenses.filter(l => l.status === 'active').length }}</div>
-                    </div>
-                    <div class="glass-morphism rounded-2xl p-6 border border-white/5">
-                        <div class="text-slate-400 text-sm font-medium mb-1">Support Plan</div>
-                        <div class="text-3xl font-bold text-indigo-400">Premium</div>
-                    </div>
+                    <div class="text-2xl font-bold text-indigo-400 mt-2">Premium</div>
                 </div>
+            </div>
 
-                <!-- No Licenses State -->
-                <div v-if="licenses.length === 0" class="glass-morphism rounded-3xl p-20 text-center border border-white/5">
-                    <div class="bg-indigo-500/10 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 border border-indigo-500/20">
-                        <span class="material-symbols-rounded text-5xl text-indigo-400">receipt_long</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white mb-3">No Active Licenses</h3>
-                    <p class="text-slate-400 mb-10 max-w-sm mx-auto text-lg">Your workspace is empty. Get started by purchasing a license for your server.</p>
-                    <Link :href="route('home') + '#pricing'" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/25 premium-gradient">
-                        Browse Plans
-                        <span class="material-symbols-rounded">arrow_forward</span>
-                    </Link>
+            <!-- Empty State -->
+            <div v-if="licenses.length === 0" class="bg-slate-900 border border-slate-800 rounded-xl p-16 text-center shadow-sm">
+                <div class="bg-slate-800 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6 border border-slate-700/50">
+                    <span class="material-symbols-rounded text-3xl text-slate-400">receipt_long</span>
                 </div>
+                <h3 class="text-lg font-bold text-white mb-2">No Active Licenses</h3>
+                <p class="text-sm text-slate-400 mb-8 max-w-sm mx-auto">Your workspace is empty. Get started by purchasing a license for your server.</p>
+                <Link :href="route('home') + '#pricing'" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg text-xs font-semibold tracking-wide uppercase hover:bg-indigo-500 transition-all shadow-sm">
+                    Browse Plans
+                    <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                </Link>
+            </div>
 
-                <!-- Licenses Grid -->
-                <div v-else>
-                    <div class="flex items-center gap-3 mb-6">
-                        <h3 class="text-lg font-bold text-white">Active Subscriptions</h3>
-                        <div class="h-px flex-1 bg-white/5"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div v-for="license in licenses" :key="license.id" class="group relative glass-morphism rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-indigo-500/30 transition-all hover:shadow-2xl hover:shadow-indigo-500/10">
-                            <div class="p-10">
-                                <div class="flex justify-between items-start mb-10">
-                                    <div class="flex items-center gap-4">
-                                        <div class="h-14 w-14 rounded-2xl bg-indigo-600/10 flex items-center justify-center border border-indigo-500/20">
-                                            <span class="material-symbols-rounded text-3xl text-indigo-400">workspace_premium</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400/80 mb-1 block">{{ license.plan }} Plan</span>
-                                            <h4 class="text-xl font-bold text-white tracking-tight">{{ license.license_key }}</h4>
-                                        </div>
+            <!-- Licenses Grid -->
+            <div v-else class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Active Subscriptions</h3>
+                    <div class="h-px flex-1 bg-slate-800/80 ml-4"></div>
+                </div>
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div 
+                        v-for="license in licenses" 
+                        :key="license.id" 
+                        class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm hover:border-slate-700/80 transition-all flex flex-col justify-between"
+                    >
+                        <div class="p-6 space-y-6">
+                            <!-- Card Header -->
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-lg bg-indigo-600/10 flex items-center justify-center border border-indigo-500/20 text-indigo-400">
+                                        <span class="material-symbols-rounded">workspace_premium</span>
                                     </div>
-                                    <span class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border" :class="license.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'">
-                                        {{ license.status }}
-                                    </span>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-6 mb-10">
-                                    <div class="p-5 rounded-2xl bg-white/5 border border-white/5">
-                                        <div class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Server IP</div>
-                                        <div class="text-white font-mono font-medium">{{ license.server_ip || 'Pending...' }}</div>
-                                    </div>
-                                    <div class="p-5 rounded-2xl bg-white/5 border border-white/5">
-                                        <div class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Expiry</div>
-                                        <div class="text-white font-medium">{{ license.expires_at || 'Lifetime' }}</div>
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">{{ license.plan }} Plan</span>
+                                        <h4 class="text-sm font-bold text-white font-mono mt-0.5">{{ license.license_key }}</h4>
                                     </div>
                                 </div>
+                                <span 
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider ring-1 ring-inset"
+                                    :class="[
+                                        license.status === 'active' 
+                                            ? 'bg-emerald-500/10 text-emerald-400 ring-emerald-500/20' 
+                                            : 'bg-rose-500/10 text-rose-400 ring-rose-500/20'
+                                    ]"
+                                >
+                                    {{ license.status }}
+                                </span>
+                            </div>
 
-                                <div class="relative group/cmd">
-                                    <div class="absolute -top-3 left-6 px-3 py-1 rounded-full bg-slate-900 border border-white/10 text-[10px] font-bold text-slate-500 uppercase tracking-widest z-10">
-                                        Deployment Command
-                                    </div>
-                                    <div class="bg-black/40 rounded-3xl p-6 pt-8 border border-white/5 group-hover/cmd:border-indigo-500/30 transition-colors">
-                                        <div class="flex justify-between items-start gap-4">
-                                            <code class="text-sm text-indigo-200/90 block break-all font-mono leading-relaxed">
-                                                {{ getInstallCommand(license.license_key) }}
-                                            </code>
-                                            <button @click="copyToClipboard(getInstallCommand(license.license_key))" class="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 active:scale-90">
-                                                <span class="material-symbols-rounded text-xl">content_copy</span>
-                                            </button>
-                                        </div>
-                                    </div>
+                            <!-- Detail Widgets -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-950 p-4 border border-slate-800/60 rounded-lg">
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Server IP</div>
+                                    <div class="text-xs text-white font-mono font-medium truncate">{{ license.server_ip || 'Pending...' }}</div>
                                 </div>
+                                <div class="bg-slate-950 p-4 border border-slate-800/60 rounded-lg">
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Expiry</div>
+                                    <div class="text-xs text-white font-medium truncate">{{ license.expires_at || 'Lifetime' }}</div>
+                                </div>
+                            </div>
 
-                                <!-- License Actions (only for active licenses) -->
-                                <div v-if="license.status === 'active'" class="flex gap-4 mt-8 pt-8 border-t border-white/5">
+                            <!-- Deployment Command -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Deployment Command</label>
+                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 flex items-center justify-between gap-3">
+                                    <code class="text-xs text-slate-300 font-mono block break-all select-all leading-normal flex-1">
+                                        {{ getInstallCommand(license.license_key) }}
+                                    </code>
                                     <button 
-                                        @click="disconnectMachine(license)" 
-                                        :disabled="!license.machine_id && !license.server_ip"
-                                        :class="(!license.machine_id && !license.server_ip) ? 'text-slate-600 bg-white/5 border-white/5 cursor-not-allowed' : 'text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 hover:text-amber-300'"
-                                        class="flex-1 px-4 py-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2"
+                                        @click="copyToClipboard(getInstallCommand(license.license_key))" 
+                                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                                        title="Copy Command"
                                     >
-                                        <span class="material-symbols-rounded text-lg">phonelink_off</span>
-                                        Disconnect Machine
-                                    </button>
-                                    <button 
-                                        @click="revokeLicense(license)"
-                                        class="flex-1 px-4 py-3 rounded-xl text-sm font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <span class="material-symbols-rounded text-lg">cancel</span>
-                                        Revoke License
+                                        <span class="material-symbols-rounded text-sm">content_copy</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Card Actions -->
+                        <div v-if="license.status === 'active'" class="bg-slate-950/40 px-6 py-4 border-t border-slate-800/80 flex items-center gap-3">
+                            <button 
+                                @click="disconnectMachine(license)" 
+                                :disabled="!license.machine_id && !license.server_ip"
+                                :class="[
+                                    (!license.machine_id && !license.server_ip) 
+                                        ? 'text-slate-600 bg-transparent border-slate-900 cursor-not-allowed' 
+                                        : 'text-amber-500 bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10 hover:text-amber-400'
+                                ]"
+                                class="flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1.5"
+                            >
+                                <span class="material-symbols-rounded text-base">phonelink_off</span>
+                                Disconnect IP
+                            </button>
+                            <button 
+                                @click="revokeLicense(license)"
+                                class="flex-1 px-3 py-2 rounded-lg text-xs font-semibold bg-rose-500/5 border border-rose-500/20 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all flex items-center justify-center gap-1.5"
+                            >
+                                <span class="material-symbols-rounded text-base">cancel</span>
+                                Revoke License
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Plans Section -->
-                <div id="plans-section" class="mt-20 scroll-mt-24">
-                    <div class="flex items-center gap-3 mb-10">
-                        <h3 class="text-2xl font-bold text-white">Upgrade Your Experience</h3>
-                        <div class="h-px flex-1 bg-white/5"></div>
-                    </div>
+            <!-- Upgrade pricing widget section -->
+            <div id="plans-section" class="scroll-mt-24 pt-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Upgrade License Plans</h3>
+                    <div class="h-px flex-1 bg-slate-800/80 ml-4"></div>
+                </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Pro Plan -->
-                        <div class="glass-morphism rounded-[3rem] p-10 border border-white/5 flex flex-col relative overflow-hidden">
-                            <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-600/10 blur-3xl"></div>
-                            
-                            <div class="mb-8">
-                                <span class="bg-indigo-500/10 text-indigo-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full border border-indigo-500/20">Popular Choice</span>
-                                <h4 class="text-3xl font-bold text-white mt-6">Pro Plan</h4>
-                                <div class="flex items-baseline gap-1 mt-4">
-                                    <span class="text-4xl font-bold text-white">₹499</span>
-                                    <span class="text-slate-500">/year</span>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Pro Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col justify-between relative shadow-sm">
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-lg font-bold text-white">Pro Plan</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Excellent choice for growing platforms.</p>
                                 </div>
+                                <span class="bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-indigo-500/20">Popular</span>
                             </div>
-
-                            <ul class="space-y-4 mb-10 flex-1">
-                                <li class="flex items-center gap-3 text-slate-300">
-                                    <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-bold text-white">₹499</span>
+                                <span class="text-xs text-slate-500">/year</span>
+                            </div>
+                            <ul class="space-y-3.5 border-t border-slate-800/80 pt-6">
+                                <li class="flex items-center gap-2.5 text-xs text-slate-300">
+                                    <span class="material-symbols-rounded text-emerald-400 text-sm">check_circle</span>
                                     1 Premium License
                                 </li>
-                                <li class="flex items-center gap-3 text-slate-300">
-                                    <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+                                <li class="flex items-center gap-2.5 text-xs text-slate-300">
+                                    <span class="material-symbols-rounded text-emerald-400 text-sm">check_circle</span>
                                     Automatic Domain Locking
                                 </li>
-                                <li class="flex items-center gap-3 text-slate-300">
-                                    <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+                                <li class="flex items-center gap-2.5 text-xs text-slate-300">
+                                    <span class="material-symbols-rounded text-emerald-400 text-sm">check_circle</span>
                                     Priority Email Support
                                 </li>
                             </ul>
-
-                            <button @click="buyPlan('pro')" class="w-full bg-white/5 hover:bg-indigo-600 text-white border border-white/10 hover:border-indigo-500 py-4 rounded-2xl font-bold transition-all">
-                                Buy Pro Now
-                            </button>
                         </div>
+                        <button 
+                            @click="buyPlan('pro')" 
+                            class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-3 rounded-lg mt-8 transition-colors border border-slate-700/50"
+                        >
+                            Buy Pro Now
+                        </button>
+                    </div>
 
-                        <!-- Enterprise Plan -->
-                        <div class="glass-morphism rounded-[3rem] p-10 border border-white/10 flex flex-col relative overflow-hidden bg-white/5">
-                            <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-purple-600/10 blur-3xl"></div>
-                            
-                            <div class="mb-8">
-                                <span class="bg-purple-500/10 text-purple-400 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full border border-purple-500/20">Maximum Power</span>
-                                <h4 class="text-3xl font-bold text-white mt-6">Enterprise</h4>
-                                <div class="flex items-baseline gap-1 mt-4">
-                                    <span class="text-4xl font-bold text-white">₹1,999</span>
-                                    <span class="text-slate-500">/year</span>
+                    <!-- Enterprise Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col justify-between relative shadow-sm bg-gradient-to-b from-slate-900 to-indigo-950/10">
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-lg font-bold text-white">Enterprise</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Ideal for large scale networks.</p>
                                 </div>
+                                <span class="bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-purple-500/20">Max Performance</span>
                             </div>
-
-                            <ul class="space-y-4 mb-10 flex-1">
-                                <li class="flex items-center gap-3 text-slate-300">
-                                    <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-bold text-white">₹1,999</span>
+                                <span class="text-xs text-slate-500">/year</span>
+                            </div>
+                            <ul class="space-y-3.5 border-t border-slate-800/80 pt-6">
+                                <li class="flex items-center gap-2.5 text-xs text-slate-300">
+                                    <span class="material-symbols-rounded text-emerald-400 text-sm">check_circle</span>
                                     Unlimited Licenses
                                 </li>
-                                <li class="flex items-center gap-3 text-slate-300">
-                                    <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+                                <li class="flex items-center gap-2.5 text-xs text-slate-300">
+                                    <span class="material-symbols-rounded text-emerald-400 text-sm">check_circle</span>
                                     Multi-Server Support
-                                    </li>
-                                <li class="flex items-center gap-3 text-slate-300">
-                                    <span class="material-symbols-rounded text-emerald-400">check_circle</span>
+                                </li>
+                                <li class="flex items-center gap-2.5 text-xs text-slate-300">
+                                    <span class="material-symbols-rounded text-emerald-400 text-sm">check_circle</span>
                                     24/7 Dedicated Support
                                 </li>
                             </ul>
-
-                            <button @click="buyPlan('enterprise')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-bold transition-all shadow-xl shadow-indigo-600/20 premium-gradient">
-                                Contact Sales / Buy
-                            </button>
                         </div>
+                        <button 
+                            @click="buyPlan('enterprise')" 
+                            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm shadow-indigo-600/10"
+                        >
+                            Buy Enterprise Now
+                        </button>
                     </div>
                 </div>
             </div>
