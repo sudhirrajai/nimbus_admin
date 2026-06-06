@@ -79,7 +79,7 @@ const submit = () => {
             </div>
 
             <div class="flex items-center">
-                <Checkbox name="remember" v-model:checked="form.remember" class="border-gray-700 bg-gray-900 text-gray-800 focus:ring-gray-500/20" />
+                <Checkbox name="remember" v-model:checked="form.remember" class="border-slate-700 bg-slate-900 text-emerald-600 focus:ring-emerald-500/20" />
                 <span class="ms-2 text-sm text-gray-400">Keep me logged in</span>
             </div>
 
