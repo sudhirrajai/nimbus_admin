@@ -39,7 +39,7 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="space-y-6">
             <div>
-                <InputLabel for="email" value="Email Address" class="text-slate-300 mb-1.5 ml-1" />
+                <InputLabel for="email" value="Email Address" class="text-gray-300 mb-1.5 ml-1" />
 
                 <TextInput
                     id="email"
@@ -56,7 +56,7 @@ const submit = () => {
 
             <div>
                 <div class="flex items-center justify-between mb-1.5 ml-1">
-                    <InputLabel for="password" value="Password" class="text-slate-300" />
+                    <InputLabel for="password" value="Password" class="text-gray-300" />
                     <Link
                         v-if="canResetPassword"
                         :href="route('password.request')"
@@ -79,8 +79,8 @@ const submit = () => {
             </div>
 
             <div class="flex items-center">
-                <Checkbox name="remember" v-model:checked="form.remember" class="border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500/20" />
-                <span class="ms-2 text-sm text-slate-400">Keep me logged in</span>
+                <Checkbox name="remember" v-model:checked="form.remember" class="border-gray-700 bg-gray-900 text-indigo-600 focus:ring-indigo-500/20" />
+                <span class="ms-2 text-sm text-gray-400">Keep me logged in</span>
             </div>
 
             <div class="pt-2">
@@ -93,7 +93,7 @@ const submit = () => {
                 </PrimaryButton>
             </div>
 
-            <p class="text-center text-sm text-slate-400">
+            <p class="text-center text-sm text-gray-400">
                 Don't have an account? 
                 <Link :href="route('register')" class="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
                     Create one for free

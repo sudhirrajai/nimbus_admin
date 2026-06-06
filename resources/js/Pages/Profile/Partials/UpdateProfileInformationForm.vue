@@ -29,7 +29,7 @@ const form = useForm({
                 Account Information
             </h2>
 
-            <p class="mt-2 text-sm text-slate-400">
+            <p class="mt-2 text-sm text-gray-400">
                 Update your account's profile details and email address.
             </p>
         </header>
@@ -39,7 +39,7 @@ const form = useForm({
             class="mt-6 space-y-6"
         >
             <div>
-                <InputLabel for="name" value="Name" class="text-slate-300 mb-1.5 ml-1" />
+                <InputLabel for="name" value="Name" class="text-gray-300 mb-1.5 ml-1" />
 
                 <TextInput
                     id="name"
@@ -55,7 +55,7 @@ const form = useForm({
             </div>
 
             <div>
-                <InputLabel for="email" value="Email Address" class="text-slate-300 mb-1.5 ml-1" />
+                <InputLabel for="email" value="Email Address" class="text-gray-300 mb-1.5 ml-1" />
 
                 <TextInput
                     id="email"

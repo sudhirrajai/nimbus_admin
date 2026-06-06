@@ -24,13 +24,13 @@ defineProps({
                 <h2 class="text-3xl font-bold tracking-tight text-white mb-2">
                     Profile Settings
                 </h2>
-                <p class="text-slate-400">Update your account information and security preferences.</p>
+                <p class="text-gray-400">Update your account information and security preferences.</p>
             </div>
         </template>
 
-        <div class="">
+        <div>
             <div class="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
-                <div class="glass-morphism rounded-3xl p-8 border border-white/5">
+                <div class="p-4 sm:p-8 bg-gray-800 border border-gray-700 shadow sm:rounded-lg">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
@@ -38,11 +38,11 @@ defineProps({
                     />
                 </div>
 
-                <div class="glass-morphism rounded-3xl p-8 border border-white/5">
+                <div class="p-4 sm:p-8 bg-gray-800 border border-gray-700 shadow sm:rounded-lg">
                     <UpdatePasswordForm class="max-w-xl" />
                 </div>
 
-                <div class="glass-morphism rounded-3xl p-8 border border-white/5 border-red-500/10">
+                <div class="p-4 sm:p-8 bg-gray-800 border border-red-500/20 shadow sm:rounded-lg">
                     <DeleteUserForm class="max-w-xl" />
                 </div>
             </div>
