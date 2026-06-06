@@ -31,7 +31,7 @@ const isRouteActive = (routeName) => {
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2 shadow-lg shadow-emerald-500/10 transition-transform group-hover:scale-105">
                         <ApplicationLogo class="h-5 w-5 fill-white" />
                     </div>
-                    <span class="text-lg font-bold tracking-tight text-gray-900 uppercase">VMCORE</span>
+                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus by VMCore</span>
                 </Link>
             </div>
 
@@ -66,6 +66,32 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">vpn_key</span>
                         Licenses
+                    </Link>
+
+                    <Link 
+                        :href="route('admin.users.index')" 
+                        :class="[
+                            isRouteActive('admin.users.index') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">group</span>
+                        Users
+                    </Link>
+
+                    <Link 
+                        :href="route('admin.settings.index')" 
+                        :class="[
+                            isRouteActive('admin.settings.index') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">settings</span>
+                        Settings
                     </Link>
                 </div>
             </nav>
@@ -102,7 +128,7 @@ const isRouteActive = (routeName) => {
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2">
                         <ApplicationLogo class="h-5 w-5 fill-white" />
                     </div>
-                    <span class="text-lg font-bold tracking-tight text-gray-900 uppercase">VMCORE</span>
+                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus by VMCore</span>
                 </div>
 
                 <!-- Nav list inside Mobile Drawer -->
@@ -137,6 +163,32 @@ const isRouteActive = (routeName) => {
                             <span class="material-symbols-rounded text-lg">vpn_key</span>
                             Licenses
                         </Link>
+                        <Link 
+                            :href="route('admin.users.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                isRouteActive('admin.users.index') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">group</span>
+                            Users
+                        </Link>
+                        <Link 
+                            :href="route('admin.settings.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                isRouteActive('admin.settings.index') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">settings</span>
+                            Settings
+                        </Link>
                     </div>
                 </nav>
             </div>
@@ -161,7 +213,7 @@ const isRouteActive = (routeName) => {
 
                 <!-- Right: Actions/Dropdown -->
                 <div class="flex items-center gap-4">
-                    <Dropdown align="right" width="48">
+                    <Dropdown align="right" width="48" content-classes="py-1 bg-white border border-gray-200">
                         <template #trigger>
                             <button type="button" class="flex items-center gap-2 rounded-lg bg-slate-50 p-1.5 pl-3 border border-gray-200 hover:bg-slate-100 transition-all outline-none">
                                 <span class="text-xs font-semibold text-gray-700">{{ $page.props.auth.user.name }}</span>
@@ -172,21 +224,19 @@ const isRouteActive = (routeName) => {
                         </template>
 
                         <template #content>
-                            <div class="p-1 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                <DropdownLink :href="route('profile.edit')" class="rounded-md hover:bg-slate-50 text-gray-750"> 
-                                    <span class="flex items-center gap-2 text-xs">
-                                        <span class="material-symbols-rounded text-sm">person</span>
-                                        My Profile 
-                                    </span>
-                                </DropdownLink>
-                                <div class="my-1 border-t border-gray-200"></div>
-                                <DropdownLink :href="route('logout')" method="post" as="button" class="w-full text-left rounded-md hover:bg-red-50 text-red-600">
-                                    <span class="flex items-center gap-2 text-xs">
-                                        <span class="material-symbols-rounded text-sm">logout</span>
-                                        Log Out
-                                    </span>
-                                </DropdownLink>
-                            </div>
+                            <DropdownLink :href="route('profile.edit')" class="rounded-md"> 
+                                <span class="flex items-center gap-2 text-xs text-gray-700">
+                                    <span class="material-symbols-rounded text-sm text-gray-500">person</span>
+                                    My Profile 
+                                </span>
+                            </DropdownLink>
+                            <div class="my-1 border-t border-gray-200"></div>
+                            <DropdownLink :href="route('logout')" method="post" as="button" class="w-full text-left rounded-md">
+                                <span class="flex items-center gap-2 text-xs text-red-600">
+                                    <span class="material-symbols-rounded text-sm text-red-500">logout</span>
+                                    Log Out
+                                </span>
+                            </DropdownLink>
                         </template>
                     </Dropdown>
                 </div>
@@ -209,7 +259,7 @@ const isRouteActive = (routeName) => {
             <!-- Footer -->
             <footer class="border-t border-gray-200 py-6 px-6 lg:px-8 bg-white/40">
                 <div class="mx-auto max-w-7xl text-center text-xs text-gray-500">
-                    &copy; {{ new Date().getFullYear() }} VMCORE Central. All rights reserved.
+                    &copy; {{ new Date().getFullYear() }} Nimbus by VMCore. All rights reserved.
                 </div>
             </footer>
         </div>

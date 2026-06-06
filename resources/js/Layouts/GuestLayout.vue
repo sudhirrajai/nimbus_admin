@@ -10,7 +10,7 @@ import { Link } from '@inertiajs/vue3';
                 <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-white border border-gray-200 p-4 shadow-md shadow-emerald-500/5">
                     <ApplicationLogo class="h-12 w-12 fill-emerald-500" />
                 </div>
-                <h1 class="mt-4 text-2xl font-bold tracking-tight text-gray-900 uppercase">VMCORE</h1>
+                <h1 class="mt-4 text-xl font-bold tracking-tight text-gray-900">Nimbus by VMCore</h1>
             </Link>
         </div>
 

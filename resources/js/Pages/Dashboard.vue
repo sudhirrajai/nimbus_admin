@@ -55,7 +55,7 @@ const buyPlan = async (plan) => {
             key: data.key_id,
             amount: data.amount,
             currency: "INR",
-            name: "VMCORE Central",
+            name: "Nimbus by VMCore",
             description: `${plan.toUpperCase()} Plan Subscription`,
             order_id: data.order_id,
             handler: function (response) {
@@ -113,7 +113,7 @@ const buyPlan = async (plan) => {
                     <h2 class="text-2xl font-bold tracking-tight text-gray-900">
                         My Workspace
                     </h2>
-                    <p class="text-sm text-gray-500 mt-1">Manage and deploy your VMCORE licenses.</p>
+                    <p class="text-sm text-gray-500 mt-1">Manage and deploy your Nimbus by VMCore licenses.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <button 

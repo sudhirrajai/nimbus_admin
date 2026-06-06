@@ -40,12 +40,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/verify', [PaymentController::class, 'verifyPayment'])->name('payment.verify');
 });
 
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminSettingsController;
+
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/licenses', [AdminLicenseController::class, 'index'])->name('licenses.index');
     Route::post('/licenses/generate', [AdminLicenseController::class, 'generate'])->name('licenses.generate');
     Route::patch('/licenses/{license}', [AdminLicenseController::class, 'update'])->name('licenses.update');
     Route::delete('/licenses/{license}', [AdminLicenseController::class, 'destroy'])->name('licenses.destroy');
+
+    // Users Management
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    // Settings Management
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
 });
 
 require __DIR__.'/auth.php';

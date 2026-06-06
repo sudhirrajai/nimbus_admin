@@ -59,7 +59,7 @@ const deleteLicense = (id) => {
                     <h2 class="text-2xl font-bold tracking-tight text-gray-900">
                         Licenses
                     </h2>
-                    <p class="text-xs text-gray-500 mt-1">Oversee and manage all issued VMCORE licenses.</p>
+                    <p class="text-xs text-gray-500 mt-1">Oversee and manage all issued Nimbus by VMCore licenses.</p>
                 </div>
                 <button 
                     @click="generatingLicense = true" 
