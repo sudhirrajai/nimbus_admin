@@ -106,7 +106,7 @@ const faqs = [
             <div class="navbar__inner">
                 <Link href="/" class="navbar__brand">
                     <div class="navbar__logo-box">
-                        <img src="/nimbus_logo.png" alt="Nimbus" class="navbar__logo-img" />
+                        <img src="/favicon.png?v=2" alt="Nimbus" class="navbar__logo-img" />
                     </div>
                     <span class="navbar__brand-text">Nimbus <span class="navbar__brand-sub">by VMCore</span></span>
                 </Link>
@@ -115,7 +115,7 @@ const faqs = [
                     <a href="#features" class="navbar__link">Features</a>
                     <a href="#how-it-works" class="navbar__link">How It Works</a>
                     <a href="#pricing" class="navbar__link">Pricing</a>
-                    <a href="https://docs.vmcore.in" class="navbar__link" target="_blank">Docs</a>
+                    <a href="https://nimbus-docs.vmcore.in/" class="navbar__link" target="_blank">Docs</a>
                 </div>
 
                 <div class="navbar__actions">
@@ -138,7 +138,7 @@ const faqs = [
                 <a href="#features" class="navbar__mobile-link" @click="mobileMenuOpen = false">Features</a>
                 <a href="#how-it-works" class="navbar__mobile-link" @click="mobileMenuOpen = false">How It Works</a>
                 <a href="#pricing" class="navbar__mobile-link" @click="mobileMenuOpen = false">Pricing</a>
-                <a href="https://docs.vmcore.in" class="navbar__mobile-link" target="_blank">Docs</a>
+                <a href="https://nimbus-docs.vmcore.in/" class="navbar__mobile-link" target="_blank">Docs</a>
                 <div class="navbar__mobile-actions">
                     <template v-if="$page.props.auth.user">
                         <Link :href="route('dashboard')" class="btn btn--primary btn--full">Dashboard</Link>
@@ -513,7 +513,7 @@ const faqs = [
                 <div class="site-footer__grid">
                     <div class="site-footer__brand">
                         <div class="site-footer__logo">
-                            <div class="navbar__logo-box"><img src="/nimbus_logo.png" alt="Nimbus" class="navbar__logo-img" /></div>
+                            <div class="navbar__logo-box"><img src="/favicon.png?v=2" alt="Nimbus" class="navbar__logo-img" /></div>
                             <span class="navbar__brand-text">Nimbus <span class="navbar__brand-sub">by VMCore</span></span>
                         </div>
                         <p class="site-footer__tagline">Modern, lightweight server management for developers.</p>
@@ -528,15 +528,15 @@ const faqs = [
                     </div>
                     <div class="site-footer__col">
                         <h4 class="site-footer__heading">Resources</h4>
-                        <a href="https://docs.vmcore.in" class="site-footer__link">Documentation</a>
+                        <a href="https://nimbus-docs.vmcore.in/" class="site-footer__link">Documentation</a>
                         <a href="#" class="site-footer__link">API</a>
                         <a href="https://github.com/sudhirrajai/Nimbus" class="site-footer__link">GitHub</a>
                     </div>
                     <div class="site-footer__col">
                         <h4 class="site-footer__heading">Company</h4>
-                        <a href="#" class="site-footer__link">About</a>
-                        <a href="#" class="site-footer__link">Contact</a>
-                        <a href="#" class="site-footer__link">Privacy</a>
+                        <Link :href="route('pages.show', 'support')" class="site-footer__link">Support</Link>
+                        <Link :href="route('pages.show', 'terms')" class="site-footer__link">Terms of Service</Link>
+                        <Link :href="route('pages.show', 'privacy')" class="site-footer__link">Privacy Policy</Link>
                     </div>
                 </div>
                 <div class="site-footer__bottom">
@@ -613,7 +613,7 @@ const faqs = [
 }
 .navbar--scrolled { background: rgba(255,255,255,0.85); backdrop-filter: blur(16px) saturate(180%); border-bottom-color: var(--color-border); }
 .navbar__inner {
-    max-width: var(--max-width); margin: 0 auto; padding: 0 24px;
+    width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 24px;
     display: flex; align-items: center; justify-content: space-between; height: 64px;
 }
 .navbar__brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }

@@ -20,11 +20,11 @@ import { Link } from '@inertiajs/vue3';
 
         <!-- Footer Links -->
         <div class="mt-8 flex justify-center space-x-6 text-xs text-gray-550">
-            <a href="#" class="hover:text-gray-900 transition-colors">Privacy Policy</a>
+            <Link :href="route('pages.show', 'privacy')" class="hover:text-gray-900 transition-colors">Privacy Policy</Link>
             <span>&bull;</span>
-            <a href="#" class="hover:text-gray-900 transition-colors">Terms of Service</a>
+            <Link :href="route('pages.show', 'terms')" class="hover:text-gray-900 transition-colors">Terms of Service</Link>
             <span>&bull;</span>
-            <a href="#" class="hover:text-gray-900 transition-colors">Help Center</a>
+            <Link :href="route('pages.show', 'support')" class="hover:text-gray-900 transition-colors">Help Center</Link>
         </div>
     </div>
 </template>

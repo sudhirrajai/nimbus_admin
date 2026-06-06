@@ -11,6 +11,9 @@ const page = usePage();
 const pageTitle = computed(() => {
     if (route().current('dashboard')) return 'Dashboard';
     if (route().current('admin.licenses.index')) return 'Licenses';
+    if (route().current('admin.users.index')) return 'Users';
+    if (route().current('admin.settings.index')) return 'Settings';
+    if (route().current('admin.pages.*')) return 'Manage Pages';
     if (route().current('profile.edit')) return 'Profile';
     return 'Dashboard';
 });
@@ -92,6 +95,19 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">settings</span>
                         Settings
+                    </Link>
+
+                    <Link 
+                        :href="route('admin.pages.index')" 
+                        :class="[
+                            route().current('admin.pages.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">article</span>
+                        Manage Pages
                     </Link>
                 </div>
             </nav>
@@ -188,6 +204,20 @@ const isRouteActive = (routeName) => {
                         >
                             <span class="material-symbols-rounded text-lg">settings</span>
                             Settings
+                        </Link>
+
+                        <Link 
+                            :href="route('admin.pages.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                route().current('admin.pages.*') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">article</span>
+                            Manage Pages
                         </Link>
                     </div>
                 </nav>
