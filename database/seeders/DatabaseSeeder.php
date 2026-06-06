@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@vmcore.in',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'is_admin' => true,
+                'email_verified_at' => now(),
             ]);
         }
 
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'test@example.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'is_admin' => false,
+                'email_verified_at' => now(),
             ]);
         }
 
