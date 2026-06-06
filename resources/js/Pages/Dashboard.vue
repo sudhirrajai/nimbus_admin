@@ -2,7 +2,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
+
+const selectedCurrency = ref('INR');
 
 const props = defineProps({
     licenses: Array,
@@ -41,6 +43,16 @@ onMounted(() => {
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
     document.body.appendChild(script);
+
+    // Auto-detect timezone
+    try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz && !(tz === 'Asia/Kolkata' || tz.includes('Calcutta') || tz.includes('Kolkata'))) {
+            selectedCurrency.value = 'USD';
+        }
+    } catch (e) {
+        console.error('Timezone auto-detection failed:', e);
+    }
 });
 
 const copyToClipboard = (text) => {
@@ -294,9 +306,31 @@ const buyPlan = async (plan) => {
 
             <!-- Upgrade pricing widget section -->
             <div id="plans-section" class="scroll-mt-24 pt-8">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-sm font-bold text-gray-550 uppercase tracking-wider">Upgrade License Plans</h3>
-                    <div class="h-px flex-1 bg-gray-200 ml-4"></div>
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-550 uppercase tracking-wider">Upgrade License Plans</h3>
+                        <p class="text-xs text-gray-400 mt-1">Select a plan to unlock premium server features.</p>
+                    </div>
+                    
+                    <!-- Currency switcher toggle -->
+                    <div class="inline-flex bg-slate-100 p-1 rounded-lg border border-gray-200">
+                        <button 
+                            type="button"
+                            @click="selectedCurrency = 'INR'" 
+                            :class="[selectedCurrency === 'INR' ? 'bg-white text-emerald-600 font-semibold shadow-sm' : 'text-gray-505 hover:text-gray-900']"
+                            class="px-3 py-1.5 rounded-md text-xs transition-all border border-transparent"
+                        >
+                            INR (₹)
+                        </button>
+                        <button 
+                            type="button"
+                            @click="selectedCurrency = 'USD'" 
+                            :class="[selectedCurrency === 'USD' ? 'bg-white text-emerald-600 font-semibold shadow-sm' : 'text-gray-555 hover:text-gray-900']"
+                            class="px-3 py-1.5 rounded-md text-xs transition-all border border-transparent"
+                        >
+                            USD ($)
+                        </button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -315,7 +349,9 @@ const buyPlan = async (plan) => {
                                 <span v-if="plan.is_popular" class="bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">Popular</span>
                             </div>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-bold text-gray-900">₹{{ plan.price_inr }}</span>
+                                <span class="text-3xl font-bold text-gray-900">
+                                    {{ selectedCurrency === 'INR' ? '₹' + plan.price_inr : '$' + plan.price_usd }}
+                                </span>
                                 <span class="text-xs text-gray-400">{{ plan.billing_period }}</span>
                             </div>
                             <ul class="space-y-3.5 border-t border-gray-200 pt-6">
@@ -325,17 +361,22 @@ const buyPlan = async (plan) => {
                                 </li>
                             </ul>
                         </div>
-                        <button 
-                            @click="buyPlan(plan.slug)" 
-                            class="w-full text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm"
-                            :class="[
-                                plan.is_popular 
-                                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/10' 
-                                    : 'bg-slate-100 hover:bg-slate-200 text-gray-800 border border-gray-200'
-                            ]"
-                        >
-                            {{ plan.cta_text || 'Buy ' + plan.name + ' Now' }}
-                        </button>
+                        <div>
+                            <button 
+                                @click="buyPlan(plan.slug)" 
+                                class="w-full text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm"
+                                :class="[
+                                    plan.is_popular 
+                                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/10' 
+                                        : 'bg-slate-100 hover:bg-slate-200 text-gray-800 border border-gray-200'
+                                ]"
+                            >
+                                {{ plan.cta_text || 'Buy ' + plan.name + ' Now' }}
+                            </button>
+                            <div v-if="selectedCurrency === 'USD'" class="text-[10px] text-gray-400 text-center mt-2">
+                                Processed as ₹{{ plan.price_inr }} via Razorpay
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
