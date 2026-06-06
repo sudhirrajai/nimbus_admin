@@ -26,6 +26,7 @@ class AdminLicenseController extends Controller
             'plan' => $request->plan,
             'status' => 'active',
             'expires_at' => $request->expires_at,
+            'status_changed_at' => now(),
         ]);
 
         return back()->with('success', 'License generated successfully.');
@@ -44,7 +45,10 @@ class AdminLicenseController extends Controller
             'expires_at' => 'nullable|date',
         ]);
 
-        $license->update($request->only('status', 'expires_at'));
+        $license->update(array_merge(
+            $request->only('status', 'expires_at'),
+            ['status_changed_at' => now()]
+        ));
 
         return back()->with('success', 'License updated successfully.');
     }

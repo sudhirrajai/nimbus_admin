@@ -26,6 +26,7 @@ class License extends Model
         'razorpay_payment_id',
         'razorpay_order_id',
         'last_heartbeat_at',
+        'status_changed_at',
     ];
 
 
@@ -33,6 +34,7 @@ class License extends Model
         'expires_at' => 'datetime',
         'last_checked_at' => 'datetime',
         'last_heartbeat_at' => 'datetime',
+        'status_changed_at' => 'datetime',
     ];
 
     /**

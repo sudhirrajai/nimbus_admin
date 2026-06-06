@@ -48,6 +48,7 @@ class WebhookController extends Controller
                         'razorpay_payment_id' => $paymentId,
                         'razorpay_order_id' => $orderId,
                         'expires_at' => now()->addYear(),
+                        'status_changed_at' => now(),
                     ]);
                     
                     Log::info("License generated via Webhook for Payment ID: {$paymentId}");

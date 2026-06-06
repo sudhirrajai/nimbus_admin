@@ -86,6 +86,7 @@ class PaymentController extends Controller
                     'razorpay_payment_id' => $paymentId,
                     'razorpay_order_id' => $request->razorpay_order_id,
                     'expires_at' => now()->addYear(), // Standard 1 year expiry for paid plans
+                    'status_changed_at' => now(),
                 ]);
             }
 

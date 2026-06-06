@@ -37,6 +37,7 @@ class UserLicenseController extends Controller
             'plan' => 'free',
             'status' => 'active',
             'expires_at' => null,
+            'status_changed_at' => now(),
         ]);
 
         return back()->with('success', 'Free license generated successfully.');
@@ -58,6 +59,7 @@ class UserLicenseController extends Controller
             'domain' => null,
             'admin_name' => null,
             'admin_email' => null,
+            'status_changed_at' => now(),
         ]);
 
         return back()->with('success', 'Machine installation disconnected successfully.');
@@ -75,6 +77,7 @@ class UserLicenseController extends Controller
 
         $license->update([
             'status' => 'revoked',
+            'status_changed_at' => now(),
         ]);
 
         return back()->with('success', 'License revoked successfully. Devices using this license will stop working.');

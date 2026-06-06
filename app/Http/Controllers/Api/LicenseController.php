@@ -152,6 +152,7 @@ class LicenseController extends Controller
             'message'      => 'License is valid.',
             'signed_token' => $signedToken,
             'max_domains'  => $this->getMaxDomains($license->plan),
+            'status_changed_at' => $license->status_changed_at?->toIso8601String(),
         ]);
     }
 
@@ -211,6 +212,8 @@ class LicenseController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'OK',
+            'license_status' => $license->status,
+            'status_changed_at' => $license->status_changed_at?->toIso8601String(),
         ]);
     }
 
