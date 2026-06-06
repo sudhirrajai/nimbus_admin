@@ -145,4 +145,21 @@ class PlanTest extends TestCase
             'max_domains' => 120, // Verify it reflected the database change dynamically!
         ]);
     }
+
+    public function test_user_can_access_subscription_page_and_view_active_plan_details()
+    {
+        $user = User::factory()->create();
+        
+        $license = License::create([
+            'user_id' => $user->id,
+            'license_key' => 'PRO-TRIAL12345',
+            'plan' => 'pro',
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($user)->get('/subscription');
+
+        $response->assertStatus(200);
+        $response->assertSee('PRO-TRIAL12345');
+    }
 }

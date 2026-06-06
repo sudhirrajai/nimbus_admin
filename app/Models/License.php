@@ -54,4 +54,9 @@ class License extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function planDetails()
+    {
+        return $this->belongsTo(Plan::class, 'plan', 'slug');
+    }
 }

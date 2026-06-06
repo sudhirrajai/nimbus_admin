@@ -22,6 +22,9 @@ use App\Http\Controllers\Admin\AdminLicenseController;
 Route::get('/dashboard', [UserLicenseController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/subscription', [UserLicenseController::class, 'subscription'])
+    ->middleware(['auth', 'verified'])->name('subscription');
+
 Route::post('/licenses/free', [UserLicenseController::class, 'generateFree'])
     ->middleware(['auth', 'verified'])->name('licenses.free');
 

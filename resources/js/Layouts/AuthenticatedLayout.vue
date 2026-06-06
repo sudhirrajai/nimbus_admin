@@ -10,6 +10,7 @@ const page = usePage();
 
 const pageTitle = computed(() => {
     if (route().current('dashboard')) return 'Dashboard';
+    if (route().current('subscription')) return 'My Subscription';
     if (route().current('admin.licenses.index')) return 'Licenses';
     if (route().current('admin.users.index')) return 'Users';
     if (route().current('admin.settings.index')) return 'Settings';
@@ -54,6 +55,19 @@ const isRouteActive = (routeName) => {
                 >
                     <span class="material-symbols-rounded text-lg">dashboard</span>
                     Dashboard
+                </Link>
+
+                <Link 
+                    :href="route('subscription')" 
+                    :class="[
+                        isRouteActive('subscription') 
+                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                    ]"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                >
+                    <span class="material-symbols-rounded text-lg">card_membership</span>
+                    My Subscription
                 </Link>
 
                 <div v-if="$page.props.auth.user.is_admin" class="pt-6">
@@ -176,6 +190,20 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">dashboard</span>
                         Dashboard
+                    </Link>
+
+                    <Link 
+                        :href="route('subscription')" 
+                        @click="showingNavigationDropdown = false"
+                        :class="[
+                            isRouteActive('subscription') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">card_membership</span>
+                        My Subscription
                     </Link>
 
                     <div v-if="$page.props.auth.user.is_admin" class="pt-6">

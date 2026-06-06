@@ -87,4 +87,17 @@ class UserLicenseController extends Controller
 
         return back()->with('success', 'License revoked successfully. Devices using this license will stop working.');
     }
+
+    public function subscription()
+    {
+        $licenses = License::where('user_id', auth()->id())
+            ->where('status', 'active')
+            ->with('planDetails')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('Subscription', [
+            'licenses' => $licenses
+        ]);
+    }
 }
