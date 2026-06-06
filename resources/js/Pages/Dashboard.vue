@@ -89,7 +89,7 @@ const buyPlan = async (plan) => {
                 email: data.user.email,
             },
             theme: {
-                color: "#6366f1",
+                color: "#111827",
             },
         };
 
@@ -131,7 +131,7 @@ const buyPlan = async (plan) => {
                     </button>
                     <button 
                         @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" 
-                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
+                        class="bg-gray-200 hover:bg-white text-gray-900 px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
                     >
                         <span class="material-symbols-rounded text-sm">add</span>
                         Purchase New
@@ -153,7 +153,7 @@ const buyPlan = async (plan) => {
                 </div>
             </div>
 
-            <!-- Stats Overview (Breeze starter kit style) -->
+            <!-- Stats Overview -->
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 shadow-sm">
                     <div class="flex items-center justify-between">
@@ -174,9 +174,9 @@ const buyPlan = async (plan) => {
                 <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 shadow-sm">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Support Plan</span>
-                        <span class="material-symbols-rounded text-indigo-400 text-xl">verified_user</span>
+                        <span class="material-symbols-rounded text-emerald-400 text-xl">verified_user</span>
                     </div>
-                    <div class="text-2xl font-bold text-indigo-400 mt-2">Premium</div>
+                    <div class="text-2xl font-bold text-emerald-400 mt-2">Premium</div>
                 </div>
             </div>
 
@@ -187,7 +187,7 @@ const buyPlan = async (plan) => {
                 </div>
                 <h3 class="text-lg font-bold text-white mb-2">No Active Licenses</h3>
                 <p class="text-sm text-gray-400 mb-8 max-w-sm mx-auto">Your workspace is empty. Get started by purchasing a license for your server.</p>
-                <Link :href="route('home') + '#pricing'" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg text-xs font-semibold tracking-wide uppercase hover:bg-indigo-500 transition-all shadow-sm">
+                <Link :href="route('home') + '#pricing'" class="inline-flex items-center gap-2 bg-gray-200 text-gray-900 px-6 py-3 rounded-lg text-xs font-semibold tracking-wide uppercase hover:bg-white transition-all shadow-sm">
                     Browse Plans
                     <span class="material-symbols-rounded text-sm">arrow_forward</span>
                 </Link>
@@ -209,11 +209,11 @@ const buyPlan = async (plan) => {
                             <!-- Card Header -->
                             <div class="flex items-start justify-between gap-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="h-10 w-10 rounded-lg bg-indigo-600/10 flex items-center justify-center border border-indigo-500/20 text-indigo-400">
+                                    <div class="h-10 w-10 rounded-lg bg-gray-700/20 flex items-center justify-center border border-gray-600/20 text-gray-300">
                                         <span class="material-symbols-rounded">workspace_premium</span>
                                     </div>
                                     <div>
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">{{ license.plan }} Plan</span>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ license.plan }} Plan</span>
                                         <h4 class="text-sm font-bold text-white font-mono mt-0.5">{{ license.license_key }}</h4>
                                     </div>
                                 </div>
@@ -302,7 +302,7 @@ const buyPlan = async (plan) => {
                                     <h4 class="text-lg font-bold text-white">Pro Plan</h4>
                                     <p class="text-xs text-gray-400 mt-1">Excellent choice for growing platforms.</p>
                                 </div>
-                                <span class="bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-indigo-500/20">Popular</span>
+                                <span class="bg-gray-700/50 text-gray-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-gray-600">Popular</span>
                             </div>
                             <div class="flex items-baseline gap-1">
                                 <span class="text-3xl font-bold text-white">₹499</span>
@@ -325,21 +325,21 @@ const buyPlan = async (plan) => {
                         </div>
                         <button 
                             @click="buyPlan('pro')" 
-                            class="w-full bg-gray-700 hover:bg-gray-650 text-white text-xs font-semibold py-3 rounded-lg mt-8 transition-colors border border-gray-600"
+                            class="w-full bg-gray-755 hover:bg-gray-700 text-white text-xs font-semibold py-3 rounded-lg mt-8 transition-colors border border-gray-600"
                         >
                             Buy Pro Now
                         </button>
                     </div>
 
                     <!-- Enterprise Card -->
-                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-8 flex flex-col justify-between relative shadow-sm bg-gradient-to-b from-gray-800 to-indigo-950/10">
+                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-8 flex flex-col justify-between relative shadow-sm">
                         <div class="space-y-6">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <h4 class="text-lg font-bold text-white">Enterprise</h4>
                                     <p class="text-xs text-gray-400 mt-1">Ideal for large scale networks.</p>
                                 </div>
-                                <span class="bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-purple-500/20">Max Performance</span>
+                                <span class="bg-gray-700/50 text-gray-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-gray-600">Max Performance</span>
                             </div>
                             <div class="flex items-baseline gap-1">
                                 <span class="text-3xl font-bold text-white">₹1,999</span>
@@ -362,7 +362,7 @@ const buyPlan = async (plan) => {
                         </div>
                         <button 
                             @click="buyPlan('enterprise')" 
-                            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm"
+                            class="w-full bg-gray-200 hover:bg-white text-gray-900 text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm"
                         >
                             Buy Enterprise Now
                         </button>

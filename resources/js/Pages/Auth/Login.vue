@@ -60,7 +60,7 @@ const submit = () => {
                     <Link
                         v-if="canResetPassword"
                         :href="route('password.request')"
-                        class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+                        class="text-xs font-medium text-gray-400 hover:text-white transition-colors"
                     >
                         Forgot?
                     </Link>
@@ -79,7 +79,7 @@ const submit = () => {
             </div>
 
             <div class="flex items-center">
-                <Checkbox name="remember" v-model:checked="form.remember" class="border-gray-700 bg-gray-900 text-indigo-600 focus:ring-indigo-500/20" />
+                <Checkbox name="remember" v-model:checked="form.remember" class="border-gray-700 bg-gray-900 text-gray-800 focus:ring-gray-500/20" />
                 <span class="ms-2 text-sm text-gray-400">Keep me logged in</span>
             </div>
 
@@ -95,7 +95,7 @@ const submit = () => {
 
             <p class="text-center text-sm text-gray-400">
                 Don't have an account? 
-                <Link :href="route('register')" class="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+                <Link :href="route('register')" class="font-semibold text-gray-300 hover:text-white transition-colors underline">
                     Create one for free
                 </Link>
             </p>

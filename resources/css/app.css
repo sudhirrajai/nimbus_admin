@@ -6,8 +6,8 @@
 @tailwind utilities;
 
 :root {
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
+    --primary: #f3f4f6;
+    --primary-hover: #ffffff;
     --bg-dark: #111827;
     --card-bg: #1f2937;
     --border-color: #374151;

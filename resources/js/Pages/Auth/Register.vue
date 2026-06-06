@@ -105,7 +105,7 @@ const submit = () => {
 
             <p class="text-center text-sm text-gray-400">
                 Already have an account? 
-                <Link :href="route('login')" class="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+                <Link :href="route('login')" class="font-semibold text-gray-300 hover:text-white transition-colors underline">
                     Sign in here
                 </Link>
             </p>

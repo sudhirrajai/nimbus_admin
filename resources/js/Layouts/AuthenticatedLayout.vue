@@ -21,14 +21,14 @@ const isRouteActive = (routeName) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-900 text-gray-100 selection:bg-indigo-500/30 font-sans">
+    <div class="min-h-screen bg-gray-900 text-gray-100 selection:bg-gray-800 font-sans">
         
         <!-- Desktop Left Sidebar -->
         <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-gray-700 bg-gray-800 md:flex md:flex-col transition-all duration-300">
             <!-- Sidebar Header -->
             <div class="flex h-16 items-center gap-3 border-b border-gray-700 px-6">
                 <Link :href="route('dashboard')" class="flex items-center gap-2.5 group">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 p-2 shadow-lg shadow-indigo-600/30 transition-transform group-hover:scale-105">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-700 p-2 shadow-lg shadow-gray-700/30 transition-transform group-hover:scale-105">
                         <ApplicationLogo class="h-5 w-5 fill-white" />
                     </div>
                     <span class="text-lg font-bold tracking-tight text-white uppercase">VMCORE</span>
@@ -43,7 +43,7 @@ const isRouteActive = (routeName) => {
                     :href="route('dashboard')" 
                     :class="[
                         isRouteActive('dashboard') 
-                            ? 'bg-gray-900 text-white font-semibold border-l-2 border-indigo-500' 
+                            ? 'bg-gray-900 text-white font-semibold border-l-2 border-white' 
                             : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                     ]"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
@@ -59,7 +59,7 @@ const isRouteActive = (routeName) => {
                         :href="route('admin.licenses.index')" 
                         :class="[
                             isRouteActive('admin.licenses.index') 
-                                ? 'bg-gray-900 text-white font-semibold border-l-2 border-indigo-500' 
+                                ? 'bg-gray-900 text-white font-semibold border-l-2 border-white' 
                                 : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                         ]"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
@@ -73,7 +73,7 @@ const isRouteActive = (routeName) => {
             <!-- Sidebar Footer / Quick User Card -->
             <div class="border-t border-gray-700 p-4">
                 <div class="flex items-center gap-3 px-2 py-1.5 rounded-lg bg-gray-900/50 border border-gray-700">
-                    <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-xs font-bold text-white uppercase">
+                    <div class="h-8 w-8 rounded-lg bg-gray-700 flex items-center justify-center text-xs font-bold text-white uppercase">
                         {{ $page.props.auth.user.name.substring(0, 2) }}
                     </div>
                     <div class="flex-1 min-w-0">
@@ -99,7 +99,7 @@ const isRouteActive = (routeName) => {
                 </div>
 
                 <div class="flex shrink-0 items-center gap-2.5 px-6 pb-4 border-b border-gray-700">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 p-2">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-700 p-2">
                         <ApplicationLogo class="h-5 w-5 fill-white" />
                     </div>
                     <span class="text-lg font-bold tracking-tight text-white uppercase">VMCORE</span>
@@ -113,7 +113,7 @@ const isRouteActive = (routeName) => {
                         @click="showingNavigationDropdown = false"
                         :class="[
                             isRouteActive('dashboard') 
-                                ? 'bg-gray-900 text-white font-semibold border-l-2 border-indigo-500' 
+                                ? 'bg-gray-900 text-white font-semibold border-l-2 border-white' 
                                 : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                         ]"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
@@ -129,7 +129,7 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 isRouteActive('admin.licenses.index') 
-                                    ? 'bg-gray-900 text-white font-semibold border-l-2 border-indigo-500' 
+                                    ? 'bg-gray-900 text-white font-semibold border-l-2 border-white' 
                                     : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                             ]"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
@@ -165,7 +165,7 @@ const isRouteActive = (routeName) => {
                         <template #trigger>
                             <button type="button" class="flex items-center gap-2 rounded-lg bg-gray-900/60 p-1.5 pl-3 border border-gray-700 hover:bg-gray-700/40 transition-all outline-none">
                                 <span class="text-xs font-semibold text-gray-300">{{ $page.props.auth.user.name }}</span>
-                                <div class="h-6 w-6 rounded bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white uppercase">
+                                <div class="h-6 w-6 rounded bg-gray-700 flex items-center justify-center text-[10px] font-bold text-white uppercase">
                                     {{ $page.props.auth.user.name.substring(0, 2) }}
                                 </div>
                             </button>
