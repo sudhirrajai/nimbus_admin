@@ -11,6 +11,7 @@ const props = defineProps({
 const scrolled = ref(false);
 const mobileMenuOpen = ref(false);
 const openFaq = ref(null);
+const selectedCurrency = ref('USD');
 
 const handleScroll = () => {
     scrolled.value = window.scrollY > 20;
@@ -22,6 +23,15 @@ const toggleFaq = (index) => {
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll);
+
+    try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz && (tz === 'Asia/Kolkata' || tz.includes('Calcutta') || tz.includes('Kolkata'))) {
+            selectedCurrency.value = 'INR';
+        }
+    } catch (e) {
+        console.error('Timezone auto-detection failed:', e);
+    }
 });
 
 onUnmounted(() => {
@@ -439,12 +449,40 @@ const faqs = [
                     <p class="section-header__subtitle">Start free. Scale when you're ready.</p>
                 </div>
 
+                <!-- Dynamic Currency Switcher -->
+                <div class="pricing-switcher-container">
+                    <div class="pricing-switcher animate-fade-in">
+                        <button 
+                            type="button"
+                            @click="selectedCurrency = 'USD'" 
+                            :class="{ 'pricing-switcher__btn--active': selectedCurrency === 'USD' }" 
+                            class="pricing-switcher__btn"
+                        >
+                            Global (USD)
+                        </button>
+                        <button 
+                            type="button"
+                            @click="selectedCurrency = 'INR'" 
+                            :class="{ 'pricing-switcher__btn--active': selectedCurrency === 'INR' }" 
+                            class="pricing-switcher__btn"
+                        >
+                            India (INR)
+                        </button>
+                    </div>
+                </div>
+
                 <div class="pricing__grid">
                     <div class="pricing-card" :class="{ 'pricing-card--popular': plan.is_popular }" v-for="(plan, i) in activePlans" :key="plan.slug || i">
                         <div v-if="plan.is_popular" class="pricing-card__badge">Most Popular</div>
                         <h3 class="pricing-card__name">{{ plan.name }}</h3>
                         <div class="pricing-card__price">
-                            <span class="pricing-card__amount">{{ plan.price_usd === 0 ? '$0' : '$' + plan.price_usd }}</span>
+                            <span class="pricing-card__amount">
+                                {{ 
+                                    selectedCurrency === 'USD' 
+                                        ? (plan.price_usd === 0 ? '$0' : '$' + plan.price_usd) 
+                                        : (plan.price_inr === 0 ? '₹0' : '₹' + plan.price_inr.toLocaleString('en-IN'))
+                                }}
+                            </span>
                             <span class="pricing-card__period">{{ plan.billing_period }}</span>
                         </div>
                         <ul class="pricing-card__features">
@@ -454,7 +492,7 @@ const faqs = [
                             </li>
                         </ul>
                         <Link :href="$page.props.auth?.user ? route('dashboard') : route('register')" class="btn btn--full" :class="plan.is_popular ? 'btn--primary' : 'btn--outline'">
-                            {{ plan.cta_text || (plan.price_usd > 0 ? 'Get Started' : 'Start Free') }}
+                            {{ plan.cta_text || (plan.price_usd > 0 || plan.price_inr > 0 ? 'Get Started' : 'Start Free') }}
                         </Link>
                     </div>
                 </div>
@@ -871,6 +909,38 @@ const faqs = [
    PRICING
    ============================================================ */
 .pricing { padding: 96px 0; background: #f8fafc; }
+.pricing-switcher-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+.pricing-switcher {
+    display: inline-flex;
+    background: var(--color-bg-alt);
+    padding: 4px;
+    border-radius: 9999px;
+    border: 1px solid var(--color-border);
+}
+.pricing-switcher__btn {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    color: var(--color-body);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.pricing-switcher__btn:hover {
+    color: var(--color-heading);
+}
+.pricing-switcher__btn--active {
+    background: var(--color-card);
+    color: var(--color-primary);
+    box-shadow: 0 4px 10px -2px rgba(0,0,0,0.05);
+}
 .pricing__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
 .pricing-card {
     background: var(--color-card); border: 1.5px solid var(--color-border);
