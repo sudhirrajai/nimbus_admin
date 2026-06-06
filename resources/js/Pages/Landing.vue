@@ -769,10 +769,21 @@ const faqs = [
 @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
 @media (max-width: 768px) {
-    .hero { padding: 120px 0 48px; }
+    .hero { padding: 100px 0 40px; }
     .hero__grid { grid-template-columns: 1fr; gap: 48px; }
     .hero__title { font-size: 36px; }
     .hero__visual { display: none; }
+    .trust { padding: 32px 0; }
+    .section-header { margin-bottom: 36px; }
+    .features { padding: 48px 0; }
+    .how-it-works { padding: 48px 0; }
+    .dashboard-preview { padding: 48px 0; }
+    .benefits { padding: 48px 0; }
+    .pricing { padding: 48px 0; }
+    .testimonials { padding: 48px 0; }
+    .faq { padding: 48px 0; }
+    .final-cta { padding: 48px 0; }
+    .site-footer { padding: 32px 0 24px; }
 }
 
 /* ============================================================
@@ -908,7 +919,7 @@ const faqs = [
 /* ============================================================
    PRICING
    ============================================================ */
-.pricing { padding: 96px 0; background: #f8fafc; }
+.pricing { padding: 96px 0; background: var(--color-bg); }
 .pricing-switcher-container {
     display: flex;
     justify-content: center;
@@ -973,7 +984,7 @@ const faqs = [
 /* ============================================================
    TESTIMONIALS
    ============================================================ */
-.testimonials { padding: 96px 0; }
+.testimonials { padding: 96px 0; background: var(--color-bg-alt); }
 .testimonials__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .testimonial-card {
     background: var(--color-card); border: 1px solid var(--color-border);
@@ -998,7 +1009,7 @@ const faqs = [
 /* ============================================================
    FAQ
    ============================================================ */
-.faq { padding: 96px 0; background: var(--color-bg-alt); }
+.faq { padding: 96px 0; background: var(--color-bg); }
 .faq__list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
 .faq-item {
     background: var(--color-card); border: 1px solid var(--color-border);
@@ -1018,7 +1029,7 @@ const faqs = [
 /* ============================================================
    FINAL CTA
    ============================================================ */
-.final-cta { padding: 96px 0; }
+.final-cta { padding: 96px 0; background: var(--color-bg-alt); }
 .final-cta__card {
     text-align: center; padding: 80px 40px; border-radius: var(--radius);
     background: radial-gradient(ellipse at center, rgba(16,185,129,0.06), transparent 60%), var(--color-card);
