@@ -151,6 +151,8 @@ const mobileMenuOpen = ref(false);
 }
 .page-navbar__brand-sub {
     font-weight: 500;
+    font-size: 11px;
+    opacity: 0.8;
     color: var(--color-body);
 }
 .page-navbar__actions {

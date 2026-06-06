@@ -36,7 +36,7 @@ const isRouteActive = (routeName) => {
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2 shadow-lg shadow-emerald-500/10 transition-transform group-hover:scale-105">
                         <ApplicationLogo class="h-5 w-5 fill-white" />
                     </div>
-                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus by VMCore</span>
+                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus <span class="text-xs font-semibold text-gray-500">by VMCore</span></span>
                 </Link>
             </div>
 
@@ -172,7 +172,7 @@ const isRouteActive = (routeName) => {
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2">
                         <ApplicationLogo class="h-5 w-5 fill-white" />
                     </div>
-                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus by VMCore</span>
+                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus <span class="text-xs font-semibold text-gray-500">by VMCore</span></span>
                 </div>
 
                 <!-- Nav list inside Mobile Drawer -->

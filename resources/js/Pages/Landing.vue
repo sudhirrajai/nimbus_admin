@@ -672,7 +672,7 @@ const faqs = [
 }
 .navbar__logo-img { width: 20px; height: 20px; object-fit: contain; }
 .navbar__brand-text { font-weight: 700; font-size: 16px; color: var(--color-heading); }
-.navbar__brand-sub { font-weight: 500; color: var(--color-body); }
+.navbar__brand-sub { font-weight: 500; font-size: 11px; opacity: 0.8; color: var(--color-body); }
 .navbar__links { display: flex; gap: 32px; }
 .navbar__link {
     font-size: 14px; font-weight: 500; color: var(--color-body);
