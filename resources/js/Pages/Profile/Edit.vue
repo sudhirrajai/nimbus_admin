@@ -21,16 +21,16 @@ defineProps({
     <AuthenticatedLayout>
         <template #header>
             <div>
-                <h2 class="text-3xl font-bold tracking-tight text-white mb-2">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 mb-2">
                     Profile Settings
                 </h2>
-                <p class="text-slate-400">Update your account information and security preferences.</p>
+                <p class="text-gray-500">Update your account information and security preferences.</p>
             </div>
         </template>
 
         <div>
             <div class="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
-                <div class="p-4 sm:p-8 bg-slate-800 border border-slate-700 shadow sm:rounded-lg">
+                <div class="p-4 sm:p-8 bg-white border border-gray-200 shadow sm:rounded-lg">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
@@ -38,11 +38,11 @@ defineProps({
                     />
                 </div>
 
-                <div class="p-4 sm:p-8 bg-slate-800 border border-slate-700 shadow sm:rounded-lg">
+                <div class="p-4 sm:p-8 bg-white border border-gray-200 shadow sm:rounded-lg">
                     <UpdatePasswordForm class="max-w-xl" />
                 </div>
 
-                <div class="p-4 sm:p-8 bg-slate-800 border border-red-500/20 shadow sm:rounded-lg">
+                <div class="p-4 sm:p-8 bg-white border border-red-200 shadow sm:rounded-lg">
                     <DeleteUserForm class="max-w-xl" />
                 </div>
             </div>

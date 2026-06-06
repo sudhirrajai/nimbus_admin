@@ -39,7 +39,7 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="space-y-6">
             <div>
-                <InputLabel for="email" value="Email Address" class="text-gray-300 mb-1.5 ml-1" />
+                <InputLabel for="email" value="Email Address" class="text-gray-750 mb-1.5 ml-1" />
 
                 <TextInput
                     id="email"
@@ -56,11 +56,11 @@ const submit = () => {
 
             <div>
                 <div class="flex items-center justify-between mb-1.5 ml-1">
-                    <InputLabel for="password" value="Password" class="text-gray-300" />
+                    <InputLabel for="password" value="Password" class="text-gray-750" />
                     <Link
                         v-if="canResetPassword"
                         :href="route('password.request')"
-                        class="text-xs font-medium text-gray-400 hover:text-white transition-colors"
+                        class="text-xs font-medium text-gray-500 hover:text-emerald-500 transition-colors"
                     >
                         Forgot?
                     </Link>
@@ -79,7 +79,7 @@ const submit = () => {
             </div>
 
             <div class="flex items-center">
-                <Checkbox name="remember" v-model:checked="form.remember" class="border-slate-700 bg-slate-900 text-emerald-600 focus:ring-emerald-500/20" />
+                <Checkbox name="remember" v-model:checked="form.remember" class="border-gray-300 bg-white text-emerald-600 focus:ring-emerald-500/20" />
                 <span class="ms-2 text-sm text-gray-400">Keep me logged in</span>
             </div>
 
@@ -95,7 +95,7 @@ const submit = () => {
 
             <p class="text-center text-sm text-gray-400">
                 Don't have an account? 
-                <Link :href="route('register')" class="font-semibold text-gray-300 hover:text-white transition-colors underline">
+                <Link :href="route('register')" class="font-semibold text-emerald-500 hover:text-emerald-600 transition-colors underline">
                     Create one for free
                 </Link>
             </p>

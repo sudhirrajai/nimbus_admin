@@ -36,18 +36,18 @@ const updatePassword = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-xl font-bold text-white">
+            <h2 class="text-xl font-bold text-gray-900">
                 Change Password
             </h2>
 
-            <p class="mt-2 text-sm text-gray-400">
+            <p class="mt-2 text-sm text-gray-500">
                 Ensure your account is using a long, random password to stay secure.
             </p>
         </header>
 
         <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
             <div>
-                <InputLabel for="current_password" value="Current Password" class="text-gray-300 mb-1.5 ml-1" />
+                <InputLabel for="current_password" value="Current Password" class="text-gray-700 mb-1.5 ml-1" />
 
                 <TextInput
                     id="current_password"
@@ -65,7 +65,7 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <InputLabel for="password" value="New Password" class="text-gray-300 mb-1.5 ml-1" />
+                <InputLabel for="password" value="New Password" class="text-gray-700 mb-1.5 ml-1" />
 
                 <TextInput
                     id="password"
@@ -83,7 +83,7 @@ const updatePassword = () => {
                 <InputLabel
                     for="password_confirmation"
                     value="Confirm Password"
-                    class="text-gray-300 mb-1.5 ml-1"
+                    class="text-gray-700 mb-1.5 ml-1"
                 />
 
                 <TextInput

@@ -26,7 +26,7 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="space-y-5">
             <div>
-                <InputLabel for="name" value="Full Name" class="text-gray-300 mb-1.5 ml-1" />
+                <InputLabel for="name" value="Full Name" class="text-gray-750 mb-1.5 ml-1" />
 
                 <TextInput
                     id="name"
@@ -42,7 +42,7 @@ const submit = () => {
             </div>
 
             <div>
-                <InputLabel for="email" value="Email Address" class="text-gray-300 mb-1.5 ml-1" />
+                <InputLabel for="email" value="Email Address" class="text-gray-750 mb-1.5 ml-1" />
 
                 <TextInput
                     id="email"
@@ -57,7 +57,7 @@ const submit = () => {
             </div>
 
             <div>
-                <InputLabel for="password" value="Password" class="text-gray-300 mb-1.5 ml-1" />
+                <InputLabel for="password" value="Password" class="text-gray-750 mb-1.5 ml-1" />
 
                 <TextInput
                     id="password"
@@ -75,7 +75,7 @@ const submit = () => {
                 <InputLabel
                     for="password_confirmation"
                     value="Confirm Password"
-                    class="text-gray-300 mb-1.5 ml-1"
+                    class="text-gray-750 mb-1.5 ml-1"
                 />
 
                 <TextInput
@@ -105,7 +105,7 @@ const submit = () => {
 
             <p class="text-center text-sm text-gray-400">
                 Already have an account? 
-                <Link :href="route('login')" class="font-semibold text-gray-300 hover:text-white transition-colors underline">
+                <Link :href="route('login')" class="font-semibold text-emerald-500 hover:text-emerald-600 transition-colors underline">
                     Sign in here
                 </Link>
             </p>
