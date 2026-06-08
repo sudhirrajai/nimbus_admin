@@ -47,6 +47,17 @@ const deleteLicense = (id) => {
         form.delete(route('admin.licenses.destroy', id));
     }
 };
+
+const formatDateTime = (dateStr) => {
+    if (!dateStr) return 'Never';
+    return new Date(dateStr).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
 </script>
 
 <template>
@@ -127,7 +138,7 @@ const deleteLicense = (id) => {
                                     </span>
                                 </td>
                                 <td class="px-6 py-4.5 text-xs text-gray-500 font-medium">
-                                    {{ license.expires_at || 'Never' }}
+                                    {{ formatDateTime(license.expires_at) }}
                                 </td>
                                 <td class="px-6 py-4.5 text-right">
                                     <div class="inline-flex items-center gap-2">

@@ -7,7 +7,7 @@ defineProps({
 });
 
 const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    return new Date(dateStr).toLocaleString(undefined, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',

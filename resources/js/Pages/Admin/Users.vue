@@ -17,6 +17,17 @@ const deleteUser = (user) => {
         router.delete(route('admin.users.destroy', user.id));
     }
 };
+
+const formatDateTime = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
 </script>
 
 <template>
@@ -68,7 +79,7 @@ const deleteUser = (user) => {
                                     <div class="text-sm text-gray-700">{{ user.email }}</div>
                                 </td>
                                 <td class="px-6 py-4.5 text-xs text-gray-500">
-                                    {{ new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) }}
+                                    {{ formatDateTime(user.created_at) }}
                                 </td>
                                 <td class="px-6 py-4.5 text-center font-semibold text-gray-900 text-sm">
                                     {{ user.licenses_count }}

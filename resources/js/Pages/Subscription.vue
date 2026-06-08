@@ -21,6 +21,17 @@ const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert('License key copied to clipboard!');
 };
+
+const formatDateTime = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
 </script>
 
 <template>
@@ -90,9 +101,9 @@ const copyToClipboard = (text) => {
                             <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expiry Date</div>
                                 <div class="text-xs text-gray-900 font-semibold truncate">
-                                    {{ license.expires_at ? new Date(license.expires_at).toLocaleDateString() : 'Lifetime (No Expiry)' }}
+                                    {{ license.expires_at ? formatDateTime(license.expires_at) : 'Lifetime (No Expiry)' }}
                                 </div>
-                                <div class="text-[10px] text-gray-400 mt-0.5">Active since {{ new Date(license.created_at).toLocaleDateString() }}</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5">Active since {{ formatDateTime(license.created_at) }}</div>
                             </div>
                         </div>
 

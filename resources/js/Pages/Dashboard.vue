@@ -119,6 +119,16 @@ const buyPlan = async (plan) => {
     }
 }
 
+const formatDateTime = (dateStr) => {
+    if (!dateStr) return 'Lifetime';
+    return new Date(dateStr).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
 </script>
 
 <template>
@@ -255,7 +265,7 @@ const buyPlan = async (plan) => {
                                 </div>
                                 <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
                                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expiry</div>
-                                    <div class="text-xs text-gray-900 font-medium truncate">{{ license.expires_at || 'Lifetime' }}</div>
+                                    <div class="text-xs text-gray-900 font-medium truncate">{{ formatDateTime(license.expires_at) }}</div>
                                 </div>
                             </div>
 
