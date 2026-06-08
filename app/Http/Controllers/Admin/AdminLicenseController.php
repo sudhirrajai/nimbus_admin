@@ -42,11 +42,12 @@ class AdminLicenseController extends Controller
     {
         $request->validate([
             'status' => 'required|in:active,suspended,expired,revoked',
+            'plan' => 'required|in:free,pro,enterprise',
             'expires_at' => 'nullable|date',
         ]);
 
         $license->update(array_merge(
-            $request->only('status', 'expires_at'),
+            $request->only('status', 'plan', 'expires_at'),
             ['status_changed_at' => now()]
         ));
 

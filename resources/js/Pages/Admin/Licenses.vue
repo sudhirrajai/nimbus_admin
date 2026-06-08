@@ -9,6 +9,7 @@ defineProps({
 
 const form = useForm({
     status: '',
+    plan: '',
     expires_at: '',
 });
 
@@ -33,6 +34,7 @@ const generateLicense = () => {
 const editLicense = (license) => {
     editingLicense.value = license;
     form.status = license.status;
+    form.plan = license.plan;
     form.expires_at = license.expires_at ? new Date(license.expires_at).toISOString().split('T')[0] : '';
 };
 
@@ -183,6 +185,15 @@ const formatDateTime = (dateStr) => {
                             <option value="suspended">Suspended</option>
                             <option value="expired">Expired</option>
                             <option value="revoked">Revoked</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Plan</label>
+                        <select v-model="form.plan" class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
+                            <option value="free">Free</option>
+                            <option value="pro">Pro</option>
+                            <option value="enterprise">Enterprise</option>
                         </select>
                     </div>
 
