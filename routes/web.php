@@ -49,9 +49,16 @@ use App\Http\Controllers\Admin\AdminSettingsController;
 use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ReleaseController;
+use App\Http\Controllers\Admin\AdminReleaseController;
 
 // Public Static Pages
 Route::get('/p/{slug}', [PageController::class, 'show'])->name('pages.show');
+
+// Public Release Routes
+Route::get('/install', [ReleaseController::class, 'install'])->name('releases.install');
+Route::get('/uninstall', [ReleaseController::class, 'uninstall'])->name('releases.uninstall');
+Route::get('/nimbus.zip', [ReleaseController::class, 'download'])->name('releases.download');
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -78,6 +85,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/plans', [AdminPlanController::class, 'index'])->name('plans.index');
     Route::get('/plans/{plan}/edit', [AdminPlanController::class, 'edit'])->name('plans.edit');
     Route::put('/plans/{plan}', [AdminPlanController::class, 'update'])->name('plans.update');
+
+    // Releases Management
+    Route::get('/releases', [AdminReleaseController::class, 'index'])->name('releases.index');
+    Route::post('/releases/upload', [AdminReleaseController::class, 'upload'])->name('releases.upload');
+    Route::delete('/releases', [AdminReleaseController::class, 'destroy'])->name('releases.destroy');
 });
 
 require __DIR__.'/auth.php';
