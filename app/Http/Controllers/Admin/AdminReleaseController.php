@@ -41,8 +41,8 @@ class AdminReleaseController extends Controller
         return Inertia::render('Admin/Releases', [
             'release' => $release,
             'urls' => [
-                'install' => request()->getSchemeAndHttpHost() . '/install',
-                'uninstall' => request()->getSchemeAndHttpHost() . '/uninstall',
+                'install' => request()->getSchemeAndHttpHost() . '/install.sh',
+                'uninstall' => request()->getSchemeAndHttpHost() . '/uninstall.sh',
                 'download' => request()->getSchemeAndHttpHost() . '/nimbus.zip',
             ]
         ]);

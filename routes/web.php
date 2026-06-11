@@ -57,7 +57,9 @@ Route::get('/p/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 // Public Release Routes
 Route::get('/install', [ReleaseController::class, 'install'])->name('releases.install');
+Route::get('/install.sh', [ReleaseController::class, 'install']);
 Route::get('/uninstall', [ReleaseController::class, 'uninstall'])->name('releases.uninstall');
+Route::get('/uninstall.sh', [ReleaseController::class, 'uninstall']);
 Route::get('/nimbus.zip', [ReleaseController::class, 'download'])->name('releases.download');
 
 // Admin Routes
