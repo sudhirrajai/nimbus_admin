@@ -41,9 +41,9 @@ class AdminReleaseController extends Controller
         return Inertia::render('Admin/Releases', [
             'release' => $release,
             'urls' => [
-                'install' => url('/install'),
-                'uninstall' => url('/uninstall'),
-                'download' => url('/nimbus.zip'),
+                'install' => request()->getSchemeAndHttpHost() . '/install',
+                'uninstall' => request()->getSchemeAndHttpHost() . '/uninstall',
+                'download' => request()->getSchemeAndHttpHost() . '/nimbus.zip',
             ]
         ]);
     }
@@ -57,7 +57,7 @@ class AdminReleaseController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'release_file' => 'required|file|mimes:zip|max:102400', // Max 100MB
+            'release_file' => 'required|file|mimes:zip|max:1048576', // Max 1GB
         ]);
 
         $file = $request->file('release_file');

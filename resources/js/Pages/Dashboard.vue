@@ -61,7 +61,7 @@ const copyToClipboard = (text) => {
 }
 
 const getInstallCommand = (key) => {
-    return `curl -sSL https://vmcore.in/install.sh | bash -s -- --license=${key}`;
+    return `curl -sSL https://nimbus-admin.socialspecta.com/install.sh | bash -s -- --license=${key}`;
 }
 
 const buyPlan = async (plan) => {

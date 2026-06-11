@@ -22,7 +22,7 @@ class ReleaseController extends Controller
         
         // Convert to ZIP install mode and inject the VMCore domain
         $content = str_replace('INSTALL_MODE="git"', 'INSTALL_MODE="zip"', $content);
-        $content = str_replace('{{VMCORE_URL}}', url('/'), $content);
+        $content = str_replace('{{VMCORE_URL}}', request()->getSchemeAndHttpHost(), $content);
 
         return response($content, 200)
             ->header('Content-Type', 'text/plain; charset=utf-8');
@@ -42,7 +42,7 @@ class ReleaseController extends Controller
         $content = Storage::get('releases/uninstall.sh');
         
         // Inject the VMCore domain for fallback reinstall URLs
-        $content = str_replace('{{VMCORE_URL}}', url('/'), $content);
+        $content = str_replace('{{VMCORE_URL}}', request()->getSchemeAndHttpHost(), $content);
 
         return response($content, 200)
             ->header('Content-Type', 'text/plain; charset=utf-8');
