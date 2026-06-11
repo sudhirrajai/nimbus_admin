@@ -61,7 +61,7 @@ const copyToClipboard = (text) => {
 }
 
 const getInstallCommand = (key) => {
-    return `curl -sSL ${window.location.origin}/install.sh | bash -s -- --license=${key}`;
+    return `curl -sSL ${window.location.origin}/install.sh | sudo bash -s -- --license=${key}`;
 }
 
 const buyPlan = async (plan) => {
