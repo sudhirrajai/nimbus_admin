@@ -92,6 +92,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/releases', [AdminReleaseController::class, 'index'])->name('releases.index');
     Route::post('/releases/upload', [AdminReleaseController::class, 'upload'])->name('releases.upload');
     Route::delete('/releases', [AdminReleaseController::class, 'destroy'])->name('releases.destroy');
+
+    // Bug Reports Management
+    Route::get('/reports', [\App\Http\Controllers\Admin\AdminBugReportController::class, 'index'])->name('reports.index');
+    Route::post('/reports/{id}/status', [\App\Http\Controllers\Admin\AdminBugReportController::class, 'updateStatus'])->name('reports.update-status');
+    Route::delete('/reports/{id}', [\App\Http\Controllers\Admin\AdminBugReportController::class, 'destroy'])->name('reports.destroy');
 });
 
 require __DIR__.'/auth.php';
