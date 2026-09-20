@@ -418,9 +418,9 @@ const isRouteActive = (routeName) => {
             </div>
         </div>
 
-        <!-- Desktop Shell Top Header Navbar -->
+            <!-- Desktop Shell Top Header Navbar -->
         <div class="md:pl-64 flex flex-col flex-1">
-            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white/80 backdrop-blur-md px-6">
+            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white/80 backdrop-blur-md px-6 print:hidden">
                 <!-- Left: Hamburger + Breadcrumbs -->
                 <div class="flex items-center gap-4">
                     <button @click="showingNavigationDropdown = true" class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-slate-50 md:hidden outline-none">
@@ -467,7 +467,7 @@ const isRouteActive = (routeName) => {
             </header>
 
             <!-- Page Header Inner (Slots) -->
-            <div v-if="$slots.header" class="border-b border-gray-200 bg-white py-6 px-6 lg:px-8">
+            <div v-if="$slots.header" class="border-b border-gray-200 bg-white py-6 px-6 lg:px-8 print:hidden">
                 <div class="mx-auto max-w-7xl">
                     <slot name="header" />
                 </div>
@@ -481,7 +481,7 @@ const isRouteActive = (routeName) => {
             </main>
 
             <!-- Footer -->
-            <footer class="border-t border-gray-200 py-6 px-6 lg:px-8 bg-white/40">
+            <footer class="border-t border-gray-200 py-6 px-6 lg:px-8 bg-white/40 print:hidden">
                 <div class="mx-auto max-w-7xl text-center text-xs text-gray-500">
                     &copy; {{ new Date().getFullYear() }} Nimbus by VMCore. All rights reserved.
                 </div>
@@ -497,5 +497,34 @@ const isRouteActive = (routeName) => {
 }
 .animate-slide-in {
     animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media print {
+    aside,
+    header,
+    footer,
+    .print\:hidden {
+        display: none !important;
+    }
+
+    .md\:pl-64 {
+        padding-left: 0 !important;
+    }
+
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+    }
+
+    .min-h-screen {
+        min-height: auto !important;
+    }
+
+    body, html {
+        background-color: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 }
 </style>

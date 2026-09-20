@@ -17,24 +17,7 @@ class AdminSettingsController extends Controller
     private function getSettings()
     {
         $path = $this->getSettingsPath();
-        if (!Storage::disk('local')->exists($path)) {
-            $defaults = [
-                'site_name' => 'Nimbus by VMCore',
-                'allow_registration' => true,
-                'maintenance_mode' => false,
-                'free_license_limit' => 1,
-                'license_expiry_days' => 30,
-                'razorpay_enabled' => true,
-                'razorpay_mode' => 'sandbox',
-            ];
-            Storage::disk('local')->put($path, json_encode($defaults, JSON_PRETTY_PRINT));
-            return $defaults;
-        }
-        
-        $settings = json_decode(Storage::disk('local')->get($path), true);
-        
-        // Ensure defaults are present in case the file was partially created
-        return array_merge([
+        $defaults = [
             'site_name' => 'Nimbus by VMCore',
             'allow_registration' => true,
             'maintenance_mode' => false,
@@ -42,7 +25,30 @@ class AdminSettingsController extends Controller
             'license_expiry_days' => 30,
             'razorpay_enabled' => true,
             'razorpay_mode' => 'sandbox',
-        ], $settings);
+            'company_name' => 'VMCore Technologies Pvt. Ltd.',
+            'company_address_line1' => '#104, Tech Park Boulevard',
+            'company_address_line2' => 'Indiranagar, Bangalore, Karnataka - 560038, India',
+            'company_gstin' => '29AADCV1234F1Z5',
+            'company_pan' => 'AADCV1234F',
+            'company_email' => 'billing@vmcore.in',
+            'company_phone' => '+91 (0) 80-4567-8900',
+            'company_website' => 'https://nimbus.vmcore.in',
+            'bank_name' => 'HDFC Bank Ltd.',
+            'bank_account' => '50200088991122',
+            'bank_ifsc' => 'HDFC0001234',
+            'bank_branch' => 'Indiranagar Branch, Bangalore',
+            'bank_upi' => 'vmcore@hdfcbank',
+            'invoice_terms' => "1. All hosting services and server licenses are billed in advance for the committed period.\n2. Cloud services renew automatically at agreed renewal rates unless cancelled 14 days prior to due date.\n3. This is an electronically generated Tax Invoice under Section 13(2) of the Information Technology Act, 2000 and requires no physical signature.",
+        ];
+
+        if (!Storage::disk('local')->exists($path)) {
+            Storage::disk('local')->put($path, json_encode($defaults, JSON_PRETTY_PRINT));
+            return $defaults;
+        }
+        
+        $settings = json_decode(Storage::disk('local')->get($path), true) ?: [];
+        
+        return array_merge($defaults, $settings);
     }
 
     public function index()
@@ -55,17 +61,31 @@ class AdminSettingsController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'site_name' => 'required|string|max:50',
+            'site_name' => 'required|string|max:100',
             'allow_registration' => 'required|boolean',
             'maintenance_mode' => 'required|boolean',
             'free_license_limit' => 'required|integer|min:0|max:100',
             'license_expiry_days' => 'required|integer|min:1|max:3650',
             'razorpay_enabled' => 'required|boolean',
             'razorpay_mode' => 'required|in:sandbox,live',
+            'company_name' => 'nullable|string|max:150',
+            'company_address_line1' => 'nullable|string|max:200',
+            'company_address_line2' => 'nullable|string|max:200',
+            'company_gstin' => 'nullable|string|max:30',
+            'company_pan' => 'nullable|string|max:30',
+            'company_email' => 'nullable|email|max:100',
+            'company_phone' => 'nullable|string|max:50',
+            'company_website' => 'nullable|string|max:150',
+            'bank_name' => 'nullable|string|max:100',
+            'bank_account' => 'nullable|string|max:50',
+            'bank_ifsc' => 'nullable|string|max:30',
+            'bank_branch' => 'nullable|string|max:100',
+            'bank_upi' => 'nullable|string|max:100',
+            'invoice_terms' => 'nullable|string|max:2000',
         ]);
 
         Storage::disk('local')->put($this->getSettingsPath(), json_encode($validated, JSON_PRETTY_PRINT));
 
-        return back()->with('success', 'System settings updated successfully.');
+        return back()->with('success', 'System and tax invoice settings updated successfully.');
     }
 }
