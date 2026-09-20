@@ -12,6 +12,7 @@ const pageTitle = computed(() => {
     if (route().current('dashboard')) return 'Dashboard';
     if (route().current('subscription')) return 'My Subscription';
     if (route().current('admin.licenses.index')) return 'Licenses';
+    if (route().current('admin.hosting.*')) return 'Managed Hosting';
     if (route().current('admin.users.index')) return 'Users';
     if (route().current('admin.settings.index')) return 'Settings';
     if (route().current('admin.pages.*')) return 'Manage Pages';
@@ -86,6 +87,19 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">vpn_key</span>
                         Licenses
+                    </Link>
+
+                    <Link 
+                        :href="route('admin.hosting.index')" 
+                        :class="[
+                            route().current('admin.hosting.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">dns</span>
+                        Managed Hosting
                     </Link>
 
                     <Link 
@@ -248,6 +262,19 @@ const isRouteActive = (routeName) => {
                         >
                             <span class="material-symbols-rounded text-lg">vpn_key</span>
                             Licenses
+                        </Link>
+                        <Link 
+                            :href="route('admin.hosting.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                route().current('admin.hosting.*') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">dns</span>
+                            Managed Hosting
                         </Link>
                         <Link 
                             :href="route('admin.users.index')" 

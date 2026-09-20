@@ -36,4 +36,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(License::class);
     }
+
+    public function hostingAccounts()
+    {
+        return $this->hasMany(HostingAccount::class);
+    }
+
+    public function hostingRequests()
+    {
+        return $this->hasMany(HostingRequest::class);
+    }
 }

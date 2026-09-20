@@ -19,7 +19,8 @@ class AdminPlanController extends Controller
     public function edit(Plan $plan)
     {
         return Inertia::render('Admin/Plans/Edit', [
-            'plan' => $plan
+            'plan' => $plan,
+            'available_modules' => Plan::AVAILABLE_MODULES,
         ]);
     }
 
@@ -33,6 +34,8 @@ class AdminPlanController extends Controller
             'max_domains' => 'required|integer|min:1',
             'features' => 'required|array',
             'features.*' => 'required|string|max:255',
+            'modules' => 'nullable|array',
+            'modules.*' => 'string',
             'is_active' => 'required|boolean',
             'is_popular' => 'required|boolean',
             'cta_text' => 'nullable|string|max:255',
@@ -46,6 +49,7 @@ class AdminPlanController extends Controller
             'billing_period',
             'max_domains',
             'features',
+            'modules',
             'is_active',
             'is_popular',
             'cta_text',

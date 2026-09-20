@@ -28,15 +28,19 @@ class LicenseController extends Controller
      */
     private function createSignedToken(License $license): string
     {
+        $modules = $license->getEffectiveModules();
+
         $payload = json_encode([
             'license_key' => $license->license_key,
             'machine_id'  => $license->machine_id,
             'server_ip'   => $license->server_ip,
             'plan'        => $license->plan,
+            'modules'     => $modules,
+            'feature_overrides' => $license->feature_overrides ?? (object)[],
             'expires_at'  => $license->expires_at ? $license->expires_at->toIso8601String() : null,
             'max_domains' => $this->getMaxDomains($license->plan),
             'issued_at'   => now()->toIso8601String(),
-            'valid_until'  => now()->addHours(24)->toIso8601String(),
+            'valid_until' => now()->addHours(24)->toIso8601String(),
         ]);
 
         $privateKey = $this->getPrivateKey();
@@ -149,10 +153,13 @@ class LicenseController extends Controller
 
         // Generate signed token
         $signedToken = $this->createSignedToken($license);
+        $modules = $license->getEffectiveModules();
 
         return response()->json([
             'status'       => true,
             'plan'         => $license->plan,
+            'modules'      => $modules,
+            'feature_overrides' => $license->feature_overrides ?? (object)[],
             'expires_at'   => $license->expires_at ? $license->expires_at->toDateTimeString() : 'Never',
             'message'      => 'License is valid.',
             'signed_token' => $signedToken,
@@ -218,6 +225,8 @@ class LicenseController extends Controller
             'status'  => true,
             'message' => 'OK',
             'license_status' => $license->status,
+            'modules' => $license->getEffectiveModules(),
+            'signed_token' => $this->createSignedToken($license),
             'status_changed_at' => $license->status_changed_at?->toIso8601String(),
         ]);
     }

@@ -97,6 +97,29 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports', [\App\Http\Controllers\Admin\AdminBugReportController::class, 'index'])->name('reports.index');
     Route::post('/reports/{id}/status', [\App\Http\Controllers\Admin\AdminBugReportController::class, 'updateStatus'])->name('reports.update-status');
     Route::delete('/reports/{id}', [\App\Http\Controllers\Admin\AdminBugReportController::class, 'destroy'])->name('reports.destroy');
+
+    // Feature Overrides for Licenses
+    Route::post('/licenses/{license}/features', [AdminLicenseController::class, 'updateFeatures'])->name('licenses.features');
+
+    // Managed Hosting Management (Admin)
+    Route::get('/hosting', [\App\Http\Controllers\Admin\AdminHostingController::class, 'index'])->name('hosting.index');
+    Route::post('/hosting/servers', [\App\Http\Controllers\Admin\AdminHostingController::class, 'storeServer'])->name('hosting.servers.store');
+    Route::put('/hosting/servers/{server}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'updateServer'])->name('hosting.servers.update');
+    Route::delete('/hosting/servers/{server}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'destroyServer'])->name('hosting.servers.destroy');
+    Route::get('/hosting/servers/{server}/sso', [\App\Http\Controllers\Admin\AdminHostingController::class, 'loginServer'])->name('hosting.servers.sso');
+
+    Route::post('/hosting/accounts', [\App\Http\Controllers\Admin\AdminHostingController::class, 'storeAccount'])->name('hosting.accounts.store');
+    Route::put('/hosting/accounts/{account}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'updateAccount'])->name('hosting.accounts.update');
+    Route::delete('/hosting/accounts/{account}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'destroyAccount'])->name('hosting.accounts.destroy');
+    Route::get('/hosting/accounts/{account}/sso', [\App\Http\Controllers\Admin\AdminHostingController::class, 'loginAccount'])->name('hosting.accounts.sso');
+
+    Route::patch('/hosting/requests/{hostingRequest}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'updateRequestStatus'])->name('hosting.requests.update');
+});
+
+// Client Managed Hosting Routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/hosting/request', [\App\Http\Controllers\HostingController::class, 'submitRequest'])->name('hosting.request.submit');
+    Route::get('/hosting/accounts/{account}/sso', [\App\Http\Controllers\HostingController::class, 'ssoLogin'])->name('hosting.accounts.client-sso');
 });
 
 require __DIR__.'/auth.php';

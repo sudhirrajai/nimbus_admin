@@ -4,7 +4,8 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const props = defineProps({
-    plan: Object
+    plan: Object,
+    available_modules: Object,
 });
 
 const featuresText = ref((props.plan.features || []).join('\n'));
@@ -16,11 +17,28 @@ const form = useForm({
     billing_period: props.plan.billing_period,
     max_domains: props.plan.max_domains,
     features: props.plan.features || [],
+    modules: props.plan.modules || [],
     is_active: props.plan.is_active,
     is_popular: props.plan.is_popular,
     cta_text: props.plan.cta_text || '',
     description: props.plan.description || '',
 });
+
+const toggleModule = (moduleKey) => {
+    if (form.modules.includes(moduleKey)) {
+        form.modules = form.modules.filter(m => m !== moduleKey);
+    } else {
+        form.modules.push(moduleKey);
+    }
+};
+
+const selectAllModules = () => {
+    form.modules = Object.keys(props.available_modules || {});
+};
+
+const deselectAllModules = () => {
+    form.modules = [];
+};
 
 const submit = () => {
     // Process newlines into features array
@@ -161,14 +179,55 @@ const submit = () => {
 
                     <!-- Features text list -->
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Plan Features (One per line)</label>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Public Plan Features (One per line for pricing table)</label>
                         <textarea 
                             v-model="featuresText" 
-                            rows="6"
+                            rows="4"
                             class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors font-sans"
                             placeholder="Example:&#10;1 Premium License&#10;Automatic Domain Locking&#10;Priority Email Support"
                         ></textarea>
                         <div v-if="form.errors.features" class="text-xs text-red-600 mt-1">{{ form.errors.features }}</div>
+                    </div>
+
+                    <!-- Nimbus Functional Modules & Tools Entitlements -->
+                    <div class="border border-emerald-100 bg-emerald-50/40 rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                    <span class="material-symbols-rounded text-emerald-600 text-lg">widgets</span>
+                                    Nimbus Panel Enabled Modules & Tools
+                                </h3>
+                                <p class="text-xs text-gray-500 mt-0.5">Control which server panel features are unlocked by default for licenses on this plan.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="selectAllModules" class="text-[11px] text-emerald-600 hover:text-emerald-700 font-medium px-2 py-1 bg-white border border-emerald-200 rounded hover:bg-emerald-50 transition-colors">Select All</button>
+                                <button type="button" @click="deselectAllModules" class="text-[11px] text-gray-500 hover:text-gray-700 font-medium px-2 py-1 bg-white border border-gray-200 rounded hover:bg-slate-50 transition-colors">Deselect All</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+                            <div 
+                                v-for="(moduleName, moduleKey) in available_modules" 
+                                :key="moduleKey"
+                                @click="toggleModule(moduleKey)"
+                                :class="[
+                                    form.modules.includes(moduleKey)
+                                        ? 'bg-white border-emerald-500 ring-1 ring-emerald-500 shadow-sm'
+                                        : 'bg-white/60 border-gray-200 opacity-75 hover:opacity-100 hover:border-gray-300'
+                                ]"
+                                class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all select-none"
+                            >
+                                <input 
+                                    type="checkbox" 
+                                    :checked="form.modules.includes(moduleKey)"
+                                    class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 mt-0.5"
+                                />
+                                <div>
+                                    <div class="text-xs font-bold text-gray-900">{{ moduleName }}</div>
+                                    <div class="text-[10px] font-mono text-gray-400 mt-0.5">{{ moduleKey }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Checkboxes (Active & Popular) -->

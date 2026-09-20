@@ -6,10 +6,41 @@ import { onMounted, computed, ref } from 'vue';
 
 const selectedCurrency = ref('INR');
 
+import { useForm } from '@inertiajs/vue3';
+
 const props = defineProps({
     licenses: Array,
-    plans: Array
+    plans: Array,
+    hostingAccounts: {
+        type: Array,
+        default: () => [],
+    },
+    hostingRequests: {
+        type: Array,
+        default: () => [],
+    },
+    availableModules: {
+        type: Object,
+        default: () => ({}),
+    }
 });
+
+const showRequestModal = ref(false);
+const requestForm = useForm({
+    domain: '',
+    plan_requested: 'Standard Managed Cloud (Nimbus VPS)',
+    estimated_traffic: 'Under 50,000 visitors/mo',
+    notes: '',
+});
+
+const submitHostingRequest = () => {
+    requestForm.post(route('hosting.request.submit'), {
+        onSuccess: () => {
+            showRequestModal.value = false;
+            requestForm.reset();
+        }
+    });
+};
 
 const hasActiveFreeLicense = computed(() => {
     return props.licenses.some(l => l.plan === 'free' && l.status === 'active');
@@ -158,6 +189,13 @@ const formatDateTime = (dateStr) => {
                         {{ hasActiveFreeLicense ? 'Free License Claimed' : 'Claim Free License' }}
                     </button>
                     <button 
+                        @click="showRequestModal = true"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
+                    >
+                        <span class="material-symbols-rounded text-sm">dns</span>
+                        Request Managed Hosting
+                    </button>
+                    <button 
                         @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" 
                         class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
                     >
@@ -201,15 +239,114 @@ const formatDateTime = (dateStr) => {
                 </div>
                 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Support Plan</span>
-                        <span class="material-symbols-rounded text-emerald-500 text-xl">verified_user</span>
+                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Managed Hosting</span>
+                        <span class="material-symbols-rounded text-indigo-500 text-xl">cloud_sync</span>
                     </div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-2">Premium</div>
+                    <div class="text-2xl font-bold text-indigo-600 mt-2">{{ hostingAccounts.length }} Active</div>
+                </div>
+            </div>
+
+            <!-- MANAGED HOSTING SECTION (For authorized managed hosting clients) -->
+            <div v-if="hostingAccounts.length > 0 || hostingRequests.length > 0" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-rounded text-indigo-600 text-lg">dns</span>
+                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">My Managed Cloud Hosting</h3>
+                    </div>
+                    <div class="h-px flex-1 bg-gray-200 ml-4"></div>
+                </div>
+
+                <!-- Active Managed Accounts with 1-Click Login -->
+                <div v-if="hostingAccounts.length > 0" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div 
+                        v-for="account in hostingAccounts" 
+                        :key="account.id"
+                        class="bg-gradient-to-br from-white to-indigo-50/20 border-2 border-indigo-200/80 rounded-xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden"
+                    >
+                        <div class="space-y-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
+                                        <span class="material-symbols-rounded">cloud</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">{{ account.plan_name }}</span>
+                                        <h4 class="text-base font-bold text-gray-900 font-mono mt-0.5">{{ account.domain }}</h4>
+                                    </div>
+                                </div>
+                                <span 
+                                    :class="{
+                                        'bg-emerald-50 text-emerald-700 border-emerald-200': account.status === 'active',
+                                        'bg-amber-50 text-amber-700 border-amber-200': account.status === 'suspended',
+                                        'bg-rose-50 text-rose-700 border-rose-200': account.status === 'terminated'
+                                    }"
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider border"
+                                >
+                                    {{ account.status }}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                <div class="bg-white/80 p-3 border border-indigo-100 rounded-lg">
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Nimbus Node IP</div>
+                                    <div class="text-xs text-gray-900 font-mono font-bold">{{ account.server?.ip_address || 'Dedicated VPS' }}</div>
+                                </div>
+                                <div class="bg-white/80 p-3 border border-indigo-100 rounded-lg">
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Management</div>
+                                    <div class="text-xs text-indigo-700 font-semibold">Fully Managed by VMCore</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1-Click Login to Nimbus Action -->
+                        <div class="pt-5 mt-4 border-t border-indigo-100/80 flex items-center justify-between">
+                            <div class="text-xs text-gray-500">
+                                Direct single sign-on access to your Nimbus dashboard.
+                            </div>
+                            <a 
+                                :href="route('hosting.accounts.client-sso', account.id)"
+                                target="_blank"
+                                class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold tracking-wide uppercase transition-all shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                <span class="material-symbols-rounded text-sm">login</span>
+                                1-Click Login to Nimbus
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Requests Notice -->
+                <div v-if="hostingRequests.length > 0" class="space-y-2">
+                    <div 
+                        v-for="req in hostingRequests" 
+                        :key="req.id"
+                        class="p-4 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between"
+                    >
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-500">pending_actions</span>
+                            <div>
+                                <div class="text-xs font-bold text-gray-900">
+                                    Hosting Request for <span class="font-mono text-indigo-600">{{ req.domain || 'Cloud VPS' }}</span>
+                                </div>
+                                <div class="text-[11px] text-gray-500">Plan: {{ req.plan_requested }} • Submitted {{ new Date(req.created_at).toLocaleDateString() }}</div>
+                            </div>
+                        </div>
+                        <span 
+                            :class="{
+                                'bg-amber-50 text-amber-700 border-amber-200': req.status === 'pending',
+                                'bg-emerald-50 text-emerald-700 border-emerald-200': req.status === 'approved' || req.status === 'fulfilled',
+                                'bg-rose-50 text-rose-700 border-rose-200': req.status === 'rejected'
+                            }"
+                            class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border"
+                        >
+                            {{ req.status === 'pending' ? 'Provisioning in progress' : req.status }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Empty State -->
-            <div v-if="licenses.length === 0" class="bg-white border border-gray-200 rounded-lg p-16 text-center shadow-sm">
+            <div v-if="licenses.length === 0 && hostingAccounts.length === 0" class="bg-white border border-gray-200 rounded-lg p-16 text-center shadow-sm">
                 <div class="bg-slate-50 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6 border border-gray-200">
                     <span class="material-symbols-rounded text-3xl text-gray-400">receipt_long</span>
                 </div>
@@ -389,6 +526,74 @@ const formatDateTime = (dateStr) => {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Request Managed Hosting Modal Dialog -->
+        <div v-if="showRequestModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 w-full max-w-lg shadow-2xl animate-fade-in relative text-gray-900">
+                <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                            <span class="material-symbols-rounded text-indigo-600">cloud_upload</span>
+                            Request Managed Nimbus Hosting
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Let our engineers set up and manage high-performance Nimbus hosting for your site.</p>
+                    </div>
+                    <button @click="showRequestModal = false" class="text-gray-400 hover:text-gray-600">
+                        <span class="material-symbols-rounded">close</span>
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitHostingRequest" class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Target Website Domain</label>
+                        <input 
+                            type="text" 
+                            v-model="requestForm.domain" 
+                            placeholder="e.g. clientportal.com or app.mybrand.io" 
+                            class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5 font-mono" 
+                            required 
+                        />
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Preferred Environment / Plan</label>
+                        <select v-model="requestForm.plan_requested" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5">
+                            <option value="Standard Managed Cloud (Nimbus VPS)">Standard Managed Cloud (Nimbus VPS)</option>
+                            <option value="High-Performance Dedicated Node">High-Performance Dedicated Node</option>
+                            <option value="WordPress Optimized Managed Cluster">WordPress Optimized Managed Cluster</option>
+                            <option value="Custom Enterprise Configuration">Custom Enterprise Configuration</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Estimated Monthly Traffic</label>
+                        <select v-model="requestForm.estimated_traffic" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5">
+                            <option value="Under 50,000 visitors/mo">Under 50,000 visitors/mo</option>
+                            <option value="50,000 - 250,000 visitors/mo">50,000 - 250,000 visitors/mo</option>
+                            <option value="250,000 - 1,000,000 visitors/mo">250,000 - 1,000,000 visitors/mo</option>
+                            <option value="Over 1M+ visitors/mo (High Traffic)">Over 1M+ visitors/mo (High Traffic)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Additional Requirements / Notes</label>
+                        <textarea 
+                            v-model="requestForm.notes" 
+                            rows="3" 
+                            class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" 
+                            placeholder="Need Redis cache, Node.js background workers, custom PHP extensions, etc."
+                        ></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                        <button type="button" @click="showRequestModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+                        <button type="submit" :disabled="requestForm.processing" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm">
+                            {{ requestForm.processing ? 'Submitting...' : 'Submit Request' }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </AuthenticatedLayout>

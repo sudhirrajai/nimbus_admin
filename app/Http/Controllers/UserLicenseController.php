@@ -19,9 +19,21 @@ class UserLicenseController extends Controller
             ->orderBy('price_inr')
             ->get();
 
+        $hostingAccounts = \App\Models\HostingAccount::where('user_id', auth()->id())
+            ->with('server:id,name,ip_address,panel_url')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $hostingRequests = \App\Models\HostingRequest::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Dashboard', [
             'licenses' => $licenses,
-            'plans' => $plans
+            'plans' => $plans,
+            'hostingAccounts' => $hostingAccounts,
+            'hostingRequests' => $hostingRequests,
+            'availableModules' => \App\Models\Plan::AVAILABLE_MODULES,
         ]);
     }
 
