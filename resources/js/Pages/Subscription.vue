@@ -301,7 +301,7 @@ const formatDateTime = (dateStr) => {
                                 {{ inv.status }}
                             </span>
                             <Link 
-                                :href="route('invoices.show', inv.id)"
+                                :href="route('invoices.show', inv.uuid || inv.id)"
                                 class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 rounded text-[11px] font-semibold transition-colors"
                             >
                                 View / Print

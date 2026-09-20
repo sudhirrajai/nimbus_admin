@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Invoice extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'user_id',
         'invoice_number',
         'type',
@@ -37,6 +39,25 @@ class Invoice extends Model
         'period_end' => 'datetime',
         'billing_details' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($invoice) {
+            if (empty($invoice->uuid)) {
+                $invoice->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('uuid', $value)->orWhere('id', $value)->firstOrFail();
+    }
 
     public function user()
     {

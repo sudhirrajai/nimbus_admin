@@ -113,7 +113,7 @@ const formatDate = (dateStr) => {
                                 </td>
                                 <td class="px-6 py-4.5 text-right">
                                     <Link 
-                                        :href="route('invoices.show', inv.id)"
+                                        :href="route('invoices.show', inv.uuid || inv.id)"
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 rounded-lg text-xs font-semibold transition-colors border border-gray-200 shadow-2xs"
                                     >
                                         <span class="material-symbols-rounded text-sm">visibility</span>

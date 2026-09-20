@@ -275,7 +275,7 @@ const numberToWords = (num, currency = 'INR') => {
                     <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 space-y-1">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">Billed To (Customer)</span>
-                            <span class="text-[10px] font-mono text-gray-500 font-semibold">Account #USR-{{ invoice.user_id }}</span>
+                            <span class="text-[10px] font-mono text-gray-500 font-semibold">{{ invoice.user?.customer_code || ('CUST-' + (invoice.user?.uuid ? invoice.user.uuid.substring(0, 8).toUpperCase() : '001')) }}</span>
                         </div>
                         <div class="text-sm font-bold text-gray-950 pt-0.5">
                             {{ invoice.billing_details?.customer_name || invoice.user?.name || 'Valued Customer' }}

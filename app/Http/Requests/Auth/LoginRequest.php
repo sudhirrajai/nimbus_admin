@@ -42,8 +42,19 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $credentials = $this->only('email', 'password');
+        
+        // Attempt with is_active = true
+        if (! Auth::attempt(array_merge($credentials, ['is_active' => true]), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+
+            // Check if account was rejected specifically due to being deactivated
+            $user = \App\Models\User::where('email', $this->string('email'))->first();
+            if ($user && !$user->is_active && \Illuminate\Support\Facades\Hash::check($this->password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => 'Your account has been deactivated by administration. Please contact support.',
+                ]);
+            }
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),

@@ -10,13 +10,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password', 'is_admin', 'email_verified_at'])]
+#[Fillable(['uuid', 'name', 'email', 'phone', 'company_name', 'notes', 'password', 'is_admin', 'is_active', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
+
+    protected $appends = ['customer_code'];
 
     /**
      * Get the attributes that should be cast.
@@ -29,7 +32,38 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function ($user) {
+            if (empty($user->uuid)) {
+                $user->uuid = (string) Str::uuid();
+            }
+            if (!isset($user->is_active)) {
+                $user->is_active = true;
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('uuid', $value)->orWhere('id', $value)->firstOrFail();
+    }
+
+    public function getCustomerCodeAttribute(): string
+    {
+        if (!empty($this->uuid)) {
+            return 'CUST-' . strtoupper(substr(str_replace('-', '', $this->uuid), 0, 8));
+        }
+        return 'CUST-' . str_pad((string)$this->id, 6, '0', STR_PAD_LEFT);
     }
 
     public function licenses()

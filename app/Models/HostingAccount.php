@@ -11,6 +11,7 @@ class HostingAccount extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'user_id',
         'server_id',
         'hosting_server_id',
@@ -44,6 +45,25 @@ class HostingAccount extends Model
         'hosting_server_id',
         'human_billing_cycle',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($account) {
+            if (empty($account->uuid)) {
+                $account->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('uuid', $value)->orWhere('id', $value)->firstOrFail();
+    }
 
     public function getDomainAttribute(): ?string
     {

@@ -34,7 +34,7 @@ class InvoiceController extends Controller
             abort(403, 'Unauthorized access to invoice.');
         }
 
-        $invoice->load(['user:id,name,email', 'license', 'hostingAccount.server']);
+        $invoice->load(['user:id,uuid,name,email,company_name,phone', 'license', 'hostingAccount.server']);
 
         // Load company configuration
         $settings = [];
