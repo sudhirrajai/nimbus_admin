@@ -108,6 +108,11 @@ class UserLicenseController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $hostingAccounts = \App\Models\HostingAccount::where('user_id', auth()->id())
+            ->with(['server:id,name,ip_address,nimbus_url', 'latestInvoice'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $invoices = \App\Models\Invoice::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->take(5)
@@ -115,6 +120,7 @@ class UserLicenseController extends Controller
 
         return Inertia::render('Subscription', [
             'licenses' => $licenses,
+            'hostingAccounts' => $hostingAccounts,
             'invoices' => $invoices,
         ]);
     }

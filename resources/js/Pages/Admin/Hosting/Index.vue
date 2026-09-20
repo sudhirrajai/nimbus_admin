@@ -70,11 +70,16 @@ const accountForm = useForm({
     domain: '',
     plan_name: 'Managed Cloud VPS',
     status: 'active',
-    notes: '',
-    amount: 2999,
+    billing_cycle: 'yearly',
+    amount: 3800,
+    renewal_price: 4790,
     currency: 'INR',
+    renews_at: '',
+    auto_invoice: true,
+    renewal_invoice_days: 14,
     payment_status: 'paid',
     payment_method: 'Admin Assignment',
+    notes: '',
 });
 
 const openNewAccountModal = (prefillUserId = '', prefillDomain = '') => {
@@ -85,20 +90,35 @@ const openNewAccountModal = (prefillUserId = '', prefillDomain = '') => {
     accountForm.domain = prefillDomain;
     accountForm.plan_name = 'Managed Cloud VPS';
     accountForm.status = 'active';
-    accountForm.amount = 2999;
+    accountForm.billing_cycle = 'yearly';
+    accountForm.amount = 3800;
+    accountForm.renewal_price = 4790;
     accountForm.currency = 'INR';
+
+    const nextYear = new Date();
+    nextYear.setFullYear(nextYear.getFullYear() + 1);
+    accountForm.renews_at = nextYear.toISOString().substring(0, 10);
+    accountForm.auto_invoice = true;
+    accountForm.renewal_invoice_days = 14;
     accountForm.payment_status = 'paid';
     accountForm.payment_method = 'Admin Assignment';
+    accountForm.notes = '';
     showAccountModal.value = true;
 };
 
 const openEditAccountModal = (account) => {
     editingAccount.value = account;
     accountForm.user_id = account.user_id;
-    accountForm.hosting_server_id = account.hosting_server_id;
+    accountForm.hosting_server_id = account.server_id || account.hosting_server_id;
     accountForm.domain = account.domain;
     accountForm.plan_name = account.plan_name;
     accountForm.status = account.status;
+    accountForm.billing_cycle = account.billing_cycle || 'yearly';
+    accountForm.amount = account.initial_price || 0;
+    accountForm.renewal_price = account.renewal_price || 0;
+    accountForm.renews_at = account.renews_at ? account.renews_at.substring(0, 10) : '';
+    accountForm.auto_invoice = account.auto_invoice !== undefined ? Boolean(account.auto_invoice) : true;
+    accountForm.renewal_invoice_days = account.renewal_invoice_days || 14;
     accountForm.notes = account.notes || '';
     showAccountModal.value = true;
 };
@@ -121,11 +141,69 @@ const deleteAccount = (account) => {
     }
 };
 
+// Renewal Invoice Modal State
+const showRenewalModal = ref(false);
+const targetAccountForRenewal = ref(null);
+const renewalInvoiceForm = useForm({
+    amount: 0,
+    payment_status: 'pending',
+    advance_renewal_date: true,
+});
+
+const openRenewalModal = (account) => {
+    targetAccountForRenewal.value = account;
+    renewalInvoiceForm.amount = account.renewal_price || account.initial_price || 0;
+    renewalInvoiceForm.payment_status = 'pending';
+    renewalInvoiceForm.advance_renewal_date = true;
+    showRenewalModal.value = true;
+};
+
+const submitRenewalInvoice = () => {
+    if (!targetAccountForRenewal.value) return;
+    renewalInvoiceForm.post(route('admin.hosting.accounts.renewal-invoice', targetAccountForRenewal.value.id), {
+        onSuccess: () => {
+            showRenewalModal.value = false;
+        }
+    });
+};
+
+const triggerRenewalCheck = () => {
+    router.post(route('admin.hosting.renewals.check'), {}, {
+        preserveScroll: true,
+    });
+};
+
 // Request management
 const updateRequestStatus = (req, status) => {
     router.patch(route('admin.hosting.requests.update', req.id), { status }, {
         preserveScroll: true
     });
+};
+
+// Helper formatters
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+};
+
+const getDaysUntilRenewal = (dateStr) => {
+    if (!dateStr) return null;
+    const diffTime = new Date(dateStr) - new Date();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
+const formatRenewalBadge = (dateStr) => {
+    const days = getDaysUntilRenewal(dateStr);
+    if (days === null) return { text: 'No Date Set', class: 'bg-slate-100 text-slate-500 border-slate-200' };
+    if (days < 0) return { text: `Expired (${Math.abs(days)}d ago)`, class: 'bg-rose-50 text-rose-700 border-rose-200 font-bold' };
+    if (days === 0) return { text: 'Due Today', class: 'bg-amber-50 text-amber-700 border-amber-200 font-bold' };
+    if (days <= 14) return { text: `Due in ${days} days`, class: 'bg-amber-50 text-amber-700 border-amber-200 font-bold' };
+    if (days <= 30) return { text: `Due in ${days} days`, class: 'bg-blue-50 text-blue-700 border-blue-200' };
+    return { text: `In ${days} days`, class: 'bg-slate-50 text-slate-700 border-slate-200' };
 };
 </script>
 
@@ -140,7 +218,7 @@ const updateRequestStatus = (req, status) => {
                         Managed Hosting & SSO Hub
                     </h2>
                     <p class="text-xs text-gray-500 mt-1">
-                        Manage dedicated Nimbus server nodes, client hosting accounts, inbound requests, and 1-Click SSO access.
+                        Manage dedicated Nimbus server nodes, client hosting accounts, renewal billing cycles, and 1-Click SSO access.
                     </p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -151,6 +229,15 @@ const updateRequestStatus = (req, status) => {
                     >
                         <span class="material-symbols-rounded text-sm">dns</span>
                         Add Nimbus Node
+                    </button>
+                    <button 
+                        v-if="activeTab === 'accounts'"
+                        @click="triggerRenewalCheck"
+                        class="bg-white hover:bg-slate-50 text-gray-700 border border-gray-200 px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-2xs flex items-center gap-2"
+                        title="Scan accounts and generate renewal invoices for upcoming renewals"
+                    >
+                        <span class="material-symbols-rounded text-sm text-emerald-600">autorenew</span>
+                        Run Renewal Scan
                     </button>
                     <button 
                         v-if="activeTab === 'accounts'"
@@ -219,15 +306,16 @@ const updateRequestStatus = (req, status) => {
                                 <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Client User</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Assigned Domain</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Nimbus Server Node</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Plan / Tier</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Plan & Cycle</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Term & Renewal Rate</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Next Renewal</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-if="!accounts.data || accounts.data.length === 0">
-                                    <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-500">
                                         No managed hosting accounts assigned yet. Click "Assign Client Account" to add your first client.
                                     </td>
                                 </tr>
@@ -240,15 +328,40 @@ const updateRequestStatus = (req, status) => {
                                         <span class="font-mono text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
                                             {{ account.domain }}
                                         </span>
+                                        <div class="text-[10px] text-gray-400 mt-1">Node: {{ account.server?.name || 'Unassigned' }}</div>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-xs font-bold text-gray-800">{{ account.server?.name || 'Unassigned' }}</div>
-                                        <div class="text-[11px] font-mono text-gray-400">{{ account.server?.ip_address }}</div>
+                                    <td class="px-6 py-4 text-xs">
+                                        <div class="font-semibold text-gray-800">{{ account.plan_name }}</div>
+                                        <div class="text-[11px] text-gray-500">{{ account.human_billing_cycle || '1 Year (Annual)' }}</div>
                                     </td>
-                                    <td class="px-6 py-4 text-xs font-medium text-gray-700">
-                                        {{ account.plan_name }}
+                                    <td class="px-6 py-4 text-xs font-mono">
+                                        <div class="font-bold text-gray-900">
+                                            ₹{{ Number(account.initial_price || 0).toLocaleString('en-IN') }} <span class="text-[10px] text-gray-400 font-sans font-normal">(1st Term)</span>
+                                        </div>
+                                        <div class="text-[11px] text-emerald-700 font-medium mt-0.5">
+                                            Renews: ₹{{ Number(account.renewal_price || account.initial_price || 0).toLocaleString('en-IN') }}
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 text-xs">
+                                        <div v-if="account.renews_at">
+                                            <div class="font-medium text-gray-900">{{ formatDate(account.renews_at) }}</div>
+                                            <div class="mt-1 flex items-center gap-1.5">
+                                                <span 
+                                                    :class="formatRenewalBadge(account.renews_at).class"
+                                                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] border shadow-2xs"
+                                                >
+                                                    {{ formatRenewalBadge(account.renews_at).text }}
+                                                </span>
+                                                <span v-if="account.auto_invoice" class="text-[10px] text-emerald-600 font-bold" title="Auto-invoice enabled before renewal">
+                                                    ⚡
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div v-else class="text-gray-400 italic text-[11px]">
+                                            Not configured
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
                                         <span 
                                             :class="{
                                                 'bg-emerald-50 text-emerald-700 border-emerald-200': account.status === 'active',
@@ -261,16 +374,24 @@ const updateRequestStatus = (req, status) => {
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
+                                        <div class="flex items-center justify-end gap-1.5">
                                             <a 
                                                 :href="route('admin.hosting.accounts.sso', account.id)"
                                                 target="_blank"
-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded border border-emerald-200 transition-colors shadow-sm"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded border border-emerald-200 transition-colors shadow-2xs"
                                                 title="Log in directly to Nimbus as this client"
                                             >
                                                 <span class="material-symbols-rounded text-sm">login</span>
-                                                1-Click SSO
+                                                SSO
                                             </a>
+                                            <button 
+                                                @click="openRenewalModal(account)"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 text-xs font-semibold rounded border border-gray-200 transition-colors shadow-2xs"
+                                                title="Generate Renewal Invoice for next period"
+                                            >
+                                                <span class="material-symbols-rounded text-sm text-emerald-600">receipt_long</span>
+                                                Bill Renewal
+                                            </button>
                                             <button 
                                                 @click="openEditAccountModal(account)"
                                                 class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-slate-100 rounded transition-colors"
@@ -294,129 +415,110 @@ const updateRequestStatus = (req, status) => {
                 </div>
             </div>
 
-            <!-- TAB 2: NIMBUS SERVER NODES -->
+            <!-- TAB 2: SERVER NODES -->
             <div v-if="activeTab === 'servers'" class="space-y-4">
-                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Node Name</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">IP Address</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Nimbus Panel URL</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Assigned Accounts</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr v-if="servers.length === 0">
-                                    <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">
-                                        No Nimbus server nodes configured. Click "Add Nimbus Node" to connect your first server.
-                                    </td>
-                                </tr>
-                                <tr v-for="server in servers" :key="server.id" class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-bold text-gray-900">{{ server.name }}</div>
-                                        <div class="text-xs text-gray-400 truncate max-w-xs">{{ server.notes || 'Managed Nimbus Instance' }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 text-xs font-mono font-semibold text-gray-700">
-                                        {{ server.ip_address }}
-                                    </td>
-                                    <td class="px-6 py-4 text-xs font-mono text-gray-600">
-                                        <a :href="server.panel_url" target="_blank" class="hover:underline text-emerald-600">
-                                            {{ server.panel_url }}
-                                        </a>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-bold bg-slate-100 text-slate-700">
-                                            {{ server.accounts_count || 0 }} clients
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span 
-                                            :class="server.is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
-                                            class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border"
-                                        >
-                                            {{ server.is_active ? 'Active' : 'Offline' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a 
-                                                :href="route('admin.hosting.servers.sso', server.id)"
-                                                target="_blank"
-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded border border-purple-200 transition-colors shadow-sm"
-                                                title="1-Click Super Admin Login to this Nimbus Node"
-                                            >
-                                                <span class="material-symbols-rounded text-sm">admin_panel_settings</span>
-                                                Super Admin SSO
-                                            </a>
-                                            <button 
-                                                @click="openEditServerModal(server)"
-                                                class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-slate-100 rounded transition-colors"
-                                                title="Edit Server"
-                                            >
-                                                <span class="material-symbols-rounded text-base">edit</span>
-                                            </button>
-                                            <button 
-                                                @click="deleteServer(server)"
-                                                class="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
-                                                title="Delete Server"
-                                            >
-                                                <span class="material-symbols-rounded text-base">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div 
+                        v-for="server in servers" 
+                        :key="server.id"
+                        class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:border-emerald-500/50 transition-all flex flex-col justify-between"
+                    >
+                        <div>
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="h-9 w-9 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                                        <span class="material-symbols-rounded">dns</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-gray-900 text-sm leading-tight">{{ server.name }}</h3>
+                                        <span class="font-mono text-xs text-gray-500">{{ server.ip_address }}</span>
+                                    </div>
+                                </div>
+                                <span 
+                                    :class="server.is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
+                                    class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
+                                >
+                                    {{ server.is_active ? 'Active' : 'Offline' }}
+                                </span>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-gray-100 space-y-2 text-xs text-gray-600">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Nimbus URL</span>
+                                    <a :href="server.panel_url" target="_blank" class="font-mono text-emerald-600 hover:underline truncate max-w-[180px]">{{ server.panel_url }}</a>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Assigned Clients</span>
+                                    <span class="font-bold text-gray-900">{{ server.accounts_count || 0 }} Accounts</span>
+                                </div>
+                                <div v-if="server.notes" class="mt-2 p-2 bg-slate-50 rounded text-gray-500 text-[11px]">
+                                    {{ server.notes }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                            <a 
+                                :href="route('admin.hosting.servers.sso', server.id)"
+                                target="_blank"
+                                class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                            >
+                                <span class="material-symbols-rounded text-sm">login</span>
+                                Super Admin SSO
+                            </a>
+                            <div class="flex items-center gap-1">
+                                <button @click="openEditServerModal(server)" class="p-1 text-gray-400 hover:text-gray-600 rounded">
+                                    <span class="material-symbols-rounded text-base">edit</span>
+                                </button>
+                                <button @click="deleteServer(server)" class="p-1 text-rose-400 hover:text-rose-600 rounded">
+                                    <span class="material-symbols-rounded text-base">delete</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: INBOUND CLIENT REQUESTS -->
+            <!-- TAB 3: INBOUND REQUESTS -->
             <div v-if="activeTab === 'requests'" class="space-y-4">
                 <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Requested By</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Client Name & Email</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Requested Plan</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Target Domain</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Plan & Traffic</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Client Notes</th>
-                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Traffic & Notes</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-if="!requests.data || requests.data.length === 0">
                                     <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">
-                                        No managed hosting inquiries received yet.
+                                        No managed hosting inquiries submitted yet.
                                     </td>
                                 </tr>
                                 <tr v-for="req in requests.data" :key="req.id" class="hover:bg-slate-50/50 transition-colors">
                                     <td class="px-6 py-4">
-                                        <div class="text-sm font-bold text-gray-900">{{ req.user?.name || 'N/A' }}</div>
-                                        <div class="text-xs text-gray-500">{{ req.user?.email || 'N/A' }}</div>
-                                        <div class="text-[10px] text-gray-400 mt-1">{{ new Date(req.created_at).toLocaleDateString() }}</div>
+                                        <div class="text-sm font-bold text-gray-900">{{ req.name }}</div>
+                                        <div class="text-xs text-gray-500">{{ req.email }}</div>
                                     </td>
-                                    <td class="px-6 py-4 font-mono text-xs font-semibold text-gray-800">
-                                        {{ req.domain || 'Not specified' }}
+                                    <td class="px-6 py-4 text-xs font-semibold text-gray-800">
+                                        {{ req.plan_requested }}
                                     </td>
-                                    <td class="px-6 py-4 text-xs text-gray-700">
-                                        <div class="font-bold">{{ req.plan_requested }}</div>
-                                        <div class="text-[11px] text-gray-400 mt-0.5">Traffic: {{ req.estimated_traffic || 'Standard' }}</div>
+                                    <td class="px-6 py-4 font-mono text-xs text-emerald-700">
+                                        {{ req.domain || 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4 text-xs text-gray-600 max-w-xs truncate">
-                                        {{ req.notes || '—' }}
+                                        {{ req.requirements || 'None provided' }}
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 text-center">
                                         <span 
                                             :class="{
                                                 'bg-amber-50 text-amber-700 border-amber-200': req.status === 'pending',
-                                                'bg-emerald-50 text-emerald-700 border-emerald-200': req.status === 'approved' || req.status === 'fulfilled',
+                                                'bg-emerald-50 text-emerald-700 border-emerald-200': req.status === 'approved',
                                                 'bg-rose-50 text-rose-700 border-rose-200': req.status === 'rejected'
                                             }"
                                             class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border"
@@ -428,13 +530,6 @@ const updateRequestStatus = (req, status) => {
                                         <div class="flex items-center justify-end gap-2">
                                             <button 
                                                 v-if="req.status === 'pending'"
-                                                @click="updateRequestStatus(req, 'approved')"
-                                                class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded border border-emerald-200"
-                                            >
-                                                Approve
-                                            </button>
-                                            <button 
-                                                v-if="req.status === 'pending' || req.status === 'approved'"
                                                 @click="openNewAccountModal(req.user_id, req.domain)"
                                                 class="px-2.5 py-1 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-sm"
                                             >
@@ -505,11 +600,11 @@ const updateRequestStatus = (req, status) => {
             </div>
         </div>
 
-        <!-- ACCOUNT MODAL -->
-        <div v-if="showAccountModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 border border-gray-200">
+        <!-- ACCOUNT MODAL (ASSIGN / EDIT) -->
+        <div v-if="showAccountModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 border border-gray-200 my-8">
                 <h3 class="text-base font-bold text-gray-900 mb-4">
-                    {{ editingAccount ? 'Edit Client Hosting Account' : 'Assign Client Hosting Account' }}
+                    {{ editingAccount ? 'Edit Client Hosting Account & Renewal' : 'Assign Client Hosting Account' }}
                 </h3>
                 <form @submit.prevent="submitAccountForm" class="space-y-4">
                     <div>
@@ -546,31 +641,71 @@ const updateRequestStatus = (req, status) => {
                             </select>
                         </div>
                     </div>
-                    <!-- Billing & Invoicing for new assignment -->
+
+                    <!-- Billing Cycle & Renewal Pricing Configuration -->
+                    <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-rounded text-emerald-600 text-base">calendar_month</span>
+                            <span class="text-xs font-bold text-gray-900">Billing Term & Renewal Pricing</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Billing Cycle</label>
+                                <select v-model="accountForm.billing_cycle" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2">
+                                    <option value="yearly">1 Year (Annual)</option>
+                                    <option value="monthly">1 Month</option>
+                                    <option value="quarterly">3 Months (Quarterly)</option>
+                                    <option value="semi_annual">6 Months</option>
+                                    <option value="biennial">2 Years</option>
+                                    <option value="triennial">3 Years</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Next Renewal Due Date</label>
+                                <input type="date" v-model="accountForm.renews_at" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2" required />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">
+                                    {{ editingAccount ? 'Initial Price (1st Term)' : 'Initial Amount (₹)' }}
+                                </label>
+                                <input type="number" step="0.01" min="0" v-model="accountForm.amount" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2 font-mono" placeholder="3800.00" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">
+                                    Next Renewal Price (₹)
+                                </label>
+                                <input type="number" step="0.01" min="0" v-model="accountForm.renewal_price" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2 font-mono" placeholder="4790.00" />
+                            </div>
+                        </div>
+
+                        <!-- Auto Invoice Checkbox and Lead Days -->
+                        <div class="pt-2 border-t border-gray-200/60 flex items-center justify-between gap-3">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" v-model="accountForm.auto_invoice" class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4" />
+                                <span class="text-xs text-gray-800 font-medium">Auto-generate invoice before renewal</span>
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" min="1" max="90" v-model="accountForm.renewal_invoice_days" class="w-14 bg-white border border-gray-300 rounded text-xs p-1 text-center font-mono" />
+                                <span class="text-[11px] text-gray-500">days prior</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Initial Invoice Generation settings for new assignment -->
                     <div v-if="!editingAccount" class="bg-emerald-50/60 border border-emerald-200/80 rounded-lg p-3.5 space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-rounded text-emerald-600 text-base">receipt_long</span>
-                            <span class="text-xs font-bold text-gray-900">Automated Client Invoice Generation</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Invoice Amount</label>
-                                <input type="number" step="0.01" min="0" v-model="accountForm.amount" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2" placeholder="2999.00" />
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Currency</label>
-                                <select v-model="accountForm.currency" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2">
-                                    <option value="INR">INR (₹)</option>
-                                    <option value="USD">USD ($)</option>
-                                    <option value="EUR">EUR (€)</option>
-                                </select>
-                            </div>
+                            <span class="text-xs font-bold text-gray-900">Initial Invoice Details</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Payment Status</label>
                                 <select v-model="accountForm.payment_status" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2">
-                                    <option value="paid">Paid</option>
+                                    <option value="paid">Paid Immediately</option>
                                     <option value="pending">Pending Payment</option>
                                 </select>
                             </div>
@@ -579,7 +714,6 @@ const updateRequestStatus = (req, status) => {
                                 <input type="text" v-model="accountForm.payment_method" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2" placeholder="Admin Assignment / Bank Transfer" />
                             </div>
                         </div>
-                        <p class="text-[11px] text-gray-500">An itemized invoice will be automatically generated and made available to this user upon provisioning.</p>
                     </div>
 
                     <div>
@@ -591,6 +725,78 @@ const updateRequestStatus = (req, status) => {
                         <button type="button" @click="showAccountModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-slate-100 rounded-lg">Cancel</button>
                         <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm">
                             {{ editingAccount ? 'Save Changes' : 'Assign Account' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RENEWAL INVOICE MODAL -->
+        <div v-if="showRenewalModal && targetAccountForRenewal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-gray-200 animate-scale-up">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-rounded text-emerald-600 text-lg">receipt_long</span>
+                        <h3 class="text-base font-bold text-gray-900">Generate Renewal Invoice</h3>
+                    </div>
+                    <button @click="showRenewalModal = false" class="text-gray-400 hover:text-gray-600">
+                        <span class="material-symbols-rounded text-lg">close</span>
+                    </button>
+                </div>
+
+                <div class="mb-4 bg-slate-50 p-3.5 rounded-lg border border-gray-200 text-xs space-y-1.5">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500 font-medium">Domain:</span>
+                        <span class="font-mono font-bold text-gray-900">{{ targetAccountForRenewal.domain }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500 font-medium">Client User:</span>
+                        <span class="font-semibold text-gray-800">{{ targetAccountForRenewal.user?.name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500 font-medium">Renewal Period:</span>
+                        <span class="text-gray-800">{{ targetAccountForRenewal.human_billing_cycle || '1 Year' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500 font-medium">Current Expiry:</span>
+                        <span class="font-semibold text-emerald-700">{{ formatDate(targetAccountForRenewal.renews_at) }}</span>
+                    </div>
+                </div>
+
+                <form @submit.prevent="submitRenewalInvoice" class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Renewal Amount (INR)</label>
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            min="0" 
+                            v-model="renewalInvoiceForm.amount" 
+                            class="w-full bg-white border border-gray-300 rounded-lg text-sm p-2.5 font-mono" 
+                            required 
+                        />
+                        <p class="text-[11px] text-gray-400 mt-1">Pre-filled with configured renewal rate (₹{{ Number(targetAccountForRenewal.renewal_price || targetAccountForRenewal.initial_price || 0).toFixed(2) }}).</p>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Payment Status</label>
+                        <select v-model="renewalInvoiceForm.payment_status" class="w-full bg-white border border-gray-300 rounded-lg text-sm p-2.5">
+                            <option value="pending">Pending Payment (Issue to Client)</option>
+                            <option value="paid">Paid (Mark Received Immediately)</option>
+                        </select>
+                    </div>
+
+                    <div v-if="renewalInvoiceForm.payment_status === 'paid'">
+                        <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-700">
+                            <input type="checkbox" v-model="renewalInvoiceForm.advance_renewal_date" class="rounded border-gray-300 text-emerald-600" />
+                            <span>Advance account renewal date to the next period</span>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button type="button" @click="showRenewalModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+                        <button type="submit" :disabled="renewalInvoiceForm.processing" class="px-5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm flex items-center gap-2">
+                            <span v-if="renewalInvoiceForm.processing" class="material-symbols-rounded animate-spin text-sm">progress_activity</span>
+                            <span>Generate Invoice</span>
                         </button>
                     </div>
                 </form>

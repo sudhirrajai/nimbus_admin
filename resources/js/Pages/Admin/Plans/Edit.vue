@@ -13,7 +13,9 @@ const featuresText = ref((props.plan.features || []).join('\n'));
 const form = useForm({
     name: props.plan.name,
     price_inr: props.plan.price_inr,
+    renewal_price_inr: props.plan.renewal_price_inr ?? props.plan.price_inr,
     price_usd: props.plan.price_usd,
+    renewal_price_usd: props.plan.renewal_price_usd ?? props.plan.price_usd,
     billing_period: props.plan.billing_period,
     max_domains: props.plan.max_domains,
     features: props.plan.features || [],
@@ -114,7 +116,7 @@ const submit = () => {
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                         <!-- Price INR -->
                         <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Price (INR)</label>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Initial Price (INR)</label>
                             <input 
                                 type="number" 
                                 v-model="form.price_inr" 
@@ -125,17 +127,17 @@ const submit = () => {
                             <div v-if="form.errors.price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.price_inr }}</div>
                         </div>
 
-                        <!-- Price USD -->
+                        <!-- Renewal Price INR -->
                         <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Price (USD)</label>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Next Renewal Price (INR)</label>
                             <input 
                                 type="number" 
-                                v-model="form.price_usd" 
+                                v-model="form.renewal_price_inr" 
                                 class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
-                                required
                                 min="0"
+                                placeholder="e.g. 4790"
                             />
-                            <div v-if="form.errors.price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.price_usd }}</div>
+                            <div v-if="form.errors.renewal_price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_inr }}</div>
                         </div>
 
                         <!-- Billing Period -->
@@ -148,6 +150,34 @@ const submit = () => {
                                 required
                             />
                             <div v-if="form.errors.billing_period" class="text-xs text-red-600 mt-1">{{ form.errors.billing_period }}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Price USD -->
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Initial Price (USD)</label>
+                            <input 
+                                type="number" 
+                                v-model="form.price_usd" 
+                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
+                                required
+                                min="0"
+                            />
+                            <div v-if="form.errors.price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.price_usd }}</div>
+                        </div>
+
+                        <!-- Renewal Price USD -->
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Next Renewal Price (USD)</label>
+                            <input 
+                                type="number" 
+                                v-model="form.renewal_price_usd" 
+                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
+                                min="0"
+                                placeholder="e.g. 59"
+                            />
+                            <div v-if="form.errors.renewal_price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_usd }}</div>
                         </div>
                     </div>
 

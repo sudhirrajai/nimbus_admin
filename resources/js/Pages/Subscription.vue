@@ -4,8 +4,18 @@ import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     licenses: Array,
+    hostingAccounts: Array,
     invoices: Array,
 });
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+};
 
 const getFallbackFeatures = (planSlug) => {
     if (planSlug === 'free') {
@@ -48,9 +58,95 @@ const formatDateTime = (dateStr) => {
             </div>
         </template>
 
-        <div class="space-y-6">
-            <!-- Active Subscriptions List -->
-            <div v-if="licenses && licenses.length > 0" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="space-y-8">
+            <!-- Managed Hosting Plans & Renewal Section -->
+            <div v-if="hostingAccounts && hostingAccounts.length > 0" class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-rounded text-emerald-600 text-lg">dns</span>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-700">Managed Cloud Hosting & Renewal Terms</h3>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div 
+                        v-for="account in hostingAccounts" 
+                        :key="account.id"
+                        class="bg-white border border-gray-200 rounded-xl shadow-xs overflow-hidden flex flex-col justify-between"
+                    >
+                        <div class="p-6 space-y-5">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                                        <span class="material-symbols-rounded">cloud_sync</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Managed Hosting Account</span>
+                                        <h3 class="text-base font-bold text-gray-950">{{ account.domain }}</h3>
+                                    </div>
+                                </div>
+                                <span 
+                                    :class="account.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'"
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider border"
+                                >
+                                    {{ account.status }}
+                                </span>
+                            </div>
+
+                            <!-- Pricing & Renewal Term Box -->
+                            <div class="grid grid-cols-2 gap-3 bg-slate-50 border border-gray-200 rounded-xl p-4">
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Plan & Term</div>
+                                    <div class="text-sm font-bold text-gray-900 mt-0.5">{{ account.plan_name }}</div>
+                                    <div class="text-[11px] text-gray-500 mt-0.5">{{ account.human_billing_cycle || '1 Year' }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Next Renewal Rate</div>
+                                    <div class="text-sm font-bold font-mono text-emerald-700 mt-0.5">
+                                        ₹{{ Number(account.renewal_price || account.initial_price || 0).toLocaleString('en-IN') }}
+                                    </div>
+                                    <div class="text-[11px] text-gray-500 mt-0.5">Renews {{ account.renews_at ? formatDate(account.renews_at) : 'N/A' }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Node & Server Details -->
+                            <div class="flex items-center justify-between text-xs text-gray-500 pt-1">
+                                <span>Assigned Node: <strong class="text-gray-700">{{ account.server?.name || 'Managed Server' }}</strong></span>
+                                <span v-if="account.auto_invoice" class="text-emerald-600 font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-rounded text-sm">bolt</span>
+                                    Auto-Invoicing Active
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="bg-slate-50/70 px-6 py-3.5 border-t border-gray-100 flex items-center justify-between text-xs">
+                            <a 
+                                :href="route('hosting.accounts.client-sso', account.id)"
+                                target="_blank"
+                                class="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1.5"
+                            >
+                                <span class="material-symbols-rounded text-sm">login</span>
+                                1-Click SSO to Nimbus Panel
+                            </a>
+                            <Link 
+                                :href="route('invoices.index')"
+                                class="text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                            >
+                                <span class="material-symbols-rounded text-sm">receipt</span>
+                                Invoices
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Server Licenses List -->
+            <div v-if="licenses && licenses.length > 0" class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-rounded text-emerald-600 text-lg">vpn_key</span>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-700">Nimbus Server Licenses</h3>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div 
                     v-for="license in licenses" 
                     :key="license.id"
@@ -136,6 +232,7 @@ const formatDateTime = (dateStr) => {
                         </a>
                     </div>
                 </div>
+            </div>
             </div>
 
             <!-- Empty State for Licenses -->

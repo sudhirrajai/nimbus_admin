@@ -29,7 +29,9 @@ class AdminPlanController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'price_inr' => 'required|integer|min:0',
+            'renewal_price_inr' => 'nullable|integer|min:0',
             'price_usd' => 'required|integer|min:0',
+            'renewal_price_usd' => 'nullable|integer|min:0',
             'billing_period' => 'required|string|max:255',
             'max_domains' => 'required|integer|min:1',
             'features' => 'required|array',
@@ -45,7 +47,9 @@ class AdminPlanController extends Controller
         $plan->update($request->only([
             'name',
             'price_inr',
+            'renewal_price_inr',
             'price_usd',
+            'renewal_price_usd',
             'billing_period',
             'max_domains',
             'features',

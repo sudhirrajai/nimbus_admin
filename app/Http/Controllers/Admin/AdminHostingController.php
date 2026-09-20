@@ -22,7 +22,7 @@ class AdminHostingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $accounts = HostingAccount::with(['user:id,name,email', 'server:id,name,ip_address,nimbus_url'])
+        $accounts = HostingAccount::with(['user:id,name,email', 'server:id,name,ip_address,nimbus_url', 'latestInvoice'])
             ->orderBy('created_at', 'desc')
             ->paginate(15, ['*'], 'accounts_page');
 
@@ -108,11 +108,28 @@ class AdminHostingController extends Controller
             'plan_name' => 'required|string|max:255',
             'status' => 'required|in:active,suspended,terminated',
             'notes' => 'nullable|string|max:1000',
-            'amount' => 'nullable|numeric|min:0',
+            'billing_cycle' => 'nullable|string|in:monthly,quarterly,semi_annual,yearly,biennial,triennial',
+            'amount' => 'nullable|numeric|min:0', // initial term price (e.g. 3800)
+            'renewal_price' => 'nullable|numeric|min:0', // subsequent renewal price (e.g. 4790)
             'currency' => 'nullable|string|max:10',
+            'renews_at' => 'nullable|date',
+            'auto_invoice' => 'nullable|boolean',
+            'renewal_invoice_days' => 'nullable|integer|min:1|max:90',
             'payment_status' => 'nullable|in:paid,pending',
             'payment_method' => 'nullable|string|max:255',
         ]);
+
+        $billingCycle = $validated['billing_cycle'] ?? 'yearly';
+        $initialPrice = isset($validated['amount']) ? (float)$validated['amount'] : 0.00;
+        $renewalPrice = isset($validated['renewal_price']) ? (float)$validated['renewal_price'] : $initialPrice;
+        $currency = strtoupper($validated['currency'] ?? 'INR');
+        $autoInvoice = $request->has('auto_invoice') ? $request->boolean('auto_invoice') : true;
+        $leadDays = isset($validated['renewal_invoice_days']) ? (int)$validated['renewal_invoice_days'] : 14;
+
+        // Determine expiration / renewal date
+        $renewsAt = !empty($validated['renews_at']) 
+            ? \Carbon\Carbon::parse($validated['renews_at']) 
+            : now()->addYear();
 
         $account = HostingAccount::create([
             'user_id' => $validated['user_id'],
@@ -123,14 +140,19 @@ class AdminHostingController extends Controller
             'package_name' => $validated['plan_name'],
             'plan_name' => $validated['plan_name'],
             'status' => $validated['status'],
+            'billing_cycle' => $billingCycle,
+            'initial_price' => $initialPrice,
+            'renewal_price' => $renewalPrice,
+            'currency' => $currency,
+            'renews_at' => $renewsAt,
+            'auto_invoice' => $autoInvoice,
+            'renewal_invoice_days' => $leadDays,
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        // Automatically generate an invoice for the user
+        // Automatically generate the initial invoice for the user
         $user = User::find($validated['user_id']);
         $server = HostingServer::find($validated['hosting_server_id']);
-        $amount = isset($validated['amount']) ? (float)$validated['amount'] : 0.00;
-        $currency = strtoupper($validated['currency'] ?? 'INR');
         $paymentStatus = $validated['payment_status'] ?? 'paid';
         $paymentMethod = $validated['payment_method'] ?? 'Admin Assignment';
 
@@ -139,11 +161,14 @@ class AdminHostingController extends Controller
             'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
             'type' => 'hosting_plan',
             'plan_name' => $validated['plan_name'],
-            'description' => "Managed Cloud Hosting for {$validated['domain']} ({$validated['plan_name']})",
-            'amount' => $amount,
+            'description' => "Managed Cloud Hosting for {$validated['domain']} ({$validated['plan_name']}) - Initial Term",
+            'amount' => $initialPrice,
             'currency' => $currency,
             'status' => $paymentStatus,
             'payment_method' => $paymentMethod,
+            'due_date' => now(),
+            'period_start' => now(),
+            'period_end' => $renewsAt,
             'paid_at' => ($paymentStatus === 'paid') ? now() : null,
             'hosting_account_id' => $account->id,
             'billing_details' => [
@@ -151,15 +176,17 @@ class AdminHostingController extends Controller
                 'customer_email' => $user->email,
                 'domain' => $validated['domain'],
                 'server' => $server?->name,
+                'billing_cycle' => $billingCycle,
+                'renewal_price' => $renewalPrice,
                 'notes' => $validated['notes'] ?? null,
             ],
         ]);
 
-        return back()->with('success', 'Client hosting account and invoice generated successfully.');
+        return back()->with('success', 'Client hosting account and initial invoice generated successfully.');
     }
 
     /**
-     * Update account status or details.
+     * Update account status, renewal pricing or details.
      */
     public function updateAccount(Request $request, HostingAccount $account)
     {
@@ -168,12 +195,72 @@ class AdminHostingController extends Controller
             'domain' => 'required|string|max:255',
             'plan_name' => 'required|string|max:255',
             'status' => 'required|in:active,suspended,terminated',
+            'billing_cycle' => 'nullable|string|in:monthly,quarterly,semi_annual,yearly,biennial,triennial',
+            'initial_price' => 'nullable|numeric|min:0',
+            'renewal_price' => 'nullable|numeric|min:0',
+            'renews_at' => 'nullable|date',
+            'auto_invoice' => 'nullable|boolean',
+            'renewal_invoice_days' => 'nullable|integer|min:1|max:90',
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $account->update($validated);
+        $account->update([
+            'server_id' => $validated['hosting_server_id'],
+            'hosting_server_id' => $validated['hosting_server_id'],
+            'primary_domain' => $validated['domain'],
+            'domain' => $validated['domain'],
+            'package_name' => $validated['plan_name'],
+            'plan_name' => $validated['plan_name'],
+            'status' => $validated['status'],
+            'billing_cycle' => $validated['billing_cycle'] ?? $account->billing_cycle ?? 'yearly',
+            'initial_price' => isset($validated['initial_price']) ? (float)$validated['initial_price'] : $account->initial_price,
+            'renewal_price' => isset($validated['renewal_price']) ? (float)$validated['renewal_price'] : $account->renewal_price,
+            'renews_at' => !empty($validated['renews_at']) ? \Carbon\Carbon::parse($validated['renews_at']) : $account->renews_at,
+            'auto_invoice' => $request->has('auto_invoice') ? $request->boolean('auto_invoice') : $account->auto_invoice,
+            'renewal_invoice_days' => isset($validated['renewal_invoice_days']) ? (int)$validated['renewal_invoice_days'] : ($account->renewal_invoice_days ?? 14),
+            'notes' => $validated['notes'] ?? null,
+        ]);
 
         return back()->with('success', 'Hosting account updated successfully.');
+    }
+
+    /**
+     * 1-Click Generate Renewal Invoice for a client hosting account.
+     */
+    public function generateRenewalInvoice(Request $request, HostingAccount $account)
+    {
+        $validated = $request->validate([
+            'amount' => 'nullable|numeric|min:0',
+            'payment_status' => 'nullable|in:paid,pending',
+            'advance_renewal_date' => 'nullable|boolean',
+        ]);
+
+        $amount = isset($validated['amount']) && $validated['amount'] !== null
+            ? (float) $validated['amount']
+            : (float) ($account->renewal_price ?? $account->initial_price ?? 0.00);
+
+        $status = $validated['payment_status'] ?? 'pending';
+
+        $invoice = $account->generateRenewalInvoice($amount, $status, 'Admin Renewal');
+
+        // If marked as paid, advance the renews_at date to the next period
+        if ($status === 'paid' && $request->boolean('advance_renewal_date', true)) {
+            $account->update([
+                'renews_at' => $account->computeNextPeriodEnd($account->renews_at),
+            ]);
+        }
+
+        return back()->with('success', "Renewal invoice {$invoice->invoice_number} (₹{$amount}) generated successfully for {$account->domain}.");
+    }
+
+    /**
+     * Run the automated renewal billing check on-demand.
+     */
+    public function runRenewalCheck()
+    {
+        \Illuminate\Support\Facades\Artisan::call('invoices:generate-renewals');
+
+        return back()->with('success', 'Automated renewal billing scan completed.');
     }
 
     /**

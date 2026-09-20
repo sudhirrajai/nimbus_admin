@@ -21,6 +21,9 @@ class Invoice extends Model
         'payment_method',
         'payment_id',
         'paid_at',
+        'due_date',
+        'period_start',
+        'period_end',
         'billing_details',
         'license_id',
         'hosting_account_id',
@@ -29,6 +32,9 @@ class Invoice extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'paid_at' => 'datetime',
+        'due_date' => 'datetime',
+        'period_start' => 'datetime',
+        'period_end' => 'datetime',
         'billing_details' => 'array',
     ];
 
