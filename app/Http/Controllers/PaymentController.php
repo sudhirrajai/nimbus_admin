@@ -94,7 +94,33 @@ class PaymentController extends Controller
                 ]);
             }
 
-            return redirect()->route('dashboard')->with('success', 'Payment successful! Your ' . ucfirst($plan) . ' license has been generated.');
+            // Generate Invoice if not exists
+            $existingInvoice = \App\Models\Invoice::where('payment_id', $paymentId)->first();
+            if (!$existingInvoice) {
+                $planModel = \App\Models\Plan::where('slug', $plan)->first();
+                $amount = $planModel ? $planModel->price_inr : ($order->amount / 100);
+                \App\Models\Invoice::create([
+                    'user_id' => Auth::id(),
+                    'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
+                    'type' => 'license_plan',
+                    'plan_name' => $planModel->name ?? (ucfirst($plan) . ' Plan'),
+                    'description' => 'Nimbus ' . ($planModel->name ?? ucfirst($plan)) . ' Server License (Annual Subscription)',
+                    'amount' => $amount,
+                    'currency' => 'INR',
+                    'status' => 'paid',
+                    'payment_method' => 'Razorpay',
+                    'payment_id' => $paymentId,
+                    'paid_at' => now(),
+                    'license_id' => $license->id,
+                    'billing_details' => [
+                        'customer_name' => Auth::user()->name,
+                        'customer_email' => Auth::user()->email,
+                        'order_id' => $request->razorpay_order_id,
+                    ],
+                ]);
+            }
+
+            return redirect()->route('dashboard')->with('success', 'Payment successful! Your ' . ucfirst($plan) . ' license and invoice have been generated.');
 
 
         } catch (\Exception $e) {

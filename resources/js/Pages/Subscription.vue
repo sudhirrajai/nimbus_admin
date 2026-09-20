@@ -3,7 +3,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
-    licenses: Array
+    licenses: Array,
+    invoices: Array,
 });
 
 const getFallbackFeatures = (planSlug) => {
@@ -137,7 +138,7 @@ const formatDateTime = (dateStr) => {
                 </div>
             </div>
 
-            <!-- Empty State -->
+            <!-- Empty State for Licenses -->
             <div v-else class="bg-white border border-gray-200 rounded-lg p-12 text-center max-w-xl mx-auto shadow-sm">
                 <div class="h-16 w-16 bg-slate-50 border border-gray-200 rounded-full flex items-center justify-center mx-auto text-gray-400 mb-6">
                     <span class="material-symbols-rounded text-3xl">card_membership</span>
@@ -154,6 +155,66 @@ const formatDateTime = (dateStr) => {
                         <span class="material-symbols-rounded text-sm flex-shrink-0">shopping_bag</span>
                         Browse Plans & Pricing
                     </Link>
+                </div>
+            </div>
+
+            <!-- Recent Invoices & Receipts Section -->
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+                <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="h-9 w-9 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                            <span class="material-symbols-rounded text-lg">receipt_long</span>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900">Recent Invoices & Receipts</h3>
+                            <p class="text-[11px] text-gray-500">Download proof of payment for your tax and accounting records.</p>
+                        </div>
+                    </div>
+                    <Link 
+                        :href="route('invoices.index')"
+                        class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                    >
+                        <span>View All Invoices</span>
+                        <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                    </Link>
+                </div>
+
+                <div v-if="invoices && invoices.length > 0" class="divide-y divide-gray-100">
+                    <div 
+                        v-for="inv in invoices" 
+                        :key="inv.id" 
+                        class="py-3 flex items-center justify-between gap-4 text-xs"
+                    >
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="material-symbols-rounded text-emerald-600 text-base flex-shrink-0">receipt</span>
+                            <div class="min-w-0">
+                                <div class="font-mono font-bold text-gray-900 truncate">{{ inv.invoice_number }}</div>
+                                <div class="text-[11px] text-gray-500 truncate">{{ inv.plan_name }} • {{ formatDateTime(inv.created_at) }}</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                            <span class="font-mono font-bold text-gray-900">
+                                {{ inv.currency === 'INR' ? '₹' : '$' }}{{ Number(inv.amount).toFixed(2) }}
+                            </span>
+                            <span 
+                                :class="inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'"
+                                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
+                            >
+                                {{ inv.status }}
+                            </span>
+                            <Link 
+                                :href="route('invoices.show', inv.id)"
+                                class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 rounded text-[11px] font-semibold transition-colors"
+                            >
+                                View / Print
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="text-center py-6 text-xs text-gray-400">
+                    No billing invoices generated yet.
                 </div>
             </div>
         </div>

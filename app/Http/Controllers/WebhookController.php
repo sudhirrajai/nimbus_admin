@@ -40,7 +40,7 @@ class WebhookController extends Controller
                 $existing = License::where('razorpay_payment_id', $paymentId)->first();
                 
                 if (!$existing) {
-                    License::create([
+                    $license = License::create([
                         'user_id' => $userId,
                         'license_key' => License::generateKey($plan),
                         'plan' => $plan,
@@ -52,6 +52,33 @@ class WebhookController extends Controller
                     ]);
                     
                     Log::info("License generated via Webhook for Payment ID: {$paymentId}");
+
+                    // Check and create invoice
+                    $existingInvoice = \App\Models\Invoice::where('payment_id', $paymentId)->first();
+                    if (!$existingInvoice) {
+                        $user = User::find($userId);
+                        $planModel = \App\Models\Plan::where('slug', $plan)->first();
+                        $amount = $planModel ? $planModel->price_inr : (($payment['amount'] ?? 0) / 100);
+                        \App\Models\Invoice::create([
+                            'user_id' => $userId,
+                            'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
+                            'type' => 'license_plan',
+                            'plan_name' => $planModel->name ?? (ucfirst($plan) . ' Plan'),
+                            'description' => 'Nimbus ' . ($planModel->name ?? ucfirst($plan)) . ' Server License (Annual Subscription)',
+                            'amount' => $amount,
+                            'currency' => 'INR',
+                            'status' => 'paid',
+                            'payment_method' => 'Razorpay',
+                            'payment_id' => $paymentId,
+                            'paid_at' => now(),
+                            'license_id' => $license->id,
+                            'billing_details' => [
+                                'customer_name' => $user->name ?? 'Customer',
+                                'customer_email' => $user->email ?? '',
+                                'order_id' => $orderId,
+                            ],
+                        ]);
+                    }
                 }
             }
 

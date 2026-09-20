@@ -48,6 +48,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminSettingsController;
 use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Admin\AdminPlanController;
+use App\Http\Controllers\Admin\AdminInvoiceController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\Admin\AdminReleaseController;
@@ -62,6 +64,12 @@ Route::get('/uninstall', [ReleaseController::class, 'uninstall'])->name('release
 Route::get('/uninstall.sh', [ReleaseController::class, 'uninstall']);
 Route::get('/nimbus.zip', [ReleaseController::class, 'download'])->name('releases.download');
 
+// Invoices Routes (Client)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+});
+
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/licenses', [AdminLicenseController::class, 'index'])->name('licenses.index');
@@ -71,6 +79,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Users Management
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
     Route::post('/users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
@@ -114,6 +123,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/hosting/accounts/{account}/sso', [\App\Http\Controllers\Admin\AdminHostingController::class, 'loginAccount'])->name('hosting.accounts.sso');
 
     Route::patch('/hosting/requests/{hostingRequest}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'updateRequestStatus'])->name('hosting.requests.update');
+
+    // Invoices Management (Admin)
+    Route::get('/invoices', [AdminInvoiceController::class, 'index'])->name('invoices.index');
+    Route::post('/invoices', [AdminInvoiceController::class, 'store'])->name('invoices.store');
+    Route::patch('/invoices/{invoice}/status', [AdminInvoiceController::class, 'updateStatus'])->name('invoices.update-status');
+    Route::delete('/invoices/{invoice}', [AdminInvoiceController::class, 'destroy'])->name('invoices.destroy');
 });
 
 // Client Managed Hosting Routes

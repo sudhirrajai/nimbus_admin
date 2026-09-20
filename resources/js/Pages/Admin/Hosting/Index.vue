@@ -71,6 +71,10 @@ const accountForm = useForm({
     plan_name: 'Managed Cloud VPS',
     status: 'active',
     notes: '',
+    amount: 2999,
+    currency: 'INR',
+    payment_status: 'paid',
+    payment_method: 'Admin Assignment',
 });
 
 const openNewAccountModal = (prefillUserId = '', prefillDomain = '') => {
@@ -81,6 +85,10 @@ const openNewAccountModal = (prefillUserId = '', prefillDomain = '') => {
     accountForm.domain = prefillDomain;
     accountForm.plan_name = 'Managed Cloud VPS';
     accountForm.status = 'active';
+    accountForm.amount = 2999;
+    accountForm.currency = 'INR';
+    accountForm.payment_status = 'paid';
+    accountForm.payment_method = 'Admin Assignment';
     showAccountModal.value = true;
 };
 
@@ -538,6 +546,42 @@ const updateRequestStatus = (req, status) => {
                             </select>
                         </div>
                     </div>
+                    <!-- Billing & Invoicing for new assignment -->
+                    <div v-if="!editingAccount" class="bg-emerald-50/60 border border-emerald-200/80 rounded-lg p-3.5 space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-rounded text-emerald-600 text-base">receipt_long</span>
+                            <span class="text-xs font-bold text-gray-900">Automated Client Invoice Generation</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Invoice Amount</label>
+                                <input type="number" step="0.01" min="0" v-model="accountForm.amount" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2" placeholder="2999.00" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Currency</label>
+                                <select v-model="accountForm.currency" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2">
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Payment Status</label>
+                                <select v-model="accountForm.payment_status" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2">
+                                    <option value="paid">Paid</option>
+                                    <option value="pending">Pending Payment</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Payment Method</label>
+                                <input type="text" v-model="accountForm.payment_method" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2" placeholder="Admin Assignment / Bank Transfer" />
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-gray-500">An itemized invoice will be automatically generated and made available to this user upon provisioning.</p>
+                    </div>
+
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Notes</label>
                         <textarea v-model="accountForm.notes" rows="2" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" placeholder="Optional notes..."></textarea>

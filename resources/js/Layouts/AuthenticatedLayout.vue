@@ -11,8 +11,10 @@ const page = usePage();
 const pageTitle = computed(() => {
     if (route().current('dashboard')) return 'Dashboard';
     if (route().current('subscription')) return 'My Subscription';
+    if (route().current('invoices.*')) return 'Invoices & Receipts';
     if (route().current('admin.licenses.index')) return 'Licenses';
     if (route().current('admin.hosting.*')) return 'Managed Hosting';
+    if (route().current('admin.invoices.*')) return 'Invoices & Revenue';
     if (route().current('admin.users.index')) return 'Users';
     if (route().current('admin.settings.index')) return 'Settings';
     if (route().current('admin.pages.*')) return 'Manage Pages';
@@ -73,6 +75,19 @@ const isRouteActive = (routeName) => {
                     My Subscription
                 </Link>
 
+                <Link 
+                    :href="route('invoices.index')" 
+                    :class="[
+                        route().current('invoices.*') 
+                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                    ]"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                >
+                    <span class="material-symbols-rounded text-lg">receipt_long</span>
+                    Invoices
+                </Link>
+
                 <div v-if="$page.props.auth.user.is_admin" class="pt-6">
                     <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Administration</div>
                     
@@ -100,6 +115,19 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">dns</span>
                         Managed Hosting
+                    </Link>
+
+                    <Link 
+                        :href="route('admin.invoices.index')" 
+                        :class="[
+                            route().current('admin.invoices.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">receipt_long</span>
+                        Invoices
                     </Link>
 
                     <Link 
@@ -248,6 +276,20 @@ const isRouteActive = (routeName) => {
                         My Subscription
                     </Link>
 
+                    <Link 
+                        :href="route('invoices.index')" 
+                        @click="showingNavigationDropdown = false"
+                        :class="[
+                            route().current('invoices.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">receipt_long</span>
+                        Invoices
+                    </Link>
+
                     <div v-if="$page.props.auth.user.is_admin" class="pt-6">
                         <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Administration</div>
                         <Link 
@@ -275,6 +317,19 @@ const isRouteActive = (routeName) => {
                         >
                             <span class="material-symbols-rounded text-lg">dns</span>
                             Managed Hosting
+                        </Link>
+                        <Link 
+                            :href="route('admin.invoices.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                route().current('admin.invoices.*') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">receipt_long</span>
+                            Invoices
                         </Link>
                         <Link 
                             :href="route('admin.users.index')" 

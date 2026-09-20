@@ -36,7 +36,7 @@ class AdminLicenseController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        License::create([
+        $license = License::create([
             'user_id' => $user->id,
             'license_key' => License::generateKey($request->plan),
             'plan' => $request->plan,
@@ -46,7 +46,31 @@ class AdminLicenseController extends Controller
             'status_changed_at' => now(),
         ]);
 
-        return back()->with('success', 'License generated successfully.');
+        // Generate invoice record for this assigned license
+        $planModel = Plan::where('slug', $request->plan)->first();
+        $planName = $planModel->name ?? (ucfirst($request->plan) . ' Plan');
+        $amount = $planModel ? (float) $planModel->price_inr : 0.00;
+
+        \App\Models\Invoice::create([
+            'user_id' => $user->id,
+            'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
+            'type' => 'license_plan',
+            'plan_name' => $planName,
+            'description' => "Nimbus {$planName} Server License (Admin Generated)",
+            'amount' => $amount,
+            'currency' => 'INR',
+            'status' => 'paid',
+            'payment_method' => 'Admin Assignment',
+            'paid_at' => now(),
+            'license_id' => $license->id,
+            'billing_details' => [
+                'customer_name' => $user->name,
+                'customer_email' => $user->email,
+                'license_key' => $license->license_key,
+            ],
+        ]);
+
+        return back()->with('success', 'License and invoice generated successfully.');
     }
 
     public function update(Request $request, License $license)

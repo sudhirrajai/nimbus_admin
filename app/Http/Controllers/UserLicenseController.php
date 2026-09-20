@@ -108,8 +108,14 @@ class UserLicenseController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $invoices = \App\Models\Invoice::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         return Inertia::render('Subscription', [
-            'licenses' => $licenses
+            'licenses' => $licenses,
+            'invoices' => $invoices,
         ]);
     }
 }

@@ -108,11 +108,51 @@ class AdminHostingController extends Controller
             'plan_name' => 'required|string|max:255',
             'status' => 'required|in:active,suspended,terminated',
             'notes' => 'nullable|string|max:1000',
+            'amount' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|max:10',
+            'payment_status' => 'nullable|in:paid,pending',
+            'payment_method' => 'nullable|string|max:255',
         ]);
 
-        HostingAccount::create($validated);
+        $account = HostingAccount::create([
+            'user_id' => $validated['user_id'],
+            'hosting_server_id' => $validated['hosting_server_id'],
+            'domain' => $validated['domain'],
+            'plan_name' => $validated['plan_name'],
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? null,
+        ]);
 
-        return back()->with('success', 'Client hosting account created successfully.');
+        // Automatically generate an invoice for the user
+        $user = User::find($validated['user_id']);
+        $server = HostingServer::find($validated['hosting_server_id']);
+        $amount = isset($validated['amount']) ? (float)$validated['amount'] : 0.00;
+        $currency = strtoupper($validated['currency'] ?? 'INR');
+        $paymentStatus = $validated['payment_status'] ?? 'paid';
+        $paymentMethod = $validated['payment_method'] ?? 'Admin Assignment';
+
+        \App\Models\Invoice::create([
+            'user_id' => $user->id,
+            'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
+            'type' => 'hosting_plan',
+            'plan_name' => $validated['plan_name'],
+            'description' => "Managed Cloud Hosting for {$validated['domain']} ({$validated['plan_name']})",
+            'amount' => $amount,
+            'currency' => $currency,
+            'status' => $paymentStatus,
+            'payment_method' => $paymentMethod,
+            'paid_at' => ($paymentStatus === 'paid') ? now() : null,
+            'hosting_account_id' => $account->id,
+            'billing_details' => [
+                'customer_name' => $user->name,
+                'customer_email' => $user->email,
+                'domain' => $validated['domain'],
+                'server' => $server?->name,
+                'notes' => $validated['notes'] ?? null,
+            ],
+        ]);
+
+        return back()->with('success', 'Client hosting account and invoice generated successfully.');
     }
 
     /**
