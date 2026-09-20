@@ -21,12 +21,14 @@ class HostingController extends Controller
             'notes' => 'nullable|string|max:2000',
         ]);
 
+        $user = auth()->user();
         HostingRequest::create([
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
             'domain' => $validated['domain'] ?? null,
             'plan_requested' => $validated['plan_requested'] ?? 'Standard Managed Hosting',
-            'estimated_traffic' => $validated['estimated_traffic'] ?? null,
-            'notes' => $validated['notes'] ?? null,
+            'requirements' => (!empty($validated['estimated_traffic']) ? "Traffic: {$validated['estimated_traffic']}\n" : '') . ($validated['notes'] ?? ''),
             'status' => 'pending',
         ]);
 

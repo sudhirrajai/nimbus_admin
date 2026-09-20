@@ -17,9 +17,24 @@ class HostingRequest extends Model
         'domain',
         'plan_requested',
         'requirements',
+        'notes',
         'status',
         'admin_notes',
     ];
+
+    protected $appends = [
+        'notes',
+    ];
+
+    public function getNotesAttribute(): ?string
+    {
+        return $this->attributes['requirements'] ?? null;
+    }
+
+    public function setNotesAttribute($value): void
+    {
+        $this->attributes['requirements'] = $value;
+    }
 
     public function user()
     {
