@@ -14,7 +14,7 @@ class InvoiceController extends Controller
     public function index()
     {
         $invoices = Invoice::where('user_id', auth()->id())
-            ->with(['license:id,license_key,plan', 'hostingAccount:id,domain,plan_name'])
+            ->with(['license:id,license_key,plan', 'hostingAccount'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 

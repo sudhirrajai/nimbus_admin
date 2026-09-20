@@ -116,8 +116,11 @@ class AdminHostingController extends Controller
 
         $account = HostingAccount::create([
             'user_id' => $validated['user_id'],
+            'server_id' => $validated['hosting_server_id'],
             'hosting_server_id' => $validated['hosting_server_id'],
+            'primary_domain' => $validated['domain'],
             'domain' => $validated['domain'],
+            'package_name' => $validated['plan_name'],
             'plan_name' => $validated['plan_name'],
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? null,

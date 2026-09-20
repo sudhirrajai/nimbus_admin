@@ -12,7 +12,7 @@ class AdminInvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Invoice::with(['user:id,name,email', 'license:id,license_key,plan', 'hostingAccount:id,domain,plan_name'])
+        $query = Invoice::with(['user:id,name,email', 'license:id,license_key,plan', 'hostingAccount'])
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
