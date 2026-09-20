@@ -20,7 +20,7 @@ class UserLicenseController extends Controller
             ->get();
 
         $hostingAccounts = \App\Models\HostingAccount::where('user_id', auth()->id())
-            ->with('server:id,name,ip_address,panel_url')
+            ->with('server:id,name,ip_address,nimbus_url')
             ->orderBy('created_at', 'desc')
             ->get();
 

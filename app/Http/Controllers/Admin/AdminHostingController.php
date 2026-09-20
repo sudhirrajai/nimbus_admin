@@ -22,7 +22,7 @@ class AdminHostingController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $accounts = HostingAccount::with(['user:id,name,email', 'server:id,name,ip_address,panel_url'])
+        $accounts = HostingAccount::with(['user:id,name,email', 'server:id,name,ip_address,nimbus_url'])
             ->orderBy('created_at', 'desc')
             ->paginate(15, ['*'], 'accounts_page');
 
