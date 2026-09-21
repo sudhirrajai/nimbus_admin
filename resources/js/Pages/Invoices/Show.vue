@@ -202,23 +202,13 @@ const numberToWords = (num) => {
                         </p>
                     </div>
 
-                    <!-- Right: Dynamic Owner Company & Bank Details -->
-                    <div class="text-left sm:text-right text-xs text-gray-700 leading-relaxed pr-8 sm:pr-14 space-y-3">
-                        <div>
-                            <div class="font-bold text-gray-950 text-sm">{{ company?.name || 'Nimbus by VMCore' }}</div>
-                            <div v-if="company?.address_line1">{{ company.address_line1 }}</div>
-                            <div v-if="company?.address_line2">{{ company.address_line2 }}</div>
-                            <div v-if="company?.phone">Phone: {{ company.phone }}</div>
-                        </div>
-
-                        <!-- Dynamic Bank Transfer Details -->
-                        <div v-if="company?.bank_name" class="text-[11px] text-gray-600 space-y-0.5 pt-1">
-                            <div>Bank Name: <strong class="text-gray-900">{{ company.bank_name }}</strong></div>
-                            <div>Account Name: <strong class="text-gray-900">{{ company.bank_account_name || company.name || 'Nimbus by VMCore' }}</strong></div>
-                            <div>Account Number: <strong class="text-gray-900 font-mono">{{ company.bank_account }}</strong></div>
-                            <div>IFSC Code: <strong class="text-gray-900 font-mono">{{ company.bank_ifsc }}</strong></div>
-                            <div v-if="company?.bank_upi">UPI ID: <strong class="text-gray-900 font-mono">{{ company.bank_upi }}</strong></div>
-                        </div>
+                    <!-- Right: Dynamic Owner Company Details -->
+                    <div class="text-left sm:text-right text-xs text-gray-700 leading-relaxed pr-8 sm:pr-14 space-y-0.5">
+                        <div class="font-bold text-gray-950 text-sm">{{ company?.name || 'Nimbus by VMCore' }}</div>
+                        <div v-if="company?.address_line1">{{ company.address_line1 }}</div>
+                        <div v-if="company?.address_line2">{{ company.address_line2 }}</div>
+                        <div v-if="company?.phone">Phone: {{ company.phone }}</div>
+                        <div v-if="company?.email" class="text-gray-500">{{ company.email }}</div>
                     </div>
                 </div>
 
