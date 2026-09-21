@@ -26,7 +26,9 @@ const filteredUsers = computed(() => {
         const code = (u.customer_code || '').toLowerCase();
         const company = (u.company_name || '').toLowerCase();
         const phone = (u.phone || '').toLowerCase();
-        return name.includes(q) || email.includes(q) || code.includes(q) || company.includes(q) || phone.includes(q);
+        const city = (u.city || '').toLowerCase();
+        const state = (u.state || '').toLowerCase();
+        return name.includes(q) || email.includes(q) || code.includes(q) || company.includes(q) || phone.includes(q) || city.includes(q) || state.includes(q);
     });
 });
 
@@ -40,6 +42,11 @@ const createForm = useForm({
     password: '',
     phone: '',
     company_name: '',
+    address: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: 'India',
     notes: '',
     is_admin: false,
     is_active: true,
@@ -86,6 +93,11 @@ const editForm = useForm({
     password: '',
     phone: '',
     company_name: '',
+    address: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: 'India',
     notes: '',
     is_admin: false,
     is_active: true,
@@ -109,6 +121,11 @@ const openEditModal = (user) => {
     editForm.password = '';
     editForm.phone = user.phone || '';
     editForm.company_name = user.company_name || '';
+    editForm.address = user.address || '';
+    editForm.city = user.city || '';
+    editForm.state = user.state || '';
+    editForm.postal_code = user.postal_code || '';
+    editForm.country = user.country || 'India';
     editForm.notes = user.notes || '';
     editForm.is_admin = !!user.is_admin;
     editForm.is_active = user.is_active !== undefined ? !!user.is_active : true;
@@ -262,10 +279,12 @@ const formatDateTime = (dateStr) => {
                                         </span>
                                     </div>
                                     <div class="text-xs text-gray-500 mt-0.5">{{ user.email }}</div>
-                                    <div v-if="user.company_name || user.phone" class="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2">
+                                    <div v-if="user.company_name || user.phone || user.city" class="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2">
                                         <span v-if="user.company_name" class="font-medium text-gray-600">{{ user.company_name }}</span>
-                                        <span v-if="user.company_name && user.phone">•</span>
+                                        <span v-if="user.company_name && (user.phone || user.city)">•</span>
                                         <span v-if="user.phone">{{ user.phone }}</span>
+                                        <span v-if="user.phone && user.city">•</span>
+                                        <span v-if="user.city">{{ user.city }}{{ user.state ? ', ' + user.state : '' }}</span>
                                     </div>
                                 </td>
 
@@ -450,6 +469,63 @@ const formatDateTime = (dateStr) => {
                         </div>
                     </div>
 
+                    <!-- Billing & Physical Address -->
+                    <div class="border border-gray-200 rounded-xl p-3.5 bg-slate-50/50 space-y-3">
+                        <div class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm text-emerald-600">home_pin</span>
+                            Billing & Physical Address
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Street Address</label>
+                            <input 
+                                v-model="editForm.address" 
+                                type="text" 
+                                placeholder="Plot / Flat No, Street, Society / Area"
+                                class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                            />
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">City</label>
+                                <input 
+                                    v-model="editForm.city" 
+                                    type="text" 
+                                    placeholder="e.g. Bhavnagar"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">State</label>
+                                <input 
+                                    v-model="editForm.state" 
+                                    type="text" 
+                                    placeholder="e.g. Gujarat"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Postal / PIN Code</label>
+                                <input 
+                                    v-model="editForm.postal_code" 
+                                    type="text" 
+                                    placeholder="e.g. 364002"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 font-mono" 
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Country</label>
+                                <input 
+                                    v-model="editForm.country" 
+                                    type="text" 
+                                    placeholder="e.g. India"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                />
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Password Management Box -->
                     <div class="border border-gray-200 rounded-xl p-4 bg-slate-50/60 space-y-2">
                         <div class="flex items-center justify-between">
@@ -617,6 +693,63 @@ const formatDateTime = (dateStr) => {
                                 placeholder="Acme Technologies"
                                 class="w-full text-sm rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
                             />
+                        </div>
+                    </div>
+
+                    <!-- Billing & Physical Address -->
+                    <div class="border border-gray-200 rounded-xl p-3.5 bg-slate-50/50 space-y-3">
+                        <div class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm text-emerald-600">home_pin</span>
+                            Billing & Physical Address
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Street Address</label>
+                            <input 
+                                v-model="createForm.address" 
+                                type="text" 
+                                placeholder="Plot / Flat No, Street, Society / Area"
+                                class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                            />
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">City</label>
+                                <input 
+                                    v-model="createForm.city" 
+                                    type="text" 
+                                    placeholder="e.g. Bhavnagar"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">State</label>
+                                <input 
+                                    v-model="createForm.state" 
+                                    type="text" 
+                                    placeholder="e.g. Gujarat"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Postal / PIN Code</label>
+                                <input 
+                                    v-model="createForm.postal_code" 
+                                    type="text" 
+                                    placeholder="e.g. 364002"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 font-mono" 
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Country</label>
+                                <input 
+                                    v-model="createForm.country" 
+                                    type="text" 
+                                    placeholder="e.g. India"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                />
+                            </div>
                         </div>
                     </div>
 

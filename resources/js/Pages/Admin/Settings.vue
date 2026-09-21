@@ -14,20 +14,18 @@ const form = useForm({
     license_expiry_days: props.settings.license_expiry_days,
     razorpay_enabled: props.settings.razorpay_enabled,
     razorpay_mode: props.settings.razorpay_mode,
-    company_name: props.settings.company_name || 'VMCore Technologies Pvt. Ltd.',
+    company_name: props.settings.company_name || 'Nimbus by VMCore',
     company_address_line1: props.settings.company_address_line1 || '#104, Tech Park Boulevard',
-    company_address_line2: props.settings.company_address_line2 || 'Indiranagar, Bangalore, Karnataka - 560038, India',
-    company_gstin: props.settings.company_gstin || '29AADCV1234F1Z5',
-    company_pan: props.settings.company_pan || 'AADCV1234F',
+    company_address_line2: props.settings.company_address_line2 || 'Bangalore - 560038, Karnataka, India',
     company_email: props.settings.company_email || 'billing@vmcore.in',
-    company_phone: props.settings.company_phone || '+91 (0) 80-4567-8900',
+    company_phone: props.settings.company_phone || '+91 80 4567 8900',
     company_website: props.settings.company_website || 'https://nimbus.vmcore.in',
     bank_name: props.settings.bank_name || 'HDFC Bank Ltd.',
+    bank_account_name: props.settings.bank_account_name || 'Nimbus by VMCore',
     bank_account: props.settings.bank_account || '50200088991122',
     bank_ifsc: props.settings.bank_ifsc || 'HDFC0001234',
     bank_branch: props.settings.bank_branch || 'Indiranagar Branch, Bangalore',
     bank_upi: props.settings.bank_upi || 'vmcore@hdfcbank',
-    invoice_terms: props.settings.invoice_terms || '',
 });
 
 const submit = () => {
@@ -187,52 +185,30 @@ const submit = () => {
                     </div>
                 </div>
 
-                <!-- Company & Tax Invoice Settings Block -->
+                <!-- Company & Dynamic Owner Details Block -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm space-y-6">
                     <div class="border-b border-gray-100 pb-4">
                         <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                             <span class="material-symbols-rounded text-emerald-600 text-lg">receipt_long</span>
-                            Company & Tax Invoice Settings
+                            Company & Invoice Letterhead
                         </h3>
-                        <p class="text-xs text-gray-550 mt-1">Configure official letterhead, GSTIN, and company banking details printed on customer invoices.</p>
+                        <p class="text-xs text-gray-550 mt-1">Configure company name, business address, and banking instructions displayed dynamically on customer invoices.</p>
                     </div>
 
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div>
-                            <label for="company_name" class="block text-xs font-semibold text-gray-700 mb-2">Legal Company / Entity Name</label>
+                            <label for="company_name" class="block text-xs font-semibold text-gray-700 mb-2">Company / Brand Name</label>
                             <input 
                                 id="company_name"
                                 type="text"
                                 v-model="form.company_name"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="e.g. VMCore Technologies Pvt. Ltd."
+                                placeholder="Nimbus by VMCore"
                             />
                         </div>
 
                         <div>
-                            <label for="company_gstin" class="block text-xs font-semibold text-gray-700 mb-2">GSTIN / Tax Registration No.</label>
-                            <input 
-                                id="company_gstin"
-                                type="text"
-                                v-model="form.company_gstin"
-                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all uppercase"
-                                placeholder="e.g. 29AADCV1234F1Z5"
-                            />
-                        </div>
-
-                        <div>
-                            <label for="company_pan" class="block text-xs font-semibold text-gray-700 mb-2">PAN / Corporate Tax ID</label>
-                            <input 
-                                id="company_pan"
-                                type="text"
-                                v-model="form.company_pan"
-                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all uppercase"
-                                placeholder="e.g. AADCV1234F"
-                            />
-                        </div>
-
-                        <div>
-                            <label for="company_email" class="block text-xs font-semibold text-gray-700 mb-2">Billing Support Email</label>
+                            <label for="company_email" class="block text-xs font-semibold text-gray-700 mb-2">Billing & Support Email</label>
                             <input 
                                 id="company_email"
                                 type="email"
@@ -243,7 +219,7 @@ const submit = () => {
                         </div>
 
                         <div>
-                            <label for="company_phone" class="block text-xs font-semibold text-gray-700 mb-2">Billing Phone / Hotline</label>
+                            <label for="company_phone" class="block text-xs font-semibold text-gray-700 mb-2">Support Phone / Hotline</label>
                             <input 
                                 id="company_phone"
                                 type="text"
@@ -265,35 +241,39 @@ const submit = () => {
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="company_address_line1" class="block text-xs font-semibold text-gray-700 mb-2">Address Line 1</label>
+                            <label for="company_address_line1" class="block text-xs font-semibold text-gray-700 mb-2">Owner Address Line 1</label>
                             <input 
                                 id="company_address_line1"
                                 type="text"
                                 v-model="form.company_address_line1"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="#104, Tech Park Boulevard"
+                                placeholder="Plot No. A33, Tech Park"
                             />
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="company_address_line2" class="block text-xs font-semibold text-gray-700 mb-2">Address Line 2 (City, State, Pin, Country)</label>
+                            <label for="company_address_line2" class="block text-xs font-semibold text-gray-700 mb-2">Owner Address Line 2 (City, State, Pin, Country)</label>
                             <input 
                                 id="company_address_line2"
                                 type="text"
                                 v-model="form.company_address_line2"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="Indiranagar, Bangalore, Karnataka - 560038, India"
+                                placeholder="Bangalore - 560038, Karnataka, India"
                             />
                         </div>
                     </div>
 
                     <!-- Bank Details Sub-section -->
                     <div class="border-t border-gray-100 pt-5 space-y-4">
-                        <div class="text-xs font-bold text-gray-800 uppercase tracking-wider">Bank Transfer & UPI Details (For Invoices)</div>
+                        <div class="text-xs font-bold text-gray-800 uppercase tracking-wider">Bank Transfer & UPI Details (Printed on Invoices)</div>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Bank Name</label>
                                 <input type="text" v-model="form.bank_name" class="w-full text-xs rounded-lg border-gray-200" placeholder="HDFC Bank" />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Account Name</label>
+                                <input type="text" v-model="form.bank_account_name" class="w-full text-xs rounded-lg border-gray-200" placeholder="Nimbus by VMCore" />
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Account Number</label>
@@ -305,25 +285,13 @@ const submit = () => {
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Branch</label>
-                                <input type="text" v-model="form.bank_branch" class="w-full text-xs rounded-lg border-gray-200" placeholder="Indiranagar, Bangalore" />
+                                <input type="text" v-model="form.bank_branch" class="w-full text-xs rounded-lg border-gray-200" placeholder="Indiranagar Branch, Bangalore" />
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">UPI ID</label>
                                 <input type="text" v-model="form.bank_upi" class="w-full text-xs rounded-lg border-gray-200" placeholder="vmcore@hdfcbank" />
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Terms & Conditions Note -->
-                    <div class="border-t border-gray-100 pt-5">
-                        <label for="invoice_terms" class="block text-xs font-semibold text-gray-700 mb-2">Invoice Terms & Legal Declaration</label>
-                        <textarea 
-                            id="invoice_terms"
-                            v-model="form.invoice_terms"
-                            rows="3"
-                            class="w-full text-xs border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm font-sans"
-                            placeholder="Standard payment and electronic document terms..."
-                        ></textarea>
                     </div>
                 </div>
 

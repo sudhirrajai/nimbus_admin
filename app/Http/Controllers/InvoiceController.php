@@ -34,7 +34,7 @@ class InvoiceController extends Controller
             abort(403, 'Unauthorized access to invoice.');
         }
 
-        $invoice->load(['user:id,uuid,name,email,company_name,phone', 'license', 'hostingAccount.server']);
+        $invoice->load(['user:id,uuid,name,email,company_name,phone,address,city,state,postal_code,country', 'license', 'hostingAccount.server']);
 
         // Load company configuration
         $settings = [];
@@ -43,23 +43,21 @@ class InvoiceController extends Controller
         }
 
         $company = [
-            'name' => $settings['company_name'] ?? 'VMCore Technologies Pvt. Ltd.',
-            'brand' => $settings['site_name'] ?? 'Nimbus Cloud Platform',
-            'tagline' => 'Enterprise Cloud Infrastructure & Managed Hosting Solutions',
+            'name' => $settings['company_name'] ?? 'Nimbus by VMCore',
+            'brand' => $settings['site_name'] ?? 'Nimbus by VMCore',
+            'tagline' => 'Your Hosting, Our Responsibility.',
             'address_line1' => $settings['company_address_line1'] ?? '#104, Tech Park Boulevard',
-            'address_line2' => $settings['company_address_line2'] ?? 'Indiranagar, Bangalore, Karnataka - 560038, India',
-            'gstin' => $settings['company_gstin'] ?? '29AADCV1234F1Z5',
-            'pan' => $settings['company_pan'] ?? 'AADCV1234F',
+            'address_line2' => $settings['company_address_line2'] ?? 'Bangalore - 560038, Karnataka, India',
             'email' => $settings['company_email'] ?? 'billing@vmcore.in',
             'support_email' => $settings['company_email'] ?? 'support@vmcore.in',
-            'phone' => $settings['company_phone'] ?? '+91 (0) 80-4567-8900',
+            'phone' => $settings['company_phone'] ?? '+91 80 4567 8900',
             'website' => $settings['company_website'] ?? 'https://nimbus.vmcore.in',
             'bank_name' => $settings['bank_name'] ?? 'HDFC Bank Ltd.',
+            'bank_account_name' => $settings['bank_account_name'] ?? ($settings['company_name'] ?? 'Nimbus by VMCore'),
             'bank_account' => $settings['bank_account'] ?? '50200088991122',
             'bank_ifsc' => $settings['bank_ifsc'] ?? 'HDFC0001234',
             'bank_branch' => $settings['bank_branch'] ?? 'Indiranagar Branch, Bangalore',
             'bank_upi' => $settings['bank_upi'] ?? 'vmcore@hdfcbank',
-            'invoice_terms' => $settings['invoice_terms'] ?? "1. All hosting services and server licenses are billed in advance for the committed period.\n2. Cloud services renew automatically at agreed renewal rates unless cancelled 14 days prior to due date.\n3. This is an electronically generated Tax Invoice under Section 13(2) of the Information Technology Act, 2000 and requires no physical signature.",
         ];
 
         return Inertia::render('Invoices/Show', [

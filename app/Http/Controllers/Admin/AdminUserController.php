@@ -33,6 +33,11 @@ class AdminUserController extends Controller
             'is_active' => ['nullable', 'boolean'],
             'phone' => ['nullable', 'string', 'max:50'],
             'company_name' => ['nullable', 'string', 'max:150'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:30'],
+            'country' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -44,6 +49,11 @@ class AdminUserController extends Controller
             'is_active' => $request->boolean('is_active', true),
             'phone' => $validated['phone'] ?? null,
             'company_name' => $validated['company_name'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'city' => $validated['city'] ?? null,
+            'state' => $validated['state'] ?? null,
+            'postal_code' => $validated['postal_code'] ?? null,
+            'country' => $validated['country'] ?? 'India',
             'notes' => $validated['notes'] ?? null,
             'email_verified_at' => now(),
         ]);
@@ -61,6 +71,11 @@ class AdminUserController extends Controller
             'is_active' => ['nullable', 'boolean'],
             'phone' => ['nullable', 'string', 'max:50'],
             'company_name' => ['nullable', 'string', 'max:150'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:30'],
+            'country' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -77,6 +92,11 @@ class AdminUserController extends Controller
             'is_active' => $request->boolean('is_active'),
             'phone' => $validated['phone'] ?? null,
             'company_name' => $validated['company_name'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'city' => $validated['city'] ?? null,
+            'state' => $validated['state'] ?? null,
+            'postal_code' => $validated['postal_code'] ?? null,
+            'country' => $validated['country'] ?? 'India',
             'notes' => $validated['notes'] ?? null,
         ];
 

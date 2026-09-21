@@ -25,20 +25,18 @@ class AdminSettingsController extends Controller
             'license_expiry_days' => 30,
             'razorpay_enabled' => true,
             'razorpay_mode' => 'sandbox',
-            'company_name' => 'VMCore Technologies Pvt. Ltd.',
+            'company_name' => 'Nimbus by VMCore',
             'company_address_line1' => '#104, Tech Park Boulevard',
-            'company_address_line2' => 'Indiranagar, Bangalore, Karnataka - 560038, India',
-            'company_gstin' => '29AADCV1234F1Z5',
-            'company_pan' => 'AADCV1234F',
+            'company_address_line2' => 'Bangalore - 560038, Karnataka, India',
             'company_email' => 'billing@vmcore.in',
-            'company_phone' => '+91 (0) 80-4567-8900',
+            'company_phone' => '+91 80 4567 8900',
             'company_website' => 'https://nimbus.vmcore.in',
             'bank_name' => 'HDFC Bank Ltd.',
+            'bank_account_name' => 'Nimbus by VMCore',
             'bank_account' => '50200088991122',
             'bank_ifsc' => 'HDFC0001234',
             'bank_branch' => 'Indiranagar Branch, Bangalore',
             'bank_upi' => 'vmcore@hdfcbank',
-            'invoice_terms' => "1. All hosting services and server licenses are billed in advance for the committed period.\n2. Cloud services renew automatically at agreed renewal rates unless cancelled 14 days prior to due date.\n3. This is an electronically generated Tax Invoice under Section 13(2) of the Information Technology Act, 2000 and requires no physical signature.",
         ];
 
         if (!Storage::disk('local')->exists($path)) {
@@ -71,17 +69,15 @@ class AdminSettingsController extends Controller
             'company_name' => 'nullable|string|max:150',
             'company_address_line1' => 'nullable|string|max:200',
             'company_address_line2' => 'nullable|string|max:200',
-            'company_gstin' => 'nullable|string|max:30',
-            'company_pan' => 'nullable|string|max:30',
             'company_email' => 'nullable|email|max:100',
             'company_phone' => 'nullable|string|max:50',
             'company_website' => 'nullable|string|max:150',
             'bank_name' => 'nullable|string|max:100',
+            'bank_account_name' => 'nullable|string|max:150',
             'bank_account' => 'nullable|string|max:50',
             'bank_ifsc' => 'nullable|string|max:30',
             'bank_branch' => 'nullable|string|max:100',
             'bank_upi' => 'nullable|string|max:100',
-            'invoice_terms' => 'nullable|string|max:2000',
         ]);
 
         Storage::disk('local')->put($this->getSettingsPath(), json_encode($validated, JSON_PRETTY_PRINT));
