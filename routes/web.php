@@ -52,6 +52,10 @@ Route::post('/licenses/{license}/revoke', [UserLicenseController::class, 'revoke
     ->middleware(['auth', 'verified'])->name('licenses.revoke');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/self-host', [UserLicenseController::class, 'selfHost'])->name('self-host.index');
+    Route::get('/managed-hosting', [\App\Http\Controllers\HostingController::class, 'index'])->name('hosting.client.index');
+    Route::get('/store', [\App\Http\Controllers\StoreController::class, 'index'])->name('store.index');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

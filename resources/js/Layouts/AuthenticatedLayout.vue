@@ -10,7 +10,10 @@ const page = usePage();
 
 const pageTitle = computed(() => {
     if (route().current('dashboard')) return 'Dashboard';
-    if (route().current('subscription')) return 'My Subscription';
+    if (route().current('self-host.*')) return 'Nimbus Self-Host';
+    if (route().current('hosting.client.*')) return 'Managed Cloud Hosting';
+    if (route().current('store.*')) return 'Store & Packages';
+    if (route().current('subscription')) return 'My Subscriptions';
     if (route().current('invoices.*')) return 'Invoices & Receipts';
     if (route().current('admin.licenses.index')) return 'Licenses';
     if (route().current('admin.hosting.*')) return 'Managed Hosting';
@@ -64,6 +67,45 @@ const isRouteActive = (routeName) => {
                 </Link>
 
                 <Link 
+                    :href="route('self-host.index')" 
+                    :class="[
+                        route().current('self-host.*') 
+                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                    ]"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                >
+                    <span class="material-symbols-rounded text-lg">terminal</span>
+                    Nimbus Self-Host
+                </Link>
+
+                <Link 
+                    :href="route('hosting.client.index')" 
+                    :class="[
+                        route().current('hosting.client.*') 
+                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                    ]"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                >
+                    <span class="material-symbols-rounded text-lg">cloud_done</span>
+                    Managed Hosting
+                </Link>
+
+                <Link 
+                    :href="route('store.index')" 
+                    :class="[
+                        route().current('store.*') 
+                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                    ]"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                >
+                    <span class="material-symbols-rounded text-lg">storefront</span>
+                    Store &amp; Packages
+                </Link>
+
+                <Link 
                     :href="route('subscription')" 
                     :class="[
                         isRouteActive('subscription') 
@@ -73,7 +115,7 @@ const isRouteActive = (routeName) => {
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
                 >
                     <span class="material-symbols-rounded text-lg">card_membership</span>
-                    My Subscription
+                    My Subscriptions
                 </Link>
 
                 <Link 
@@ -277,6 +319,48 @@ const isRouteActive = (routeName) => {
                     </Link>
 
                     <Link 
+                        :href="route('self-host.index')" 
+                        @click="showingNavigationDropdown = false"
+                        :class="[
+                            route().current('self-host.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">terminal</span>
+                        Nimbus Self-Host
+                    </Link>
+
+                    <Link 
+                        :href="route('hosting.client.index')" 
+                        @click="showingNavigationDropdown = false"
+                        :class="[
+                            route().current('hosting.client.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">cloud_done</span>
+                        Managed Hosting
+                    </Link>
+
+                    <Link 
+                        :href="route('store.index')" 
+                        @click="showingNavigationDropdown = false"
+                        :class="[
+                            route().current('store.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">storefront</span>
+                        Store &amp; Packages
+                    </Link>
+
+                    <Link 
                         :href="route('subscription')" 
                         @click="showingNavigationDropdown = false"
                         :class="[
@@ -287,7 +371,7 @@ const isRouteActive = (routeName) => {
                         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
                     >
                         <span class="material-symbols-rounded text-lg">card_membership</span>
-                        My Subscription
+                        My Subscriptions
                     </Link>
 
                     <Link 

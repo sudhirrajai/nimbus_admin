@@ -11,29 +11,51 @@ class UserLicenseController extends Controller
 {
     public function index()
     {
-        $licenses = License::where('user_id', auth()->id())
+        $userId = auth()->id();
+
+        $licenses = License::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $plans = \App\Models\Plan::where('is_active', true)
-            ->orderBy('price_inr')
-            ->get();
-
-        $hostingAccounts = \App\Models\HostingAccount::where('user_id', auth()->id())
+        $hostingAccounts = \App\Models\HostingAccount::where('user_id', $userId)
             ->with('server:id,name,ip_address,nimbus_url')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $hostingRequests = \App\Models\HostingRequest::where('user_id', auth()->id())
+        $invoices = \App\Models\Invoice::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $hostingRequests = \App\Models\HostingRequest::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->take(3)
             ->get();
 
         return Inertia::render('Dashboard', [
             'licenses' => $licenses,
-            'plans' => $plans,
             'hostingAccounts' => $hostingAccounts,
+            'invoices' => $invoices,
             'hostingRequests' => $hostingRequests,
-            'availableModules' => \App\Models\Plan::AVAILABLE_MODULES,
+        ]);
+    }
+
+    public function selfHost()
+    {
+        $userId = auth()->id();
+
+        $licenses = License::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $selfHostedPlans = \App\Models\Plan::where('is_active', true)
+            ->selfHosted()
+            ->orderBy('price_inr')
+            ->get();
+
+        return Inertia::render('SelfHost/Index', [
+            'licenses' => $licenses,
+            'plans' => $selfHostedPlans,
         ]);
     }
 

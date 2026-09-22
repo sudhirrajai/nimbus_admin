@@ -1,12 +1,15 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
     licenses: Array,
     hostingAccounts: Array,
     invoices: Array,
 });
+
+const activeTab = ref('nimbus_panel'); // 'nimbus_panel' or 'managed_hosting'
 
 const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
@@ -17,60 +20,183 @@ const formatDate = (dateStr) => {
     });
 };
 
-const getFallbackFeatures = (planSlug) => {
-    if (planSlug === 'free') {
-        return ['1 Server', '3 Domains Limit', 'SSL Automation', 'File Manager', 'Community Support', 'Basic Monitoring'];
-    } else if (planSlug === 'pro') {
-        return ['5 Servers Support', '50 Domains Limit', 'Git Auto-Deploy', 'Priority Support', 'Team Access', 'Advanced Security', 'WordPress Manager'];
-    } else if (planSlug === 'enterprise') {
-        return ['Unlimited Servers', '9999 Domains Limit', 'White Label Support', 'SLA Guarantee', 'Dedicated Manager', 'API Access', 'Custom Integrations'];
-    }
-    return ['Basic server management features'];
-};
-
 const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert('License key copied to clipboard!');
 };
 
 const formatDateTime = (dateStr) => {
-    if (!dateStr) return '';
+    if (!dateStr) return 'Lifetime';
     return new Date(dateStr).toLocaleString(undefined, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
     });
+};
+
+const getFallbackFeatures = (planSlug) => {
+    if (planSlug === 'free') {
+        return ['1 Server Node', '3 Domains Limit', 'SSL Automation', 'File Manager & Ace Editor', 'Web Terminal', 'Basic Monitoring'];
+    } else if (planSlug === 'pro') {
+        return ['5 Server Nodes', '50 Domains Limit', 'Git Auto-Deploy', 'Priority Support', 'Team Access', 'WordPress Manager', 'Cron & Supervisor'];
+    } else if (planSlug === 'enterprise') {
+        return ['Unlimited Servers', '9999 Domains Limit', 'White Label Support', 'SLA Guarantee', 'Dedicated Manager', 'API Access', 'Custom Integrations'];
+    }
+    return ['Basic server management features'];
 };
 </script>
 
 <template>
-    <Head title="My Subscription" />
+    <Head title="My Subscriptions" />
 
     <AuthenticatedLayout>
         <template #header>
-            <div>
-                <h2 class="text-2xl font-bold tracking-tight text-gray-900">
-                    My Subscription & Plan
-                </h2>
-                <p class="text-xs text-gray-500 mt-1">Review active keys, dynamic capabilities, and premium plan benefits.</p>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                        <span class="material-symbols-rounded text-emerald-600">card_membership</span>
+                        My Subscriptions &amp; Services
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Review active plans, renewal rates, and license terms across your Nimbus infrastructure.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <Link 
+                        :href="route('store.index')" 
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
+                    >
+                        <span class="material-symbols-rounded text-base">shopping_cart</span>
+                        Browse Store Packages
+                    </Link>
+                </div>
             </div>
         </template>
 
-        <div class="space-y-8">
-            <!-- Managed Hosting Plans & Renewal Section -->
-            <div v-if="hostingAccounts && hostingAccounts.length > 0" class="space-y-4">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-rounded text-emerald-600 text-lg">dns</span>
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-700">Managed Cloud Hosting & Renewal Terms</h3>
+        <div class="space-y-6">
+            <!-- Tab Selector: Nimbus Self-Host vs Managed Cloud Hosting -->
+            <div class="flex justify-center sm:justify-start">
+                <div class="inline-flex p-1.5 bg-slate-100 rounded-2xl border border-gray-200 shadow-2xs gap-1.5">
+                    <button 
+                        type="button"
+                        @click="activeTab = 'nimbus_panel'"
+                        :class="activeTab === 'nimbus_panel' ? 'bg-white text-gray-950 shadow-sm font-bold border border-gray-200' : 'text-gray-600 hover:text-gray-900 font-medium'"
+                        class="px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                        <span class="material-symbols-rounded text-base text-emerald-600">terminal</span>
+                        Nimbus Self-Host Licenses ({{ licenses?.length || 0 }})
+                    </button>
+                    <button 
+                        type="button"
+                        @click="activeTab = 'managed_hosting'"
+                        :class="activeTab === 'managed_hosting' ? 'bg-white text-gray-950 shadow-sm font-bold border border-gray-200' : 'text-gray-600 hover:text-gray-900 font-medium'"
+                        class="px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                        <span class="material-symbols-rounded text-base text-blue-600">cloud</span>
+                        Managed Cloud Hosting ({{ hostingAccounts?.length || 0 }})
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 1: NIMBUS SELF-HOST LICENSES -->
+            <div v-if="activeTab === 'nimbus_panel'" class="space-y-6 animate-fade-in">
+                <div v-if="licenses && licenses.length > 0" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div 
+                        v-for="license in licenses" 
+                        :key="license.id"
+                        class="bg-white border border-gray-200 rounded-2xl shadow-2xs overflow-hidden flex flex-col justify-between"
+                    >
+                        <div class="p-6 space-y-5">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                                        <span class="material-symbols-rounded">card_membership</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Self-Host Plan</span>
+                                        <h3 class="text-base font-bold text-gray-950 mt-0.5">{{ license.planDetails?.name || license.plan.toUpperCase() }} License</h3>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 border border-emerald-200 text-emerald-700">
+                                    {{ license.status }}
+                                </span>
+                            </div>
+
+                            <!-- License Key Box -->
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">License Key</label>
+                                <div class="bg-slate-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between gap-3">
+                                    <code class="text-xs text-gray-800 font-mono block break-all select-all flex-1">
+                                        {{ license.license_key }}
+                                    </code>
+                                    <button 
+                                        @click="copyToClipboard(license.license_key)" 
+                                        class="p-1.5 rounded-lg bg-white hover:bg-slate-100 text-gray-600 border border-gray-200 transition-colors"
+                                        title="Copy Key"
+                                    >
+                                        <span class="material-symbols-rounded text-sm">content_copy</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Meta Grid -->
+                            <div class="grid grid-cols-2 gap-3 bg-slate-50 border border-gray-200 rounded-xl p-4">
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Connected IP</div>
+                                    <div class="text-xs font-mono font-bold text-gray-900 mt-0.5 truncate">{{ license.server_ip || 'Pending install...' }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Expires</div>
+                                    <div class="text-xs font-semibold text-gray-900 mt-0.5 truncate">{{ formatDateTime(license.expires_at) }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Features List -->
+                            <div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Included Capabilities</div>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-700">
+                                    <div v-for="feat in (license.planDetails?.features || getFallbackFeatures(license.plan))" :key="feat" class="flex items-center gap-1.5">
+                                        <span class="text-emerald-600 font-bold text-xs">✓</span>
+                                        <span class="truncate">{{ feat }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="bg-slate-50 px-6 py-3.5 border-t border-gray-100 flex items-center justify-between text-xs">
+                            <Link :href="route('self-host.index')" class="text-emerald-700 hover:text-emerald-800 font-bold flex items-center gap-1.5">
+                                <span class="material-symbols-rounded text-sm">terminal</span>
+                                Manage Deployment
+                            </Link>
+                            <Link :href="route('store.index') + '?tab=self_hosted'" class="text-gray-500 hover:text-gray-800 font-medium">
+                                Upgrade Plan
+                            </Link>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div v-else class="bg-white border border-dashed border-gray-300 rounded-2xl p-12 text-center">
+                    <div class="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+                        <span class="material-symbols-rounded text-2xl">terminal</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-gray-950">No Self-Hosted Licenses</h3>
+                    <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                        You do not currently have any active self-hosted Nimbus licenses.
+                    </p>
+                    <Link :href="route('store.index') + '?tab=self_hosted'" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm">
+                        Browse Self-Host Licenses
+                    </Link>
+                </div>
+            </div>
+
+            <!-- TAB 2: MANAGED CLOUD HOSTING ACCOUNTS -->
+            <div v-if="activeTab === 'managed_hosting'" class="space-y-6 animate-fade-in">
+                <div v-if="hostingAccounts && hostingAccounts.length > 0" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     <div 
                         v-for="account in hostingAccounts" 
                         :key="account.id"
-                        class="bg-white border border-gray-200 rounded-xl shadow-xs overflow-hidden flex flex-col justify-between"
+                        class="bg-white border-2 border-blue-100 rounded-2xl shadow-2xs overflow-hidden flex flex-col justify-between"
                     >
                         <div class="p-6 space-y-5">
                             <div class="flex items-start justify-between gap-4">
@@ -85,7 +211,7 @@ const formatDateTime = (dateStr) => {
                                 </div>
                                 <span 
                                     :class="account.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'"
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider border"
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border"
                                 >
                                     {{ account.status }}
                                 </span>
@@ -118,7 +244,7 @@ const formatDateTime = (dateStr) => {
                         </div>
 
                         <!-- Card Footer -->
-                        <div class="bg-slate-50/70 px-6 py-3.5 border-t border-gray-100 flex items-center justify-between text-xs">
+                        <div class="bg-slate-50 px-6 py-3.5 border-t border-gray-100 flex items-center justify-between text-xs">
                             <a 
                                 :href="route('hosting.accounts.client-sso', account.id)"
                                 target="_blank"
@@ -137,181 +263,50 @@ const formatDateTime = (dateStr) => {
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Active Server Licenses List -->
-            <div v-if="licenses && licenses.length > 0" class="space-y-4">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-rounded text-emerald-600 text-lg">vpn_key</span>
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-700">Nimbus Server Licenses</h3>
-                </div>
-
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div 
-                    v-for="license in licenses" 
-                    :key="license.id"
-                    class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col justify-between"
-                >
-                    <!-- Card Header -->
-                    <div class="p-6 space-y-6">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex items-center gap-3">
-                                <div class="h-10 w-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
-                                    <span class="material-symbols-rounded">card_membership</span>
-                                </div>
-                                <div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Active Plan</span>
-                                    <h3 class="text-base font-bold text-gray-950 mt-0.5">{{ license.planDetails?.name || license.plan.toUpperCase() }} Plan</h3>
-                                </div>
-                            </div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-emerald-50 border border-emerald-200 text-emerald-700">
-                                {{ license.status }}
-                            </span>
-                        </div>
-
-                        <!-- License Key Widget -->
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">License Key</label>
-                            <div class="bg-slate-50 border border-gray-200 rounded-lg p-3.5 flex items-center justify-between gap-3">
-                                <code class="text-xs text-gray-800 font-mono block break-all select-all leading-normal flex-1">
-                                    {{ license.license_key }}
-                                </code>
-                                <button 
-                                    @click="copyToClipboard(license.license_key)" 
-                                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-white hover:bg-slate-50 border border-gray-200 text-gray-650 transition-colors shadow-sm"
-                                    title="Copy License Key"
-                                >
-                                    <span class="material-symbols-rounded text-sm">content_copy</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Info Grid -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
-                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Max Domain Limit</div>
-                                <div class="text-sm text-gray-900 font-bold font-mono">
-                                    {{ license.planDetails?.max_domains ?? (license.plan === 'free' ? 3 : (license.plan === 'pro' ? 50 : 9999)) }}
-                                </div>
-                                <div class="text-[10px] text-gray-400 mt-0.5">Linked Domain: {{ license.domain || 'None yet' }}</div>
-                            </div>
-                            <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
-                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expiry Date</div>
-                                <div class="text-xs text-gray-900 font-semibold truncate">
-                                    {{ license.expires_at ? formatDateTime(license.expires_at) : 'Lifetime (No Expiry)' }}
-                                </div>
-                                <div class="text-[10px] text-gray-400 mt-0.5">Active since {{ formatDateTime(license.created_at) }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Dynamic Plan Benefits List -->
-                        <div class="border-t border-gray-200 pt-6">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-3.5">Plan Benefits & Features Included</label>
-                            <ul class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                                <li 
-                                    v-for="feature in (license.planDetails?.features || getFallbackFeatures(license.plan))" 
-                                    :key="feature"
-                                    class="flex items-center gap-2 text-xs text-gray-650"
-                                >
-                                    <span class="material-symbols-rounded text-emerald-500 text-base flex-shrink-0">check_circle</span>
-                                    <span class="truncate">{{ feature }}</span>
-                                </li>
-                            </ul>
-                        </div>
+                <div v-else class="bg-white border border-dashed border-gray-300 rounded-2xl p-12 text-center">
+                    <div class="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                        <span class="material-symbols-rounded text-2xl">cloud_sync</span>
                     </div>
-
-                    <!-- Footer Actions -->
-                    <div class="bg-slate-50/45 px-6 py-4.5 border-t border-gray-200 flex justify-between items-center text-xs">
-                        <span class="text-gray-500">Need help or changes?</span>
-                        <a 
-                            href="mailto:support@vmcore.in" 
-                            class="text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1"
-                        >
-                            <span class="material-symbols-rounded text-sm">mail</span>
-                            Contact Billing Support
-                        </a>
-                    </div>
-                </div>
-            </div>
-            </div>
-
-            <!-- Empty State for Licenses -->
-            <div v-else class="bg-white border border-gray-200 rounded-lg p-12 text-center max-w-xl mx-auto shadow-sm">
-                <div class="h-16 w-16 bg-slate-50 border border-gray-200 rounded-full flex items-center justify-center mx-auto text-gray-400 mb-6">
-                    <span class="material-symbols-rounded text-3xl">card_membership</span>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900">No Active Plan Found</h3>
-                <p class="text-sm text-gray-500 mt-2 max-w-md mx-auto">
-                    You do not currently have any active server licensing subscriptions. Browse our pricing tiers to claim a license key.
-                </p>
-                <div class="mt-8">
-                    <Link 
-                        :href="route('dashboard') + '#plans-section'"
-                        class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-3 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm inline-flex items-center gap-2"
-                    >
-                        <span class="material-symbols-rounded text-sm flex-shrink-0">shopping_bag</span>
-                        Browse Plans & Pricing
+                    <h3 class="text-sm font-bold text-gray-950">No Managed Hosting Accounts</h3>
+                    <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                        You do not currently have any active managed cloud hosting accounts.
+                    </p>
+                    <Link :href="route('store.index') + '?tab=managed_hosting'" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-sm">
+                        Explore Managed Cloud Packages
                     </Link>
                 </div>
             </div>
 
-            <!-- Recent Invoices & Receipts Section -->
-            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
-                <div class="flex items-center justify-between pb-4 border-b border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
-                            <span class="material-symbols-rounded text-lg">receipt_long</span>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-gray-900">Recent Invoices & Receipts</h3>
-                            <p class="text-[11px] text-gray-500">Download proof of payment for your tax and accounting records.</p>
-                        </div>
-                    </div>
-                    <Link 
-                        :href="route('invoices.index')"
-                        class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-                    >
-                        <span>View All Invoices</span>
-                        <span class="material-symbols-rounded text-sm">arrow_forward</span>
+            <!-- Recent Invoices Snippet -->
+            <div v-if="invoices && invoices.length > 0" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-2xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Recent Invoices</h3>
+                    <Link :href="route('invoices.index')" class="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1">
+                        View All
+                        <span class="material-symbols-rounded text-xs">arrow_forward</span>
                     </Link>
                 </div>
-
-                <div v-if="invoices && invoices.length > 0" class="divide-y divide-gray-100">
+                <div class="divide-y divide-gray-100">
                     <div 
                         v-for="inv in invoices" 
                         :key="inv.id" 
-                        class="py-3 flex items-center justify-between gap-4 text-xs"
+                        class="py-3 flex items-center justify-between text-xs"
                     >
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span class="material-symbols-rounded text-emerald-600 text-base flex-shrink-0">receipt</span>
-                            <div class="min-w-0">
-                                <div class="font-mono font-bold text-gray-900 truncate">{{ inv.invoice_number }}</div>
-                                <div class="text-[11px] text-gray-500 truncate">{{ inv.plan_name }} • {{ formatDateTime(inv.created_at) }}</div>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono font-bold text-gray-900">#{{ inv.invoice_number }}</span>
+                            <span class="text-gray-500">{{ formatDate(inv.created_at) }}</span>
                         </div>
-
-                        <div class="flex items-center gap-4 flex-shrink-0">
-                            <span class="font-mono font-bold text-gray-900">
-                                {{ inv.currency === 'INR' ? '₹' : '$' }}{{ Number(inv.amount).toFixed(2) }}
-                            </span>
+                        <div class="flex items-center gap-4">
+                            <span class="font-mono font-bold text-gray-950">₹{{ Number(inv.amount).toLocaleString('en-IN') }}</span>
                             <span 
                                 :class="inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'"
                                 class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
                             >
                                 {{ inv.status }}
                             </span>
-                            <Link 
-                                :href="route('invoices.show', inv.uuid || inv.id)"
-                                class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 rounded text-[11px] font-semibold transition-colors"
-                            >
-                                View / Print
-                            </Link>
                         </div>
                     </div>
-                </div>
-
-                <div v-else class="text-center py-6 text-xs text-gray-400">
-                    No billing invoices generated yet.
                 </div>
             </div>
         </div>

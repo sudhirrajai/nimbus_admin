@@ -1,17 +1,18 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import axios from 'axios';
-import { onMounted, computed, ref } from 'vue';
-
-const selectedCurrency = ref('INR');
-
-import { useForm } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps({
-    licenses: Array,
-    plans: Array,
+    licenses: {
+        type: Array,
+        default: () => [],
+    },
     hostingAccounts: {
+        type: Array,
+        default: () => [],
+    },
+    invoices: {
         type: Array,
         default: () => [],
     },
@@ -19,581 +20,300 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-    availableModules: {
-        type: Object,
-        default: () => ({}),
-    }
 });
 
-const showRequestModal = ref(false);
-const requestForm = useForm({
-    domain: '',
-    plan_requested: 'Standard Managed Cloud (Nimbus VPS)',
-    estimated_traffic: 'Under 50,000 visitors/mo',
-    notes: '',
-});
+const activeLicenses = computed(() => props.licenses.filter(l => l.status === 'active'));
+const activeHosting = computed(() => props.hostingAccounts.filter(h => h.status === 'active'));
+const pendingInvoices = computed(() => props.invoices.filter(i => i.status === 'pending'));
 
-const submitHostingRequest = () => {
-    requestForm.post(route('hosting.request.submit'), {
-        onSuccess: () => {
-            showRequestModal.value = false;
-            requestForm.reset();
-        }
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
     });
 };
-
-const hasActiveFreeLicense = computed(() => {
-    return props.licenses.some(l => l.plan === 'free' && l.status === 'active');
-});
-
-const activePaidPlans = computed(() => {
-    const list = props.plans || [];
-    return list.filter(p => p.price_inr > 0 && p.is_active);
-});
-
-const generateFreeLicense = () => {
-    if (hasActiveFreeLicense.value) return;
-    router.post(route('licenses.free'));
-}
-
-const disconnectMachine = (license) => {
-    if (confirm('Are you sure you want to disconnect this machine installation? The device using this license will stop working until it registers again or another device claims it.')) {
-        router.post(route('licenses.disconnect', { license: license.id }));
-    }
-}
-
-const revokeLicense = (license) => {
-    if (confirm('Are you sure you want to revoke this license? This action cannot be undone, and the devices having this license will stop working immediately. You will not be able to use this key again.')) {
-        router.post(route('licenses.revoke', { license: license.id }));
-    }
-}
-
-onMounted(() => {
-    // Load Razorpay script
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    // Auto-detect timezone
-    try {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (tz && !(tz === 'Asia/Kolkata' || tz.includes('Calcutta') || tz.includes('Kolkata'))) {
-            selectedCurrency.value = 'USD';
-        }
-    } catch (e) {
-        console.error('Timezone auto-detection failed:', e);
-    }
-});
 
 const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert('Copied to clipboard!');
-}
+};
 
 const getInstallCommand = (key) => {
     return `curl -sSL ${window.location.origin}/install.sh | sudo bash -s -- --license=${key}`;
-}
-
-const buyPlan = async (plan) => {
-    try {
-        const response = await axios.post(route('payment.initiate'), { plan });
-        const data = response.data;
-
-        const options = {
-            key: data.key_id,
-            amount: data.amount,
-            currency: "INR",
-            name: "Nimbus by VMCore",
-            description: `${plan.toUpperCase()} Plan Subscription`,
-            order_id: data.order_id,
-            handler: function (response) {
-                // Post to verify
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = route('payment.verify');
-                
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                
-                const params = {
-                    _token: csrfToken,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature
-                };
-
-                for (const key in params) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = params[key];
-                    form.appendChild(input);
-                }
-
-                document.body.appendChild(form);
-                form.submit();
-            },
-            prefill: {
-                name: data.user.name,
-                email: data.user.email,
-            },
-            theme: {
-                color: "#10B981",
-            },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-    } catch (error) {
-        alert('Failed to initiate payment. Please check your configuration.');
-        console.error(error);
-    }
-}
-
-const formatDateTime = (dateStr) => {
-    if (!dateStr) return 'Lifetime';
-    return new Date(dateStr).toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
 };
 </script>
 
 <template>
-    <Head title="My Licenses" />
+    <Head title="Dashboard" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-2xl font-bold tracking-tight text-gray-900">
-                        My Workspace
+                    <h2 class="text-xl font-bold tracking-tight text-gray-900">
+                        Welcome back, {{ $page.props.auth.user.name }}
                     </h2>
-                    <p class="text-sm text-gray-500 mt-1">Manage and deploy your Nimbus by VMCore licenses.</p>
+                    <p class="text-xs text-gray-500 mt-1">Here is a quick snapshot of your active servers, cloud hosting, and billing.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button 
-                        @click="generateFreeLicense" 
-                        :disabled="hasActiveFreeLicense"
-                        :class="[
-                            hasActiveFreeLicense 
-                                ? 'bg-slate-100 text-gray-400 cursor-not-allowed border border-gray-200 opacity-60' 
-                                : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
-                        ]"
-                        class="px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all flex items-center gap-2"
+                    <Link 
+                        :href="route('store.index')" 
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
                     >
-                        <span class="material-symbols-rounded text-sm">check_circle</span>
-                        {{ hasActiveFreeLicense ? 'Free License Claimed' : 'Claim Free License' }}
-                    </button>
-                    <button 
-                        @click="showRequestModal = true"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
-                    >
-                        <span class="material-symbols-rounded text-sm">dns</span>
-                        Request Managed Hosting
-                    </button>
-                    <button 
-                        @click="document.getElementById('plans-section').scrollIntoView({ behavior: 'smooth' })" 
-                        class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
-                    >
-                        <span class="material-symbols-rounded text-sm">add</span>
-                        Purchase New
-                    </button>
+                        <span class="material-symbols-rounded text-base">shopping_cart</span>
+                        <span>Order Packages</span>
+                    </Link>
                 </div>
             </div>
         </template>
 
-        <div class="space-y-8">
-            <!-- Success/Error Alert -->
-            <div v-if="$page.props.flash?.success || $page.props.errors?.error || $page.props.flash?.error" class="animate-fade-in">
-                <div v-if="$page.props.flash?.success" class="flex items-center gap-3 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700">
+        <div class="space-y-6">
+            <!-- Flash Message Alerts -->
+            <div v-if="$page.props.flash?.success || $page.props.errors?.error" class="animate-fade-in">
+                <div v-if="$page.props.flash?.success" class="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
                     <span class="material-symbols-rounded text-lg">check_circle</span>
-                    <p class="text-xs font-medium">{{ $page.props.flash.success }}</p>
+                    <p>{{ $page.props.flash.success }}</p>
                 </div>
-                <div v-if="$page.props.errors?.error || $page.props.flash?.error" class="flex items-center gap-3 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
+                <div v-if="$page.props.errors?.error" class="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
                     <span class="material-symbols-rounded text-lg">error</span>
-                    <p class="text-xs font-medium">{{ $page.props.errors?.error || $page.props.flash?.error }}</p>
+                    <p>{{ $page.props.errors.error }}</p>
                 </div>
             </div>
 
-            <!-- Stats Overview -->
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <!-- 4 Quick Key Metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Licenses</span>
-                        <span class="material-symbols-rounded text-gray-400 text-xl">receipt_long</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Managed Cloud</span>
+                        <div class="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <span class="material-symbols-rounded text-lg">cloud_done</span>
+                        </div>
                     </div>
-                    <div class="text-2xl font-bold text-gray-900 mt-2">{{ licenses.length }}</div>
+                    <div class="text-2xl font-black text-gray-950 mt-2">{{ activeHosting.length }} Nodes</div>
+                    <div class="text-xs text-gray-500 mt-1">Fully managed by VMCORE</div>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Active Now</span>
-                        <span class="material-symbols-rounded text-emerald-500 text-xl">sensors</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Self-Host Licenses</span>
+                        <div class="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <span class="material-symbols-rounded text-lg">terminal</span>
+                        </div>
                     </div>
-                    <div class="text-2xl font-bold text-emerald-600 mt-2">
-                        {{ licenses.filter(l => l.status === 'active').length }}
-                    </div>
+                    <div class="text-2xl font-black text-emerald-600 mt-2">{{ activeLicenses.length }} Active</div>
+                    <div class="text-xs text-gray-500 mt-1">Self-hosted control panels</div>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Managed Hosting</span>
-                        <span class="material-symbols-rounded text-indigo-500 text-xl">cloud_sync</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Open Invoices</span>
+                        <div class="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                            <span class="material-symbols-rounded text-lg">receipt_long</span>
+                        </div>
                     </div>
-                    <div class="text-2xl font-bold text-indigo-600 mt-2">{{ hostingAccounts.length }} Active</div>
+                    <div class="text-2xl font-black text-amber-600 mt-2">{{ pendingInvoices.length }} Due</div>
+                    <div class="text-xs text-gray-500 mt-1">Pending payments</div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Infrastructure SLA</span>
+                        <div class="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                            <span class="material-symbols-rounded text-lg">verified</span>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-purple-600 mt-2">99.9%</div>
+                    <div class="text-xs text-gray-500 mt-1">High availability uptime</div>
                 </div>
             </div>
 
-            <!-- MANAGED HOSTING SECTION (For authorized managed hosting clients) -->
-            <div v-if="hostingAccounts.length > 0 || hostingRequests.length > 0" class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-rounded text-indigo-600 text-lg">dns</span>
-                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">My Managed Cloud Hosting</h3>
+            <!-- Quick Action Hub (Navigation Shortcuts) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Link 
+                    :href="route('hosting.client.index')" 
+                    class="bg-white border border-gray-200 hover:border-blue-400 rounded-2xl p-4 shadow-2xs hover:shadow-sm transition-all flex items-center gap-3 group"
+                >
+                    <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-rounded text-xl">cloud</span>
                     </div>
-                    <div class="h-px flex-1 bg-gray-200 ml-4"></div>
-                </div>
-
-                <!-- Active Managed Accounts with 1-Click Login -->
-                <div v-if="hostingAccounts.length > 0" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div 
-                        v-for="account in hostingAccounts" 
-                        :key="account.id"
-                        class="bg-gradient-to-br from-white to-indigo-50/20 border-2 border-indigo-200/80 rounded-xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden"
-                    >
-                        <div class="space-y-4">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
-                                        <span class="material-symbols-rounded">cloud</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">{{ account.plan_name }}</span>
-                                        <h4 class="text-base font-bold text-gray-900 font-mono mt-0.5">{{ account.domain }}</h4>
-                                    </div>
-                                </div>
-                                <span 
-                                    :class="{
-                                        'bg-emerald-50 text-emerald-700 border-emerald-200': account.status === 'active',
-                                        'bg-amber-50 text-amber-700 border-amber-200': account.status === 'suspended',
-                                        'bg-rose-50 text-rose-700 border-rose-200': account.status === 'terminated'
-                                    }"
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider border"
-                                >
-                                    {{ account.status }}
-                                </span>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3 pt-2">
-                                <div class="bg-white/80 p-3 border border-indigo-100 rounded-lg">
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Nimbus Node IP</div>
-                                    <div class="text-xs text-gray-900 font-mono font-bold">{{ account.server?.ip_address || 'Dedicated VPS' }}</div>
-                                </div>
-                                <div class="bg-white/80 p-3 border border-indigo-100 rounded-lg">
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Management</div>
-                                    <div class="text-xs text-indigo-700 font-semibold">Fully Managed by VMCore</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 1-Click Login to Nimbus Action -->
-                        <div class="pt-5 mt-4 border-t border-indigo-100/80 flex items-center justify-between">
-                            <div class="text-xs text-gray-500">
-                                Direct single sign-on access to your Nimbus dashboard.
-                            </div>
-                            <a 
-                                :href="route('hosting.accounts.client-sso', account.id)"
-                                target="_blank"
-                                class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold tracking-wide uppercase transition-all shadow-md shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                <span class="material-symbols-rounded text-sm">login</span>
-                                1-Click Login to Nimbus
-                            </a>
-                        </div>
+                    <div>
+                        <div class="text-xs font-bold text-gray-900 group-hover:text-blue-600 transition-colors">Managed Hosting</div>
+                        <div class="text-[11px] text-gray-500">Access instances &amp; 1-click SSO</div>
                     </div>
-                </div>
+                </Link>
 
-                <!-- Pending Requests Notice -->
-                <div v-if="hostingRequests.length > 0" class="space-y-2">
-                    <div 
-                        v-for="req in hostingRequests" 
-                        :key="req.id"
-                        class="p-4 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between"
-                    >
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-rounded text-gray-500">pending_actions</span>
-                            <div>
-                                <div class="text-xs font-bold text-gray-900">
-                                    Hosting Request for <span class="font-mono text-indigo-600">{{ req.domain || 'Cloud VPS' }}</span>
-                                </div>
-                                <div class="text-[11px] text-gray-500">Plan: {{ req.plan_requested }} • Submitted {{ new Date(req.created_at).toLocaleDateString() }}</div>
-                            </div>
-                        </div>
-                        <span 
-                            :class="{
-                                'bg-amber-50 text-amber-700 border-amber-200': req.status === 'pending',
-                                'bg-emerald-50 text-emerald-700 border-emerald-200': req.status === 'approved' || req.status === 'fulfilled',
-                                'bg-rose-50 text-rose-700 border-rose-200': req.status === 'rejected'
-                            }"
-                            class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border"
-                        >
-                            {{ req.status === 'pending' ? 'Provisioning in progress' : req.status }}
-                        </span>
+                <Link 
+                    :href="route('self-host.index')" 
+                    class="bg-white border border-gray-200 hover:border-emerald-400 rounded-2xl p-4 shadow-2xs hover:shadow-sm transition-all flex items-center gap-3 group"
+                >
+                    <div class="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-rounded text-xl">terminal</span>
                     </div>
-                </div>
-            </div>
+                    <div>
+                        <div class="text-xs font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">Nimbus Self-Host</div>
+                        <div class="text-[11px] text-gray-500">View keys &amp; install commands</div>
+                    </div>
+                </Link>
 
-            <!-- Empty State -->
-            <div v-if="licenses.length === 0 && hostingAccounts.length === 0" class="bg-white border border-gray-200 rounded-lg p-16 text-center shadow-sm">
-                <div class="bg-slate-50 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6 border border-gray-200">
-                    <span class="material-symbols-rounded text-3xl text-gray-400">receipt_long</span>
-                </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">No Active Licenses</h3>
-                <p class="text-sm text-gray-500 mb-8 max-w-sm mx-auto">Your workspace is empty. Get started by purchasing a license for your server.</p>
-                <Link :href="route('home') + '#pricing'" class="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-lg text-xs font-semibold tracking-wide uppercase hover:bg-emerald-600 transition-all shadow-sm">
-                    Browse Plans
-                    <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                <Link 
+                    :href="route('store.index')" 
+                    class="bg-white border border-gray-200 hover:border-purple-400 rounded-2xl p-4 shadow-2xs hover:shadow-sm transition-all flex items-center gap-3 group"
+                >
+                    <div class="h-10 w-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-rounded text-xl">storefront</span>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-gray-900 group-hover:text-purple-600 transition-colors">Store &amp; Packages</div>
+                        <div class="text-[11px] text-gray-500">Order or upgrade cloud nodes</div>
+                    </div>
+                </Link>
+
+                <Link 
+                    :href="route('invoices.index')" 
+                    class="bg-white border border-gray-200 hover:border-gray-400 rounded-2xl p-4 shadow-2xs hover:shadow-sm transition-all flex items-center gap-3 group"
+                >
+                    <div class="h-10 w-10 rounded-xl bg-slate-100 text-gray-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-rounded text-xl">receipt_long</span>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-gray-900 group-hover:text-gray-950 transition-colors">Invoices &amp; Receipts</div>
+                        <div class="text-[11px] text-gray-500">View official payment bills</div>
+                    </div>
                 </Link>
             </div>
 
-            <!-- Licenses Grid -->
-            <div v-else class="space-y-4">
+            <!-- Active Managed Cloud Instances (Quick 1-Click Access) -->
+            <div v-if="hostingAccounts.length > 0" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-2xs space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-gray-550 uppercase tracking-wider">Active Subscriptions</h3>
-                    <div class="h-px flex-1 bg-gray-200 ml-4"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-rounded text-blue-600 text-lg">cloud</span>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-600">Active Managed Cloud Instances</h3>
+                    </div>
+                    <Link :href="route('hosting.client.index')" class="text-xs text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1">
+                        View All
+                        <span class="material-symbols-rounded text-xs">arrow_forward</span>
+                    </Link>
                 </div>
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div 
-                        v-for="license in licenses" 
-                        :key="license.id" 
-                        class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:border-gray-300 transition-all flex flex-col justify-between"
+                        v-for="account in hostingAccounts.slice(0, 4)" 
+                        :key="account.id"
+                        class="border border-gray-100 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:border-blue-200 transition-all flex items-center justify-between gap-4"
                     >
-                        <div class="p-6 space-y-6">
-                            <!-- Card Header -->
-                            <div class="flex items-start justify-between gap-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-10 w-10 rounded-lg bg-slate-50 flex items-center justify-center border border-gray-200 text-gray-700">
-                                        <span class="material-symbols-rounded">workspace_premium</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">{{ license.plan }} Plan</span>
-                                        <h4 class="text-sm font-bold text-gray-900 font-mono mt-0.5">{{ license.license_key }}</h4>
-                                    </div>
-                                </div>
-                                <span 
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider border"
-                                    :class="[
-                                        license.status === 'active' 
-                                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
-                                            : 'bg-red-50 border-red-200 text-red-700'
-                                    ]"
-                                >
-                                    {{ license.status }}
-                                </span>
-                            </div>
-
-                            <!-- Detail Widgets -->
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Server IP</div>
-                                    <div class="text-xs text-gray-900 font-mono font-medium truncate">{{ license.server_ip || 'Pending...' }}</div>
-                                </div>
-                                <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expiry</div>
-                                    <div class="text-xs text-gray-900 font-medium truncate">{{ formatDateTime(license.expires_at) }}</div>
-                                </div>
-                            </div>
-
-                            <!-- Deployment Command -->
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Deployment Command</label>
-                                <div class="bg-slate-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-3">
-                                    <code class="text-xs text-gray-800 font-mono block break-all select-all leading-normal flex-1">
-                                        {{ getInstallCommand(license.license_key) }}
-                                    </code>
-                                    <button 
-                                        @click="copyToClipboard(getInstallCommand(license.license_key))" 
-                                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-white hover:bg-slate-50 border border-gray-200 text-gray-650 transition-colors shadow-sm"
-                                        title="Copy Command"
-                                    >
-                                        <span class="material-symbols-rounded text-sm">content_copy</span>
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600">{{ account.plan_name }}</span>
+                            <div class="text-sm font-bold text-gray-950 font-mono truncate">{{ account.domain }}</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">Node: {{ account.server?.ip_address || 'Cloud Node' }}</div>
                         </div>
+                        <a 
+                            :href="route('hosting.accounts.client-sso', account.id)"
+                            target="_blank"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-xs shrink-0"
+                        >
+                            <span class="material-symbols-rounded text-sm">login</span>
+                            1-Click Login
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Card Actions -->
-                        <div v-if="license.status === 'active'" class="bg-slate-50/40 px-6 py-4 border-t border-gray-200 flex items-center gap-3">
-                            <button 
-                                @click="disconnectMachine(license)" 
-                                :disabled="!license.machine_id && !license.server_ip"
-                                :class="[
-                                    (!license.machine_id && !license.server_ip) 
-                                        ? 'text-gray-400 bg-transparent border-gray-200 cursor-not-allowed' 
-                                        : 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100 hover:text-amber-700'
-                                ]"
-                                class="flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1.5 shadow-sm"
+            <!-- Active Self-Hosted Licenses (Quick Access) -->
+            <div v-if="licenses.length > 0" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-2xs space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-rounded text-emerald-600 text-lg">terminal</span>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-600">Self-Hosted Nimbus Licenses</h3>
+                    </div>
+                    <Link :href="route('self-host.index')" class="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1">
+                        View All
+                        <span class="material-symbols-rounded text-xs">arrow_forward</span>
+                    </Link>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div 
+                        v-for="license in licenses.slice(0, 4)" 
+                        :key="license.id"
+                        class="border border-gray-100 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:border-emerald-200 transition-all space-y-2"
+                    >
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">{{ license.plan }} License</span>
+                            <span 
+                                :class="license.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'"
+                                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
                             >
-                                <span class="material-symbols-rounded text-base">phonelink_off</span>
-                                Disconnect IP
-                            </button>
-                            <button 
-                                @click="revokeLicense(license)"
-                                class="flex-1 px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 border border-red-200 text-red-650 hover:bg-red-100 hover:text-red-700 transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                                {{ license.status }}
+                            </span>
+                        </div>
+                        <div class="text-xs font-mono font-bold text-gray-900 truncate">{{ license.license_key }}</div>
+                        <div class="text-[11px] text-gray-500">IP: {{ license.server_ip || 'Awaiting connection' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Invoices Table -->
+            <div v-if="invoices.length > 0" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-2xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-rounded text-gray-500 text-lg">receipt_long</span>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-600">Recent Invoices</h3>
+                    </div>
+                    <Link :href="route('invoices.index')" class="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1">
+                        View All Invoices
+                        <span class="material-symbols-rounded text-xs">arrow_forward</span>
+                    </Link>
+                </div>
+
+                <div class="divide-y divide-gray-100">
+                    <div 
+                        v-for="inv in invoices" 
+                        :key="inv.id" 
+                        class="py-3 flex items-center justify-between text-xs"
+                    >
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono font-bold text-gray-900">#{{ inv.invoice_number }}</span>
+                            <span class="text-gray-500">{{ formatDate(inv.created_at) }}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono font-bold text-gray-950">₹{{ Number(inv.amount).toLocaleString('en-IN') }}</span>
+                            <span 
+                                :class="inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'"
+                                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
                             >
-                                <span class="material-symbols-rounded text-base">cancel</span>
-                                Revoke License
-                            </button>
+                                {{ inv.status }}
+                            </span>
+                            <Link 
+                                :href="route('invoices.show', inv.uuid || inv.id)" 
+                                class="p-1 text-gray-400 hover:text-gray-900 rounded"
+                                title="View Invoice"
+                            >
+                                <span class="material-symbols-rounded text-base">visibility</span>
+                            </Link>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Upgrade pricing widget section -->
-            <div id="plans-section" class="scroll-mt-24 pt-8">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
-                    <div>
-                        <h3 class="text-sm font-bold text-gray-550 uppercase tracking-wider">Upgrade License Plans</h3>
-                        <p class="text-xs text-gray-400 mt-1">Select a plan to unlock premium server features.</p>
-                    </div>
-                    
-                    <!-- Currency switcher toggle -->
-                    <div class="inline-flex bg-slate-100 p-1 rounded-lg border border-gray-200">
-                        <button 
-                            type="button"
-                            @click="selectedCurrency = 'INR'" 
-                            :class="[selectedCurrency === 'INR' ? 'bg-white text-emerald-600 font-semibold shadow-sm' : 'text-gray-505 hover:text-gray-900']"
-                            class="px-3 py-1.5 rounded-md text-xs transition-all border border-transparent"
-                        >
-                            INR (₹)
-                        </button>
-                        <button 
-                            type="button"
-                            @click="selectedCurrency = 'USD'" 
-                            :class="[selectedCurrency === 'USD' ? 'bg-white text-emerald-600 font-semibold shadow-sm' : 'text-gray-555 hover:text-gray-900']"
-                            class="px-3 py-1.5 rounded-md text-xs transition-all border border-transparent"
-                        >
-                            USD ($)
-                        </button>
-                    </div>
+            <!-- Empty State for new users -->
+            <div v-if="licenses.length === 0 && hostingAccounts.length === 0" class="bg-white border border-dashed border-gray-300 rounded-2xl p-14 text-center">
+                <div class="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-rounded text-2xl">dashboard_customize</span>
                 </div>
-
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div 
-                        v-for="plan in activePaidPlans" 
-                        :key="plan.id" 
-                        class="bg-white border rounded-lg p-8 flex flex-col justify-between relative shadow-sm"
-                        :class="[plan.is_popular ? 'border-emerald-500 shadow-emerald-500/5' : 'border-gray-200']"
+                <h3 class="text-sm font-bold text-gray-950">Welcome to Your Nimbus Workspace</h3>
+                <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                    You have not deployed any servers yet. Choose between fully managed cloud hosting or self-hosting on your own VPS.
+                </p>
+                <div class="mt-4 flex items-center justify-center gap-3">
+                    <Link 
+                        :href="route('store.index')" 
+                        class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm"
                     >
-                        <div class="space-y-6">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="text-lg font-bold text-gray-900">{{ plan.name }}</h4>
-                                    <p class="text-xs text-gray-500 mt-1">{{ plan.description }}</p>
-                                </div>
-                                <span v-if="plan.is_popular" class="bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">Popular</span>
-                            </div>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-bold text-gray-900">
-                                    {{ selectedCurrency === 'INR' ? '₹' + plan.price_inr : '$' + plan.price_usd }}
-                                </span>
-                                <span class="text-xs text-gray-400">{{ plan.billing_period }}</span>
-                            </div>
-                            <ul class="space-y-3.5 border-t border-gray-200 pt-6">
-                                <li v-for="feat in plan.features" :key="feat" class="flex items-center gap-2.5 text-xs text-gray-600">
-                                    <span class="material-symbols-rounded text-emerald-500 text-sm">check_circle</span>
-                                    {{ feat }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <button 
-                                @click="buyPlan(plan.slug)" 
-                                class="w-full text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm"
-                                :class="[
-                                    plan.is_popular 
-                                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/10' 
-                                        : 'bg-slate-100 hover:bg-slate-200 text-gray-800 border border-gray-200'
-                                ]"
-                            >
-                                {{ plan.cta_text || 'Buy ' + plan.name + ' Now' }}
-                            </button>
-                            <div v-if="selectedCurrency === 'USD'" class="text-[10px] text-gray-400 text-center mt-2">
-                                Processed as ₹{{ plan.price_inr }} via Razorpay
-                            </div>
-                        </div>
-                    </div>
+                        Browse Store Packages
+                    </Link>
                 </div>
-            </div>
-        </div>
-
-        <!-- Request Managed Hosting Modal Dialog -->
-        <div v-if="showRequestModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div class="bg-white border border-gray-200 rounded-xl p-6 w-full max-w-lg shadow-2xl animate-fade-in relative text-gray-900">
-                <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
-                    <div>
-                        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
-                            <span class="material-symbols-rounded text-indigo-600">cloud_upload</span>
-                            Request Managed Nimbus Hosting
-                        </h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Let our engineers set up and manage high-performance Nimbus hosting for your site.</p>
-                    </div>
-                    <button @click="showRequestModal = false" class="text-gray-400 hover:text-gray-600">
-                        <span class="material-symbols-rounded">close</span>
-                    </button>
-                </div>
-
-                <form @submit.prevent="submitHostingRequest" class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Target Website Domain</label>
-                        <input 
-                            type="text" 
-                            v-model="requestForm.domain" 
-                            placeholder="e.g. clientportal.com or app.mybrand.io" 
-                            class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5 font-mono" 
-                            required 
-                        />
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Preferred Environment / Plan</label>
-                        <select v-model="requestForm.plan_requested" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5">
-                            <option value="Standard Managed Cloud (Nimbus VPS)">Standard Managed Cloud (Nimbus VPS)</option>
-                            <option value="High-Performance Dedicated Node">High-Performance Dedicated Node</option>
-                            <option value="WordPress Optimized Managed Cluster">WordPress Optimized Managed Cluster</option>
-                            <option value="Custom Enterprise Configuration">Custom Enterprise Configuration</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Estimated Monthly Traffic</label>
-                        <select v-model="requestForm.estimated_traffic" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5">
-                            <option value="Under 50,000 visitors/mo">Under 50,000 visitors/mo</option>
-                            <option value="50,000 - 250,000 visitors/mo">50,000 - 250,000 visitors/mo</option>
-                            <option value="250,000 - 1,000,000 visitors/mo">250,000 - 1,000,000 visitors/mo</option>
-                            <option value="Over 1M+ visitors/mo (High Traffic)">Over 1M+ visitors/mo (High Traffic)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Additional Requirements / Notes</label>
-                        <textarea 
-                            v-model="requestForm.notes" 
-                            rows="3" 
-                            class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" 
-                            placeholder="Need Redis cache, Node.js background workers, custom PHP extensions, etc."
-                        ></textarea>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
-                        <button type="button" @click="showRequestModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-slate-100 rounded-lg">Cancel</button>
-                        <button type="submit" :disabled="requestForm.processing" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm">
-                            {{ requestForm.processing ? 'Submitting...' : 'Submit Request' }}
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </AuthenticatedLayout>

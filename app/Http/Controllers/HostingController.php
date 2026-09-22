@@ -4,11 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Models\HostingAccount;
 use App\Models\HostingRequest;
+use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class HostingController extends Controller
 {
+    /**
+     * Display client managed cloud hosting dashboard.
+     */
+    public function index()
+    {
+        $accounts = HostingAccount::where('user_id', auth()->id())
+            ->with('server:id,name,ip_address,nimbus_url')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $requests = HostingRequest::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $managedPlans = Plan::where('is_active', true)
+            ->managedHosting()
+            ->orderBy('price_inr')
+            ->get();
+
+        return Inertia::render('ManagedHosting/Index', [
+            'accounts' => $accounts,
+            'requests' => $requests,
+            'managedPlans' => $managedPlans,
+        ]);
+    }
+
     /**
      * Submit a new managed hosting inquiry/request.
      */
