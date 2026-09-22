@@ -15,6 +15,39 @@ const mobileMenuOpen = ref(false);
 const openFaq = ref(null);
 const selectedCurrency = ref('USD');
 const activeServiceTab = ref('managed_hosting'); // 'managed_hosting' or 'self_hosted'
+const copiedInstall = ref(false);
+
+const installUrl = computed(() => {
+    if (typeof window !== 'undefined' && window.location.origin && window.location.origin.includes('vmcore.in')) {
+        return `${window.location.origin}/install.sh`;
+    }
+    return 'https://nimbus-host.vmcore.in/install.sh';
+});
+const installCommand = computed(() => `curl -fsSL ${installUrl.value} | bash`);
+
+const copyInstallCommand = async () => {
+    try {
+        await navigator.clipboard.writeText(installCommand.value);
+        copiedInstall.value = true;
+        setTimeout(() => { copiedInstall.value = false; }, 2000);
+    } catch (e) {
+        console.error('Copy failed:', e);
+    }
+};
+
+const getPlanFeatures = (plan) => {
+    if (!plan || !plan.features) return [];
+    if (Array.isArray(plan.features)) return plan.features;
+    if (typeof plan.features === 'string') {
+        try {
+            const parsed = JSON.parse(plan.features);
+            if (Array.isArray(parsed)) return parsed;
+        } catch (e) {
+            return plan.features.split('\n').map(s => s.trim()).filter(Boolean);
+        }
+    }
+    return [];
+};
 
 const handleScroll = () => {
     scrolled.value = window.scrollY > 20;
@@ -297,7 +330,7 @@ const faqs = [
                                 <span class="mockup__dot mockup__dot--yellow"></span>
                                 <span class="mockup__dot mockup__dot--green"></span>
                             </div>
-                            <div class="mockup__url">nimbus.vmcore.in</div>
+                            <div class="mockup__url">nimbus-host.vmcore.in</div>
                         </div>
                         <div class="mockup__body">
                             <div class="mockup__sidebar">
@@ -445,9 +478,20 @@ const faqs = [
                                 Bring your own VPS or bare-metal machine (Hetzner, AWS, DigitalOcean, Linode, OVH). Run a single command and unlock an elite server management control panel with zero vendor lock-in.
                             </p>
 
-                            <div class="bg-slate-950 text-slate-200 rounded-xl p-3.5 text-xs font-mono flex items-center justify-between border border-slate-800 mb-6 overflow-x-auto">
-                                <span class="text-emerald-400 font-bold select-none pr-2">$</span>
-                                <code class="truncate text-[11px]">curl -fsSL https://nimbus.vmcore.in/install.sh | bash</code>
+                            <div class="bg-slate-950 text-slate-200 rounded-xl p-3 text-xs font-mono flex items-center justify-between border border-slate-800 mb-6 gap-2">
+                                <div class="flex items-center gap-2 overflow-x-auto min-w-0">
+                                    <span class="text-emerald-400 font-bold select-none">$</span>
+                                    <code class="truncate text-[11px] text-emerald-300 font-mono">{{ installCommand }}</code>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    @click="copyInstallCommand" 
+                                    class="shrink-0 text-[10px] uppercase font-bold tracking-wider px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                                    :title="copiedInstall ? 'Copied to clipboard!' : 'Copy install command'"
+                                >
+                                    <span class="material-symbols-rounded text-xs leading-none">{{ copiedInstall ? 'check' : 'content_copy' }}</span>
+                                    <span>{{ copiedInstall ? 'Copied' : 'Copy' }}</span>
+                                </button>
                             </div>
 
                             <ul class="space-y-2.5 text-xs text-gray-700 mb-6">
@@ -562,7 +606,7 @@ const faqs = [
                                 <span class="mockup__dot mockup__dot--yellow"></span>
                                 <span class="mockup__dot mockup__dot--green"></span>
                             </div>
-                            <div class="mockup__url">nimbus.vmcore.in/dashboard</div>
+                            <div class="mockup__url">nimbus-host.vmcore.in/dashboard</div>
                         </div>
                         <div class="dashboard-preview__body">
                             <div class="dp__row">
@@ -706,7 +750,7 @@ const faqs = [
                             Renews at: {{ selectedCurrency === 'USD' ? '$' + (plan.renewal_price_usd || plan.price_usd) : '₹' + Number(plan.renewal_price_inr || plan.price_inr).toLocaleString('en-IN') }}{{ plan.billing_period }}
                         </div>
                         <ul class="pricing-card__features">
-                            <li v-for="feat in plan.features" :key="feat">
+                            <li v-for="feat in getPlanFeatures(plan)" :key="feat">
                                 <span class="pricing-card__check">✓</span>
                                 {{ feat }}
                             </li>
