@@ -54,7 +54,7 @@ const formatDate = (dateStr) => {
             <!-- Invoices Table Container -->
             <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                 <div v-if="invoices && invoices.data && invoices.data.length > 0" class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full min-w-[750px] text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Invoice #</th>

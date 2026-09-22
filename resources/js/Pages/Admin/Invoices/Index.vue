@@ -61,6 +61,56 @@ const submitInvoiceForm = () => {
     });
 };
 
+// Edit / Transaction ID Modal
+const showEditModal = ref(false);
+const editingInvoice = ref(null);
+const editForm = useForm({
+    payment_id: '',
+    payment_method: '',
+    status: 'paid',
+    amount: 0,
+    paid_at: '',
+    description: '',
+});
+
+const openEditModal = (inv) => {
+    editingInvoice.value = inv;
+    editForm.payment_id = inv.payment_id || '';
+    editForm.payment_method = inv.payment_method || 'Bank Transfer';
+    editForm.status = inv.status || 'paid';
+    editForm.amount = Number(inv.amount) || 0;
+    editForm.paid_at = inv.paid_at ? new Date(inv.paid_at).toISOString().split('T')[0] : '';
+    editForm.description = inv.description || '';
+    showEditModal.value = true;
+};
+
+const submitEditForm = () => {
+    if (!editingInvoice.value) return;
+    editForm.put(route('admin.invoices.update', editingInvoice.value.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            showEditModal.value = false;
+            editingInvoice.value = null;
+        }
+    });
+};
+
+// Send Branded Invoice Email
+const sendingEmailInvoiceId = ref(null);
+const sendInvoiceEmail = (inv) => {
+    const clientName = inv.user?.name || inv.billing_details?.customer_name || 'the client';
+    if (!confirm(`Send branded invoice email for #${inv.invoice_number} to ${clientName}?`)) {
+        return;
+    }
+    sendingEmailInvoiceId.value = inv.id;
+    router.post(route('admin.invoices.send-email', inv.id), {}, {
+        preserveScroll: true,
+        onFinish: () => {
+            sendingEmailInvoiceId.value = null;
+        }
+    });
+};
+
 const updateStatus = (invoice, newStatus) => {
     router.patch(route('admin.invoices.update-status', invoice.id), {
         status: newStatus
@@ -217,7 +267,7 @@ const formatDate = (dateStr) => {
             <!-- Invoices Table Container -->
             <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                 <div v-if="invoices && invoices.data && invoices.data.length > 0" class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full min-w-[900px] text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Invoice #</th>
@@ -225,6 +275,7 @@ const formatDate = (dateStr) => {
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Plan / Item</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Type</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Amount</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Transaction ID</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
                             </tr>
@@ -258,6 +309,27 @@ const formatDate = (dateStr) => {
                                 <td class="px-6 py-4.5 text-right font-mono text-xs font-bold text-gray-900">
                                     {{ formatCurrency(inv.amount, inv.currency) }}
                                 </td>
+                                <td class="px-6 py-4.5">
+                                    <div v-if="inv.payment_id" class="flex items-center gap-1.5">
+                                        <span class="font-mono text-xs font-semibold text-gray-800 bg-slate-100 px-2 py-0.5 rounded border border-gray-200">{{ inv.payment_id }}</span>
+                                        <button 
+                                            @click="openEditModal(inv)" 
+                                            class="text-gray-400 hover:text-emerald-600 transition-colors p-0.5" 
+                                            title="Edit Transaction ID"
+                                        >
+                                            <span class="material-symbols-rounded text-xs">edit</span>
+                                        </button>
+                                    </div>
+                                    <button 
+                                        v-else 
+                                        @click="openEditModal(inv)"
+                                        class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-dashed border-emerald-300 transition-colors"
+                                        title="Add Transaction / Reference ID"
+                                    >
+                                        <span class="material-symbols-rounded text-xs">add</span>
+                                        Add ID
+                                    </button>
+                                </td>
                                 <td class="px-6 py-4.5 text-center">
                                     <div class="inline-flex items-center gap-1.5">
                                         <button 
@@ -277,7 +349,23 @@ const formatDate = (dateStr) => {
                                         </button>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4.5 text-right space-x-2">
+                                <td class="px-6 py-4.5 text-right whitespace-nowrap space-x-1 sm:space-x-1.5">
+                                    <button 
+                                        @click="openEditModal(inv)"
+                                        class="inline-flex items-center p-1.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                                        title="Edit Invoice & Transaction Details"
+                                    >
+                                        <span class="material-symbols-rounded text-sm">edit_note</span>
+                                    </button>
+                                    <button 
+                                        @click="sendInvoiceEmail(inv)"
+                                        :disabled="sendingEmailInvoiceId === inv.id"
+                                        class="inline-flex items-center p-1.5 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+                                        title="Send Branded Invoice Email to Client"
+                                    >
+                                        <span v-if="sendingEmailInvoiceId === inv.id" class="material-symbols-rounded animate-spin text-sm">progress_activity</span>
+                                        <span v-else class="material-symbols-rounded text-sm">forward_to_inbox</span>
+                                    </button>
                                     <Link 
                                         :href="route('invoices.show', inv.uuid || inv.id)"
                                         class="inline-flex items-center p-1.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
@@ -421,6 +509,99 @@ const formatDate = (dateStr) => {
                         <button type="submit" :disabled="invoiceForm.processing" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold uppercase tracking-wider shadow-sm flex items-center gap-2">
                             <span v-if="invoiceForm.processing" class="material-symbols-rounded animate-spin text-sm">progress_activity</span>
                             <span>Issue Invoice</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Invoice & Transaction ID Modal -->
+        <div v-if="showEditModal && editingInvoice" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full overflow-hidden border border-gray-200 animate-scale-up">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-rounded text-emerald-600">edit_note</span>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base">Edit Invoice Details</h3>
+                            <p class="text-[11px] text-gray-500 font-mono">Invoice #{{ editingInvoice.invoice_number }}</p>
+                        </div>
+                    </div>
+                    <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <span class="material-symbols-rounded text-lg">close</span>
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitEditForm" class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                            Transaction / Reference ID
+                        </label>
+                        <input 
+                            type="text" 
+                            v-model="editForm.payment_id" 
+                            placeholder="e.g. Bank Ref #, UTR, or UPI Txn ID"
+                            class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 font-mono" 
+                        />
+                        <p class="text-[11px] text-gray-400 mt-1">This transaction ID will be printed on the official invoice receipt and included in client emails.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Payment Status</label>
+                            <select v-model="editForm.status" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
+                                <option value="paid">Paid</option>
+                                <option value="pending">Pending</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Payment Method</label>
+                            <input 
+                                type="text" 
+                                v-model="editForm.payment_method" 
+                                placeholder="Bank Transfer, UPI, Razorpay..."
+                                class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                required 
+                            />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Amount</label>
+                            <input 
+                                type="number" 
+                                step="0.01" 
+                                min="0" 
+                                v-model="editForm.amount" 
+                                class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 font-mono" 
+                                required 
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Payment Date</label>
+                            <input 
+                                type="date" 
+                                v-model="editForm.paid_at" 
+                                class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Description / Notes</label>
+                        <textarea 
+                            v-model="editForm.description" 
+                            rows="2" 
+                            class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                        ></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button type="button" @click="showEditModal = false" class="px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
+                        <button type="submit" :disabled="editForm.processing" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold uppercase tracking-wider shadow-sm flex items-center gap-2">
+                            <span v-if="editForm.processing" class="material-symbols-rounded animate-spin text-sm">progress_activity</span>
+                            <span>Save Changes</span>
                         </button>
                     </div>
                 </form>

@@ -103,6 +103,51 @@ class AdminInvoiceController extends Controller
         return back()->with('success', "Invoice {$invoice->invoice_number} status updated to {$validated['status']}.");
     }
 
+    public function update(Request $request, Invoice $invoice)
+    {
+        $validated = $request->validate([
+            'payment_id' => 'nullable|string|max:255',
+            'payment_method' => 'required|string|max:255',
+            'status' => 'required|in:paid,pending,cancelled',
+            'amount' => 'required|numeric|min:0',
+            'paid_at' => 'nullable|date',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $updateData = [
+            'payment_id' => $validated['payment_id'] ?? null,
+            'payment_method' => $validated['payment_method'],
+            'status' => $validated['status'],
+            'amount' => $validated['amount'],
+            'description' => $validated['description'] ?? $invoice->description,
+        ];
+
+        if ($validated['status'] === 'paid') {
+            $updateData['paid_at'] = $validated['paid_at'] ? \Illuminate\Support\Carbon::parse($validated['paid_at']) : ($invoice->paid_at ?: now());
+        } elseif ($validated['status'] !== 'paid') {
+            $updateData['paid_at'] = null;
+        }
+
+        $invoice->update($updateData);
+
+        return back()->with('success', "Invoice {$invoice->invoice_number} updated successfully with Transaction ID.");
+    }
+
+    public function sendEmail(Request $request, Invoice $invoice)
+    {
+        $user = $invoice->user;
+        if (!$user || !$user->email) {
+            return back()->with('error', 'Unable to send email: No valid client email associated with this invoice.');
+        }
+
+        try {
+            $user->notify(new \App\Notifications\InvoiceNotification($invoice));
+            return back()->with('success', "Invoice notification sent to {$user->email} successfully.");
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to dispatch email: ' . $e->getMessage());
+        }
+    }
+
     public function destroy(Invoice $invoice)
     {
         $number = $invoice->invoice_number;

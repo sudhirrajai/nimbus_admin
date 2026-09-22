@@ -294,6 +294,7 @@ class AdminHostingController extends Controller
             'amount' => 'nullable|numeric|min:0',
             'payment_status' => 'nullable|in:paid,pending',
             'advance_renewal_date' => 'nullable|boolean',
+            'transaction_id' => 'nullable|string|max:255',
         ]);
 
         $amount = isset($validated['amount']) && $validated['amount'] !== null
@@ -303,6 +304,10 @@ class AdminHostingController extends Controller
         $status = $validated['payment_status'] ?? 'pending';
 
         $invoice = $account->generateRenewalInvoice($amount, $status, 'Admin Renewal');
+
+        if (!empty($validated['transaction_id'])) {
+            $invoice->update(['payment_id' => $validated['transaction_id']]);
+        }
 
         // If marked as paid, advance the renews_at date to the next period
         if ($status === 'paid' && $request->boolean('advance_renewal_date', true)) {

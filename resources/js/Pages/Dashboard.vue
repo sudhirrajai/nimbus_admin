@@ -189,7 +189,7 @@ const copyToClipboard = (text) => {
                     <div 
                         v-for="account in hostingAccounts.slice(0, 4)" 
                         :key="account.id"
-                        class="border border-gray-200 rounded-lg p-4 bg-slate-50/50 hover:bg-white hover:border-emerald-300 transition-all flex items-center justify-between gap-4"
+                        class="border border-gray-200 rounded-lg p-4 bg-slate-50/50 hover:bg-white hover:border-emerald-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"
                     >
                         <div class="min-w-0">
                             <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">{{ account.plan_name }}</span>
@@ -199,7 +199,7 @@ const copyToClipboard = (text) => {
                         <a 
                             :href="route('hosting.accounts.client-sso', account.id)"
                             target="_blank"
-                            class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm shrink-0"
+                            class="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm shrink-0 self-start sm:self-auto"
                         >
                             <span class="material-symbols-rounded text-sm">login</span>
                             1-Click Login
@@ -259,13 +259,13 @@ const copyToClipboard = (text) => {
                     <div 
                         v-for="inv in invoices" 
                         :key="inv.id" 
-                        class="py-3 flex items-center justify-between text-xs"
+                        class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
                     >
                         <div class="flex items-center gap-3">
                             <span class="font-mono font-bold text-gray-900">#{{ inv.invoice_number }}</span>
                             <span class="text-gray-500">{{ formatDate(inv.created_at) }}</span>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center justify-between sm:justify-end gap-3">
                             <span class="font-mono font-bold text-gray-900">₹{{ Number(inv.amount).toLocaleString('en-IN') }}</span>
                             <span 
                                 :class="inv.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'"

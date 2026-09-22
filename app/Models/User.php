@@ -36,6 +36,11 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new \App\Notifications\CustomVerifyEmail());
+    }
+
     protected static function booted(): void
     {
         static::creating(function ($user) {

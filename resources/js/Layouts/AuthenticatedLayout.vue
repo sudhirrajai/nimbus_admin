@@ -579,21 +579,21 @@ const isRouteActive = (routeName) => {
             </header>
 
             <!-- Page Header Inner (Slots) -->
-            <div v-if="$slots.header" class="border-b border-gray-200 bg-white py-6 px-6 lg:px-8 print:hidden">
+            <div v-if="$slots.header" class="border-b border-gray-200 bg-white py-4 sm:py-6 px-4 sm:px-6 lg:px-8 print:hidden">
                 <div class="mx-auto max-w-7xl">
                     <slot name="header" />
                 </div>
             </div>
 
             <!-- Page Main Content Container -->
-            <main class="flex-1 py-8 px-6 lg:px-8 bg-slate-50">
+            <main class="flex-1 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 bg-slate-50">
                 <div class="mx-auto max-w-7xl">
                     <slot />
                 </div>
             </main>
 
             <!-- Footer -->
-            <footer class="border-t border-gray-200 py-6 px-6 lg:px-8 bg-white/40 print:hidden">
+            <footer class="border-t border-gray-200 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-white/40 print:hidden">
                 <div class="mx-auto max-w-7xl text-center text-xs text-gray-500">
                     &copy; {{ new Date().getFullYear() }} Nimbus by VMCore. All rights reserved.
                 </div>

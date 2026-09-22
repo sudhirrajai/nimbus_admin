@@ -190,6 +190,7 @@ const renewalInvoiceForm = useForm({
     amount: 0,
     payment_status: 'pending',
     advance_renewal_date: true,
+    transaction_id: '',
 });
 
 const openRenewalModal = (account) => {
@@ -197,6 +198,7 @@ const openRenewalModal = (account) => {
     renewalInvoiceForm.amount = account.renewal_price || account.initial_price || 0;
     renewalInvoiceForm.payment_status = 'pending';
     renewalInvoiceForm.advance_renewal_date = true;
+    renewalInvoiceForm.transaction_id = '';
     showRenewalModal.value = true;
 };
 
@@ -263,11 +265,11 @@ const formatRenewalBadge = (dateStr) => {
                         Manage dedicated Nimbus server nodes, client hosting accounts, renewal billing cycles, and 1-Click SSO access.
                     </p>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <button 
                         v-if="activeTab === 'servers'"
                         @click="openNewServerModal"
-                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 sm:px-4 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
                     >
                         <span class="material-symbols-rounded text-sm">dns</span>
                         Add Nimbus Node
@@ -275,7 +277,7 @@ const formatRenewalBadge = (dateStr) => {
                     <button 
                         v-if="activeTab === 'accounts'"
                         @click="triggerRenewalCheck"
-                        class="bg-white hover:bg-slate-50 text-gray-700 border border-gray-200 px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-2xs flex items-center gap-2"
+                        class="bg-white hover:bg-slate-50 text-gray-700 border border-gray-200 px-3 sm:px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-2xs flex items-center gap-2"
                         title="Scan accounts and generate renewal invoices for upcoming renewals"
                     >
                         <span class="material-symbols-rounded text-sm text-emerald-600">autorenew</span>
@@ -284,7 +286,7 @@ const formatRenewalBadge = (dateStr) => {
                     <button 
                         v-if="activeTab === 'accounts'"
                         @click="openNewAccountModal()"
-                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 sm:px-4 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
                     >
                         <span class="material-symbols-rounded text-sm">person_add</span>
                         Assign Client Account
@@ -295,7 +297,7 @@ const formatRenewalBadge = (dateStr) => {
 
         <div class="space-y-6">
             <!-- Navigation Tabs -->
-            <div class="flex items-center gap-2 border-b border-gray-200">
+            <div class="flex items-center gap-2 border-b border-gray-200 overflow-x-auto pb-1 sm:pb-0">
                 <button 
                     @click="activeTab = 'accounts'"
                     :class="[
@@ -856,6 +858,16 @@ const formatRenewalBadge = (dateStr) => {
                             <option value="pending">Pending Payment (Issue to Client)</option>
                             <option value="paid">Paid (Mark Received Immediately)</option>
                         </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Transaction / Reference ID (Optional)</label>
+                        <input 
+                            type="text" 
+                            v-model="renewalInvoiceForm.transaction_id" 
+                            placeholder="e.g. Bank Ref #, UTR, or UPI Txn ID"
+                            class="w-full bg-white border border-gray-300 rounded-lg text-sm p-2.5 font-mono" 
+                        />
                     </div>
 
                     <div v-if="renewalInvoiceForm.payment_status === 'paid'">

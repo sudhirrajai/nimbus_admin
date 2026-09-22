@@ -76,7 +76,7 @@ const getFallbackFeatures = (planSlug) => {
 
         <div class="space-y-6">
             <!-- Navigation Tabs (Original Standard Style) -->
-            <div class="flex items-center gap-2 border-b border-gray-200">
+            <div class="flex items-center gap-2 border-b border-gray-200 overflow-x-auto whitespace-nowrap pb-1 sm:pb-0">
                 <button 
                     type="button"
                     @click="activeTab = 'nimbus_panel'"
@@ -85,7 +85,7 @@ const getFallbackFeatures = (planSlug) => {
                             ? 'border-emerald-500 text-emerald-600 font-semibold' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     ]"
-                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer"
+                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer shrink-0"
                 >
                     <span class="material-symbols-rounded text-base">terminal</span>
                     Nimbus Panel (Self-Host)
@@ -99,7 +99,7 @@ const getFallbackFeatures = (planSlug) => {
                             ? 'border-emerald-500 text-emerald-600 font-semibold' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     ]"
-                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer"
+                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer shrink-0"
                 >
                     <span class="material-symbols-rounded text-base">cloud_done</span>
                     Managed Cloud Hosting

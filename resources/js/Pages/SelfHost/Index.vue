@@ -64,7 +64,7 @@ const formatDateTime = (dateStr) => {
                         Deploy and manage Nimbus on your own VPS and bare-metal servers.
                     </p>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <button 
                         @click="generateFreeLicense" 
                         :disabled="hasActiveFreeLicense"

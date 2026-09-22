@@ -50,7 +50,7 @@ const formatDate = (dateStr) => {
                         High-performance cloud servers fully maintained, secured, and backed up by VMCORE engineers.
                     </p>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <button 
                         @click="showRequestModal = true"
                         class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2 cursor-pointer"

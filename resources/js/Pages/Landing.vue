@@ -433,7 +433,7 @@ const faqs = [
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
                     <!-- Card 1: Fully Managed Cloud (Highlighted) -->
-                    <div class="bg-gradient-to-b from-emerald-50/40 to-white border-2 border-emerald-500 rounded-2xl p-8 shadow-md transition-all flex flex-col justify-between relative overflow-hidden">
+                    <div class="bg-gradient-to-b from-emerald-50/40 to-white border-2 border-emerald-500 rounded-2xl p-5 sm:p-8 shadow-md transition-all flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider py-1.5 px-4 rounded-bl-xl shadow-xs">
                             Fully Managed • Zero Ops
                         </div>
@@ -481,7 +481,7 @@ const faqs = [
                     </div>
 
                     <!-- Card 2: Self-Hosted -->
-                    <div class="bg-white border-2 border-gray-200 hover:border-slate-400 rounded-2xl p-8 shadow-sm transition-all flex flex-col justify-between relative overflow-hidden group">
+                    <div class="bg-white border-2 border-gray-200 hover:border-slate-400 rounded-2xl p-5 sm:p-8 shadow-sm transition-all flex flex-col justify-between relative overflow-hidden group">
                         <div class="absolute top-0 right-0 bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider py-1.5 px-4 rounded-bl-xl border-l border-b border-gray-200">
                             Self-Host Nimbus
                         </div>
@@ -702,25 +702,25 @@ const faqs = [
                 </div>
 
                 <!-- Dual Service Switcher: Managed Hosting vs Self-Hosted (Coolify model) -->
-                <div class="flex justify-center mb-6">
-                    <div class="inline-flex p-1.5 bg-gray-200/80 rounded-2xl border border-gray-300 shadow-2xs gap-1 max-w-full overflow-x-auto">
+                <div class="flex justify-center mb-6 px-3">
+                    <div class="flex flex-col sm:flex-row p-1.5 bg-gray-200/80 rounded-2xl border border-gray-300 gap-1.5 w-full sm:w-auto max-w-xl mx-auto shadow-2xs">
                         <button 
                             type="button"
                             @click="activeServiceTab = 'managed_hosting'"
                             :class="activeServiceTab === 'managed_hosting' ? 'bg-white text-gray-950 shadow-sm font-bold border border-gray-200' : 'text-gray-600 hover:text-gray-900 font-medium'"
-                            class="px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 whitespace-nowrap"
+                            class="flex-1 px-4 py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-2 text-center cursor-pointer"
                         >
                             <span class="material-symbols-rounded text-base text-emerald-600">cloud</span>
-                            Fully Managed Cloud Hosting
+                            <span>Fully Managed Cloud Hosting</span>
                         </button>
                         <button 
                             type="button"
                             @click="activeServiceTab = 'self_hosted'"
                             :class="activeServiceTab === 'self_hosted' ? 'bg-white text-gray-950 shadow-sm font-bold border border-gray-200' : 'text-gray-600 hover:text-gray-900 font-medium'"
-                            class="px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 whitespace-nowrap"
+                            class="flex-1 px-4 py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-2 text-center cursor-pointer"
                         >
                             <span class="material-symbols-rounded text-base text-purple-600">terminal</span>
-                            Self-Hosted Nimbus Licenses
+                            <span>Self-Hosted Nimbus Licenses</span>
                         </button>
                     </div>
                 </div>
@@ -1268,15 +1268,20 @@ const faqs = [
     color: var(--color-primary);
     box-shadow: 0 4px 10px -2px rgba(0,0,0,0.05);
 }
-.pricing__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+.pricing__grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 24px; 
+    align-items: stretch; 
+}
 .pricing-card {
     background: var(--color-card); border: 1.5px solid var(--color-border);
-    border-radius: var(--radius); padding: 32px 28px; position: relative;
+    border-radius: var(--radius); padding: 32px 24px; position: relative;
     display: flex; flex-direction: column; transition: all var(--transition);
 }
 .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px -12px rgba(0,0,0,0.06); }
-.pricing-card--popular { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary), 0 20px 60px -15px rgba(16,185,129,0.12); transform: scale(1.03); }
-.pricing-card--popular:hover { transform: scale(1.03) translateY(-4px); }
+.pricing-card--popular { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary), 0 20px 60px -15px rgba(16,185,129,0.12); transform: scale(1.02); }
+.pricing-card--popular:hover { transform: scale(1.02) translateY(-4px); }
 .pricing-card__badge {
     position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
     background: var(--color-primary); color: #fff;
@@ -1285,16 +1290,28 @@ const faqs = [
 }
 .pricing-card__name { font-size: 16px; font-weight: 600; color: var(--color-body); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px; }
 .pricing-card__price { margin-bottom: 24px; }
-.pricing-card__amount { font-size: 44px; font-weight: 800; color: var(--color-heading); letter-spacing: -0.03em; }
-.pricing-card__period { font-size: 15px; color: var(--color-body); margin-left: 4px; }
+.pricing-card__amount { font-size: 40px; font-weight: 800; color: var(--color-heading); letter-spacing: -0.03em; }
+.pricing-card__period { font-size: 14px; color: var(--color-body); margin-left: 4px; }
 .pricing-card__features { list-style: none; padding: 0; margin: 0 0 28px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
 .pricing-card__features li { font-size: 14px; color: var(--color-body); display: flex; align-items: center; gap: 10px; }
 .pricing-card__check { color: var(--color-primary); font-weight: 700; font-size: 13px; flex-shrink: 0; }
 
-@media (max-width: 768px) {
-    .pricing__grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+@media (max-width: 1024px) and (min-width: 641px) {
+    .pricing__grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .pricing-card--popular { transform: none; }
     .pricing-card--popular:hover { transform: translateY(-4px); }
+}
+
+@media (max-width: 640px) {
+    .pricing { padding: 56px 0; }
+    .pricing__grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; gap: 20px; }
+    .pricing-card { padding: 24px 18px; }
+    .pricing-card__amount { font-size: 34px; }
+    .pricing-card--popular { transform: none; }
+    .pricing-card--popular:hover { transform: translateY(-4px); }
+    .pricing-switcher-container { margin-bottom: 28px; padding: 0 10px; }
+    .pricing-switcher { width: 100%; max-width: 300px; justify-content: center; }
+    .pricing-switcher__btn { flex: 1; text-align: center; padding: 7px 12px; font-size: 12px; }
 }
 
 .pricing-custom-callout {

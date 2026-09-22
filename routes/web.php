@@ -155,7 +155,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Invoices Management (Admin)
     Route::get('/invoices', [AdminInvoiceController::class, 'index'])->name('invoices.index');
     Route::post('/invoices', [AdminInvoiceController::class, 'store'])->name('invoices.store');
+    Route::put('/invoices/{invoice}', [AdminInvoiceController::class, 'update'])->name('invoices.update');
     Route::patch('/invoices/{invoice}/status', [AdminInvoiceController::class, 'updateStatus'])->name('invoices.update-status');
+    Route::post('/invoices/{invoice}/send-email', [AdminInvoiceController::class, 'sendEmail'])->name('invoices.send-email');
     Route::delete('/invoices/{invoice}', [AdminInvoiceController::class, 'destroy'])->name('invoices.destroy');
 
     // Testimonials Management (Admin)
