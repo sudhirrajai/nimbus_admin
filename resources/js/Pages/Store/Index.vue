@@ -351,6 +351,31 @@ const getFeatures = (plan) => {
                     </div>
                 </div>
             </div>
+
+            <!-- Custom Requirements / Self-Host Callout Banner -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-1.5 text-center md:text-left">
+                    <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        <span class="material-symbols-rounded text-xs">tune</span>
+                        Custom Architecture &amp; Enterprise
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-900">
+                        Want to self host your server or got custom requirements?
+                    </h3>
+                    <p class="text-xs text-gray-500 max-w-2xl">
+                        Looking for dedicated bare-metal clusters, custom enterprise SLA, migration assistance, or private self-hosted setups? Our engineering team is ready to configure it for you.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <a 
+                        href="mailto:support@vmcore.in?subject=Custom%20Hosting%20%2F%20Self-Host%20Requirements" 
+                        class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                        <span class="material-symbols-rounded text-sm">mail</span>
+                        <span>Contact Us Now</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!-- Request Managed Hosting Modal -->

@@ -776,6 +776,31 @@ const faqs = [
                         </Link>
                     </div>
                 </div>
+
+                <!-- Custom Requirements / Self-Host Callout -->
+                <div class="pricing-custom-callout">
+                    <div class="pricing-custom-callout__content">
+                        <div class="pricing-custom-callout__badge">
+                            <span class="material-symbols-rounded text-sm">tune</span>
+                            Custom Architecture &amp; Enterprise
+                        </div>
+                        <h3 class="pricing-custom-callout__title">
+                            Want to self host your server or got custom requirements?
+                        </h3>
+                        <p class="pricing-custom-callout__desc">
+                            Whether you need dedicated bare-metal infrastructure, custom cluster topologies, specialized compliance, or high-volume SLA, our engineers will build and optimize a tailored solution for your business.
+                        </p>
+                    </div>
+                    <div class="pricing-custom-callout__action">
+                        <a 
+                            href="mailto:support@vmcore.in?subject=Custom%20Hosting%20%2F%20Self-Host%20Inquiry" 
+                            class="btn btn--primary btn--lg"
+                        >
+                            <span class="material-symbols-rounded text-base">mail</span>
+                            <span>Contact Us Now</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1270,6 +1295,68 @@ const faqs = [
     .pricing__grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
     .pricing-card--popular { transform: none; }
     .pricing-card--popular:hover { transform: translateY(-4px); }
+}
+
+.pricing-custom-callout {
+    margin-top: 48px;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 36px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.03);
+}
+.pricing-custom-callout__content {
+    max-width: 680px;
+}
+.pricing-custom-callout__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-primary);
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 4px 12px;
+    border-radius: 9999px;
+    margin-bottom: 12px;
+}
+.pricing-custom-callout__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--color-heading);
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+}
+.pricing-custom-callout__desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin: 0;
+}
+.pricing-custom-callout__action {
+    flex-shrink: 0;
+}
+@media (max-width: 768px) {
+    .pricing-custom-callout {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+        gap: 20px;
+    }
+    .pricing-custom-callout__action {
+        width: 100%;
+    }
+    .pricing-custom-callout__action .btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* ============================================================
