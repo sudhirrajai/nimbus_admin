@@ -511,9 +511,13 @@ const isRouteActive = (routeName) => {
         padding-left: 0 !important;
     }
 
-    main {
+    main,
+    main > div,
+    .max-w-7xl {
         padding: 0 !important;
         margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
         background: transparent !important;
     }
 

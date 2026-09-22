@@ -163,39 +163,25 @@ const numberToWords = (num) => {
         </template>
 
         <!-- Preview Wrapper Canvas -->
-        <div class="py-4 sm:py-8 -my-8 -mx-6 lg:-mx-8 px-3 sm:px-6 bg-slate-100/70 print:bg-white print:p-0 print:m-0 print:border-none">
+        <div class="invoice-wrapper py-4 sm:py-8 -my-8 -mx-6 lg:-mx-8 px-3 sm:px-6 bg-slate-100/70 print:bg-white print:p-0 print:m-0 print:border-none">
             
             <!-- Standard A4 Invoice Sheet Container -->
-            <div class="invoice-sheet relative bg-white max-w-[840px] mx-auto rounded-xl shadow-xl border border-gray-200/90 p-8 sm:p-12 overflow-hidden print:max-w-full print:shadow-none print:border-none print:p-0 print:m-0 print:rounded-none">
-                
-                <!-- MilesWeb-style Diagonal Status Ribbon (Top Right) -->
-                <div v-if="invoice.status === 'paid'" class="absolute top-0 right-0 w-36 h-36 overflow-hidden pointer-events-none z-10 print:block">
-                    <div class="bg-emerald-500 text-white font-black text-[13px] tracking-widest uppercase py-1.5 text-center shadow-md transform rotate-45 translate-x-9 translate-y-7 w-48">
-                        PAID
-                    </div>
-                </div>
-                <div v-else-if="invoice.status === 'pending'" class="absolute top-0 right-0 w-36 h-36 overflow-hidden pointer-events-none z-10 print:block">
-                    <div class="bg-amber-500 text-white font-black text-[11px] tracking-widest uppercase py-1.5 text-center shadow-md transform rotate-45 translate-x-9 translate-y-7 w-48">
-                        UNPAID
-                    </div>
-                </div>
-                <div v-else class="absolute top-0 right-0 w-36 h-36 overflow-hidden pointer-events-none z-10 print:block">
-                    <div class="bg-gray-500 text-white font-black text-[11px] tracking-widest uppercase py-1.5 text-center shadow-md transform rotate-45 translate-x-9 translate-y-7 w-48">
-                        CANCELLED
-                    </div>
-                </div>
+            <div class="invoice-sheet relative bg-white w-full max-w-[880px] mx-auto rounded-2xl shadow-xl border border-gray-200/90 p-8 sm:p-14 overflow-hidden print:w-full print:max-w-full print:shadow-none print:border-none print:p-0 print:m-0 print:rounded-none">
 
                 <!-- 1. HEADER SECTION: Brand (Left) and Owner Details (Right) -->
-                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 pb-6">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 pb-8 border-b-2 border-gray-100">
                     <!-- Left: Brand Logo & Tagline -->
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2.5">
-                            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 p-2 shadow-xs text-white">
-                                <ApplicationLogo class="h-5 w-5 fill-white" />
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 p-2 shadow-xs text-white">
+                                <ApplicationLogo class="h-6 w-6 fill-white" />
                             </div>
-                            <span class="text-2xl font-black tracking-tight text-gray-950 font-sans">
-                                Nimbus <span class="text-emerald-600 font-bold">by VMCore</span>
-                            </span>
+                            <div>
+                                <span class="text-2xl font-black tracking-tight text-gray-950 font-sans block leading-none">
+                                    Nimbus <span class="text-emerald-600 font-bold">by VMCore</span>
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase block mt-1">Cloud Server Infrastructure</span>
+                            </div>
                         </div>
                         <p class="text-xs text-gray-500 font-medium pl-0.5">
                             {{ company?.tagline || 'Your Hosting, Our Responsibility.' }}
@@ -203,77 +189,96 @@ const numberToWords = (num) => {
                     </div>
 
                     <!-- Right: Dynamic Owner Company Details -->
-                    <div class="text-left sm:text-right text-xs text-gray-700 leading-relaxed pr-8 sm:pr-14 space-y-0.5">
-                        <div class="font-bold text-gray-950 text-sm">{{ company?.name || 'Nimbus by VMCore' }}</div>
+                    <div class="text-left sm:text-right text-xs text-gray-700 leading-relaxed space-y-1">
+                        <div class="font-black text-gray-950 text-sm">{{ company?.name || 'Nimbus by VMCore' }}</div>
                         <div v-if="company?.address_line1">{{ company.address_line1 }}</div>
                         <div v-if="company?.address_line2">{{ company.address_line2 }}</div>
-                        <div v-if="company?.phone">Phone: {{ company.phone }}</div>
+                        <div v-if="company?.phone" class="font-medium text-gray-800">Phone: {{ company.phone }}</div>
                         <div v-if="company?.email" class="text-gray-500">{{ company.email }}</div>
                     </div>
                 </div>
 
-                <!-- 2. INVOICE META & INVOICED TO (Left Aligned, exactly like MilesWeb sample) -->
-                <div class="pt-4 pb-6 space-y-6">
-                    <!-- Invoice # and Dates -->
-                    <div class="space-y-1">
-                        <h2 class="text-xl font-bold text-gray-950">
-                            Invoice #{{ invoice.invoice_number }}
-                        </h2>
-                        <div class="text-xs text-gray-700 space-y-0.5">
-                            <div>Invoice Date: <span class="text-gray-900 font-medium">{{ formatOrdinalDate(invoice.created_at) }}</span></div>
-                            <div>Due Date: <span class="text-gray-900 font-medium">{{ invoice.due_date ? formatOrdinalDate(invoice.due_date) : formatOrdinalDate(invoice.created_at) }}</span></div>
+                <!-- 2. INVOICE META & INVOICED TO (Clean 2-Column Balanced Grid) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 py-8 border-b border-gray-200">
+                    <!-- Left: Invoiced To (Dynamic User Details) -->
+                    <div class="space-y-1.5">
+                        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Invoiced To</div>
+                        <div class="text-base font-bold text-gray-950">{{ invoice.billing_details?.customer_name || invoice.user?.name || 'Valued Customer' }}</div>
+                        <div v-if="invoice.user?.company_name" class="text-xs font-semibold text-gray-800">{{ invoice.user.company_name }}</div>
+                        <div v-if="invoice.user?.address" class="text-xs text-gray-600">{{ invoice.user.address }}</div>
+                        <div v-if="invoice.user?.city || invoice.user?.state || invoice.user?.postal_code" class="text-xs text-gray-600">
+                            {{ [invoice.user?.city, invoice.user?.state, invoice.user?.postal_code].filter(Boolean).join(', ') }}
                         </div>
+                        <div class="text-xs text-gray-600">{{ invoice.user?.country || 'India' }}</div>
+                        <div class="text-xs text-emerald-700 font-medium pt-0.5">{{ invoice.billing_details?.customer_email || invoice.user?.email }}</div>
+                        <div v-if="invoice.user?.phone" class="text-xs text-gray-500">{{ invoice.user.phone }}</div>
                     </div>
 
-                    <!-- Invoiced To (Dynamic User Details) -->
-                    <div class="space-y-1">
-                        <div class="text-sm font-bold text-gray-950">Invoiced To</div>
-                        <div class="text-xs text-gray-700 leading-relaxed">
-                            <div class="font-semibold text-gray-900">{{ invoice.billing_details?.customer_name || invoice.user?.name || 'Valued Customer' }}</div>
-                            <div v-if="invoice.user?.company_name" class="text-gray-800">{{ invoice.user.company_name }}</div>
-                            <div v-if="invoice.user?.address" class="text-gray-700">{{ invoice.user.address }}</div>
-                            <div v-if="invoice.user?.city || invoice.user?.state || invoice.user?.postal_code" class="text-gray-700">
-                                {{ [invoice.user?.city, invoice.user?.state, invoice.user?.postal_code].filter(Boolean).join(', ') }}
+                    <!-- Right: Invoice Meta & Clean Status Badge -->
+                    <div class="sm:text-right space-y-3 flex flex-col sm:items-end justify-between">
+                        <div class="space-y-1">
+                            <h2 class="text-2xl font-black text-gray-950 font-mono tracking-tight">
+                                Invoice #{{ invoice.invoice_number }}
+                            </h2>
+                            <div class="text-xs text-gray-700 space-y-1">
+                                <div><span class="text-gray-400 font-medium">Invoice Date:</span> <span class="font-semibold text-gray-900">{{ formatOrdinalDate(invoice.created_at) }}</span></div>
+                                <div><span class="text-gray-400 font-medium">Due Date:</span> <span class="font-semibold text-gray-900">{{ invoice.due_date ? formatOrdinalDate(invoice.due_date) : formatOrdinalDate(invoice.created_at) }}</span></div>
                             </div>
-                            <div>{{ invoice.user?.country || 'India' }}</div>
-                            <div class="text-gray-500 pt-0.5">{{ invoice.billing_details?.customer_email || invoice.user?.email }}</div>
+                        </div>
+
+                        <!-- Non-overlapping Status Stamp -->
+                        <div>
+                            <span 
+                                :class="[
+                                    invoice.status === 'paid' 
+                                        ? 'border-emerald-600 text-emerald-700 bg-emerald-50' 
+                                        : (invoice.status === 'pending' ? 'border-amber-500 text-amber-700 bg-amber-50' : 'border-gray-400 text-gray-600 bg-gray-50')
+                                ]"
+                                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-black tracking-widest uppercase border-2 shadow-2xs"
+                            >
+                                <span class="material-symbols-rounded text-sm">
+                                    {{ invoice.status === 'paid' ? 'check_circle' : (invoice.status === 'pending' ? 'schedule' : 'cancel') }}
+                                </span>
+                                <span>{{ invoice.status === 'paid' ? 'PAID' : (invoice.status === 'pending' ? 'UNPAID' : invoice.status) }}</span>
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. LINE ITEMS TABLE (Columns: Description, Item type, Total) -->
-                <div class="pb-4">
+                <div class="py-6">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-100 text-gray-900 text-xs font-bold border-t border-b border-gray-300">
-                                <th class="py-3 px-4 w-[60%]">Description</th>
-                                <th class="py-3 px-4 w-[20%] text-left">Item type</th>
-                                <th class="py-3 px-4 w-[20%] text-right">Total</th>
+                            <tr class="bg-gray-100 text-gray-900 text-xs font-bold uppercase tracking-wider border-t-2 border-b-2 border-gray-300">
+                                <th class="py-3.5 px-4 w-[60%]">Description</th>
+                                <th class="py-3.5 px-4 w-[20%] text-left">Item Type</th>
+                                <th class="py-3.5 px-4 w-[20%] text-right">Total</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 text-xs text-gray-800">
                             <tr>
-                                <td class="py-4 px-4 align-top space-y-1">
-                                    <div class="font-bold text-gray-950">
+                                <td class="py-5 px-4 align-top space-y-1.5">
+                                    <div class="text-sm font-bold text-gray-950">
                                         {{ invoice.plan_name || 'Managed Cloud Hosting' }}
                                         <span v-if="invoice.billing_details?.domain || invoice.hostingAccount?.domain">
                                             - {{ invoice.billing_details?.domain || invoice.hostingAccount?.domain }}
                                         </span>
-                                        <span v-if="invoice.period_start && invoice.period_end" class="font-normal text-gray-600">
+                                        <span v-if="invoice.period_start && invoice.period_end" class="font-normal text-gray-600 text-xs ml-1">
                                             ({{ formatSlashDate(invoice.period_start) }} - {{ formatSlashDate(invoice.period_end) }})
                                         </span>
                                     </div>
-                                    <div v-if="invoice.billing_details?.server || invoice.hostingAccount?.server?.name" class="text-gray-600 text-[11px]">
-                                        Server Location: {{ invoice.billing_details?.server || invoice.hostingAccount?.server?.name }}
+                                    <div v-if="invoice.billing_details?.server || invoice.hostingAccount?.server?.name" class="text-gray-600 text-xs flex items-center gap-1">
+                                        <span class="text-gray-400">Server Location:</span>
+                                        <span class="font-medium text-gray-700">{{ invoice.billing_details?.server || invoice.hostingAccount?.server?.name }}</span>
                                     </div>
-                                    <div class="text-gray-500 text-[11px] leading-relaxed">
+                                    <div class="text-gray-500 text-xs leading-relaxed pt-0.5">
                                         {{ invoice.description }}
                                     </div>
                                 </td>
-                                <td class="py-4 px-4 align-top text-gray-700 font-medium">
+                                <td class="py-5 px-4 align-top text-gray-700 font-semibold text-xs">
                                     {{ invoice.type === 'hosting_plan' ? 'Hosting' : (invoice.type === 'license_plan' ? 'License' : 'Service') }}
                                 </td>
-                                <td class="py-4 px-4 align-top text-right font-mono font-bold text-gray-950">
+                                <td class="py-5 px-4 align-top text-right font-mono font-bold text-sm text-gray-950">
                                     {{ formatCurrency(invoice.amount, invoice.currency) }}
                                 </td>
                             </tr>
@@ -281,60 +286,60 @@ const numberToWords = (num) => {
                     </table>
                 </div>
 
-                <!-- 4. TOTALS CALCULATION (Sub Total & Total, matching sample) -->
-                <div class="border-t border-gray-200 pt-3 pb-6 flex justify-end">
-                    <div class="w-full sm:w-80 space-y-1.5 text-xs text-right">
-                        <div class="flex justify-between py-1 border-b border-gray-100">
-                            <span class="font-bold text-gray-700">Sub Total</span>
-                            <span class="font-mono font-bold text-gray-900">{{ formatCurrency(invoice.amount, invoice.currency) }}</span>
+                <!-- 4. TOTALS CALCULATION (Sub Total & Total) -->
+                <div class="border-t border-gray-200 pt-4 pb-6 flex justify-end">
+                    <div class="w-full sm:w-80 space-y-2 text-xs text-right">
+                        <div class="flex justify-between py-1.5 border-b border-gray-100">
+                            <span class="font-bold text-gray-600">Sub Total</span>
+                            <span class="font-mono font-bold text-gray-900 text-sm">{{ formatCurrency(invoice.amount, invoice.currency) }}</span>
                         </div>
-                        <div class="flex justify-between py-2 border-b-2 border-gray-400 text-sm font-black text-gray-950">
-                            <span>Total</span>
-                            <span class="font-mono">{{ formatCurrency(invoice.amount, invoice.currency) }}</span>
+                        <div class="flex justify-between py-2.5 border-b-2 border-gray-800 text-base font-black text-gray-950">
+                            <span>Total Amount Due</span>
+                            <span class="font-mono text-emerald-700">{{ formatCurrency(invoice.amount, invoice.currency) }}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 5. TOTAL IN WORDS & TRANSACTIONS SECTION (Page 2 layout in sample) -->
+                <!-- 5. TOTAL IN WORDS & TRANSACTIONS SECTION -->
                 <div class="space-y-6 pt-2">
                     <!-- Total in words -->
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs flex flex-col sm:flex-row sm:items-baseline gap-2">
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs flex flex-col sm:flex-row sm:items-baseline gap-2">
                         <span class="font-bold text-gray-700 whitespace-nowrap">Total Amount (in words):</span>
-                        <span class="text-gray-900 font-medium capitalize">
+                        <span class="text-gray-900 font-semibold capitalize">
                             Rupees {{ numberToWords(invoice.amount) }} only
                         </span>
                     </div>
 
                     <!-- Transactions Table -->
-                    <div class="space-y-2">
-                        <h3 class="text-sm font-bold text-gray-950">Transactions</h3>
-                        <table class="w-full text-left border-collapse border border-gray-200">
+                    <div class="space-y-2.5">
+                        <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Transactions</h3>
+                        <table class="w-full text-left border-collapse border border-gray-200 rounded-lg overflow-hidden">
                             <thead>
                                 <tr class="bg-gray-100 text-gray-900 text-xs font-bold border-b border-gray-200">
-                                    <th class="py-2.5 px-3">Transaction Date</th>
-                                    <th class="py-2.5 px-3">Gateway</th>
-                                    <th class="py-2.5 px-3">Transaction ID</th>
-                                    <th class="py-2.5 px-3 text-right">Amount</th>
+                                    <th class="py-3 px-4">Transaction Date</th>
+                                    <th class="py-3 px-4">Gateway</th>
+                                    <th class="py-3 px-4">Transaction ID</th>
+                                    <th class="py-3 px-4 text-right">Amount</th>
                                 </tr>
                             </thead>
                             <tbody class="text-xs text-gray-800 divide-y divide-gray-200">
                                 <tr>
-                                    <td class="py-2.5 px-3">
+                                    <td class="py-3 px-4 font-medium">
                                         {{ invoice.paid_at ? formatOrdinalDate(invoice.paid_at) : formatOrdinalDate(invoice.created_at) }}
                                     </td>
-                                    <td class="py-2.5 px-3 text-gray-600">
+                                    <td class="py-3 px-4 text-gray-600">
                                         {{ invoice.payment_method || 'Online Payment' }}
                                     </td>
-                                    <td class="py-2.5 px-3 font-mono">
+                                    <td class="py-3 px-4 font-mono text-gray-700">
                                         {{ invoice.payment_id || (invoice.status === 'paid' ? 'Completed' : 'Pending') }}
                                     </td>
-                                    <td class="py-2.5 px-3 text-right font-mono font-semibold">
+                                    <td class="py-3 px-4 text-right font-mono font-bold text-gray-950">
                                         {{ formatCurrency(invoice.amount, invoice.currency) }}
                                     </td>
                                 </tr>
-                                <tr class="bg-gray-50/70 font-bold">
-                                    <td colspan="3" class="py-2.5 px-3 text-right text-gray-700">Balance</td>
-                                    <td class="py-2.5 px-3 text-right font-mono text-gray-950">
+                                <tr class="bg-gray-50 font-bold">
+                                    <td colspan="3" class="py-3 px-4 text-right text-gray-700 uppercase tracking-wider text-[11px]">Balance Due</td>
+                                    <td class="py-3 px-4 text-right font-mono text-sm text-gray-950">
                                         {{ formatCurrency(invoice.status === 'paid' ? 0 : invoice.amount, invoice.currency) }}
                                     </td>
                                 </tr>
@@ -344,12 +349,14 @@ const numberToWords = (num) => {
                 </div>
 
                 <!-- 6. CLEAN MINIMAL FOOTER -->
-                <div class="mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between text-[11px] text-gray-400 gap-2">
-                    <div>
-                        PDF Generated on {{ formatOrdinalDate(new Date()) }}
+                <div class="mt-14 pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3">
+                    <div class="space-y-0.5 text-center sm:text-left">
+                        <div class="font-semibold text-gray-700">Thank you for choosing Nimbus by VMCore!</div>
+                        <div class="text-[11px] text-gray-400">For support, contact {{ company?.support_email || 'support@vmcore.in' }}</div>
                     </div>
-                    <div class="font-medium text-gray-600">
-                        Nimbus by VMCore
+                    <div class="text-center sm:text-right text-[11px] text-gray-400 space-y-0.5">
+                        <div>PDF Generated on {{ formatOrdinalDate(new Date()) }}</div>
+                        <div>Nimbus by VMCore &bull; Computer Generated Invoice</div>
                     </div>
                 </div>
 
@@ -373,16 +380,34 @@ const numberToWords = (num) => {
     /* Reset global page margins and paper geometry */
     @page {
         size: A4 portrait;
-        margin: 12mm 15mm 12mm 15mm;
+        margin: 10mm 12mm 10mm 12mm;
     }
 
     html, body {
         background-color: #ffffff !important;
         color: #000000 !important;
-        font-size: 11pt !important;
+        font-size: 10.5pt !important;
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
+        height: auto !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Force all wrapper containers to full width on print */
+    .min-h-screen,
+    .md\:pl-64,
+    main,
+    main > div,
+    .max-w-7xl,
+    .invoice-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        border: none !important;
     }
 
     /* Flatten invoice sheet */
@@ -396,7 +421,6 @@ const numberToWords = (num) => {
         max-width: 100% !important;
     }
 
-    /* High-fidelity color printing */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
