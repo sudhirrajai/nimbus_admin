@@ -16,6 +16,10 @@ Route::get('/', function () {
         ->orderBy('price_usd')
         ->get();
 
+    $testimonials = \Illuminate\Support\Facades\Schema::hasTable('testimonials')
+        ? \App\Models\Testimonial::active()->get()
+        : collect();
+
     return Inertia::render('Landing', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -24,6 +28,7 @@ Route::get('/', function () {
         'selfHostedPlans' => $selfHostedPlans,
         'managedHostingPlans' => $managedHostingPlans,
         'plans' => $selfHostedPlans,
+        'testimonials' => $testimonials,
     ]);
 })->name('home');
 
@@ -148,6 +153,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/invoices', [AdminInvoiceController::class, 'store'])->name('invoices.store');
     Route::patch('/invoices/{invoice}/status', [AdminInvoiceController::class, 'updateStatus'])->name('invoices.update-status');
     Route::delete('/invoices/{invoice}', [AdminInvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    // Testimonials Management (Admin)
+    Route::get('/testimonials', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'index'])->name('testimonials.index');
+    Route::post('/testimonials', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'store'])->name('testimonials.store');
+    Route::put('/testimonials/{testimonial}', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'update'])->name('testimonials.update');
+    Route::delete('/testimonials/{testimonial}', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'destroy'])->name('testimonials.destroy');
+    Route::post('/testimonials/{testimonial}/toggle-active', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'toggleActive'])->name('testimonials.toggle-active');
 });
 
 // Client Managed Hosting Routes

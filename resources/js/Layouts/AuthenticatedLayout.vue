@@ -19,6 +19,7 @@ const pageTitle = computed(() => {
     if (route().current('admin.settings.index')) return 'Settings';
     if (route().current('admin.pages.*')) return 'Manage Pages';
     if (route().current('admin.plans.*')) return 'Manage Plans';
+    if (route().current('admin.testimonials.*')) return 'Testimonials';
     if (route().current('admin.releases.index')) return 'Releases';
     if (route().current('admin.reports.index')) return 'Bug Reports';
     if (route().current('profile.edit')) return 'Profile';
@@ -180,6 +181,19 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">payments</span>
                         Manage Plans
+                    </Link>
+
+                    <Link 
+                        :href="route('admin.testimonials.index')" 
+                        :class="[
+                            route().current('admin.testimonials.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">reviews</span>
+                        Testimonials
                     </Link>
 
                     <Link 
@@ -384,6 +398,20 @@ const isRouteActive = (routeName) => {
                         >
                             <span class="material-symbols-rounded text-lg">payments</span>
                             Manage Plans
+                        </Link>
+
+                        <Link 
+                            :href="route('admin.testimonials.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                route().current('admin.testimonials.*') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">reviews</span>
+                            Testimonials
                         </Link>
 
                         <Link 

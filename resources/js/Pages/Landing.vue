@@ -8,6 +8,7 @@ const props = defineProps({
     plans: Array,
     selfHostedPlans: Array,
     managedHostingPlans: Array,
+    testimonials: Array,
 });
 
 const scrolled = ref(false);
@@ -206,26 +207,41 @@ const activePlans = computed(() => {
         : (props.plans && props.plans.length > 0 ? props.plans : defaultSelfHostedPlans);
 });
 
-const testimonials = [
+const defaultTestimonials = [
     {
-        quote: 'Nimbus replaced our entire DevOps toolchain. We went from 3 separate tools to one beautiful panel. Deployment is now incredibly simple.',
-        name: 'Rahul Sharma',
-        role: 'CTO',
-        company: 'TechStack Solutions'
+        id: 1,
+        name: 'TestMe',
+        role: 'Managed Cloud Client',
+        company: 'TestMe',
+        location: 'Mumbai, Maharashtra',
+        quote: 'Best managed hosting service we have used. Got instant support, rock-solid 99.9% uptime, and direct sysadmin care that lets us focus entirely on our business.',
+        rating: 5,
     },
     {
-        quote: 'The file manager alone is worth it. Ace Editor integration, search, permissions — it\'s like having VS Code in the browser for server files.',
-        name: 'Priya Patel',
-        role: 'Full Stack Developer',
-        company: 'CloudNine Labs'
+        id: 2,
+        name: 'dmanindia',
+        role: 'E-Commerce Website',
+        company: 'dmanindia',
+        location: 'Vapi, Gujarat, India',
+        quote: 'Running an e-commerce website requires high speed and uninterrupted availability. Nimbus handles our customer traffic spikes and flash sales with effortless stability.',
+        rating: 5,
     },
     {
-        quote: 'Setting up SSL, managing databases, and deploying from Git — all from one interface. Nimbus is what cPanel should have been.',
-        name: 'Alex Chen',
-        role: 'DevOps Lead',
-        company: 'Infrawise'
-    }
+        id: 3,
+        name: 'Maharaj POS',
+        role: 'Retail Point of Sale Systems',
+        company: 'Maharaj POS',
+        location: 'Panchmahal, Gujarat, India',
+        quote: 'Our point-of-sale retail clients demand 24/7 reliability. Hosting on Nimbus fully managed cloud gave us instant response times, automated backups, and complete peace of mind.',
+        rating: 5,
+    },
 ];
+
+const testimonialsList = computed(() => {
+    return (props.testimonials && props.testimonials.length > 0)
+        ? props.testimonials
+        : defaultTestimonials;
+});
 
 const faqs = [
     { q: 'What are the two ways to use Nimbus?', a: 'Just like Coolify, Nimbus offers two clear pathways: (1) Self-Host Nimbus on your own VPS or bare-metal server (AWS, Hetzner, DigitalOcean) with 1-line installation and full control; or (2) Choose Fully Managed Cloud Hosting where the VMCORE engineering team handles servers, backups, uptime, and security for you.' },
@@ -767,19 +783,30 @@ const faqs = [
         <section class="testimonials">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-header__label">Testimonials</span>
-                    <h2 class="section-header__title">Loved by Developers</h2>
+                    <span class="section-header__label font-bold text-xs uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block mb-3">Testimonials</span>
+                    <h2 class="section-header__title text-3xl sm:text-4xl font-black text-gray-950 tracking-tight">Loved by Developers, Vendors &amp; Clients</h2>
+                    <p class="section-header__subtitle text-sm text-gray-600 mt-2 max-w-2xl mx-auto">
+                        For developers, vendors, and business clients who want to focus more on their core tasks and productivity while Nimbus powers their servers.
+                    </p>
                 </div>
 
                 <div class="testimonials__grid">
-                    <div class="testimonial-card" v-for="(t, i) in testimonials" :key="i">
-                        <div class="testimonial-card__stars">★★★★★</div>
+                    <div class="testimonial-card" v-for="(t, i) in testimonialsList" :key="t.id || i">
+                        <div class="testimonial-card__stars text-amber-400">
+                            <span v-for="s in (t.rating || 5)" :key="s">★</span>
+                        </div>
                         <p class="testimonial-card__quote">"{{ t.quote }}"</p>
                         <div class="testimonial-card__author">
-                            <div class="testimonial-card__avatar">{{ t.name.charAt(0) }}</div>
+                            <div class="testimonial-card__avatar">{{ t.name?.charAt(0) || 'C' }}</div>
                             <div>
                                 <div class="testimonial-card__name">{{ t.name }}</div>
-                                <div class="testimonial-card__role">{{ t.role }}, {{ t.company }}</div>
+                                <div class="testimonial-card__role">
+                                    {{ [t.role, t.company].filter(Boolean).join(' • ') }}
+                                </div>
+                                <div v-if="t.location" class="text-[11px] text-emerald-600 font-medium flex items-center gap-1 mt-0.5">
+                                    <span class="material-symbols-rounded text-xs leading-none">location_on</span>
+                                    <span>{{ t.location }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
