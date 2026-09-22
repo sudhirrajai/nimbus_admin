@@ -63,8 +63,22 @@ const scrollToPricing = () => {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
 };
 
+const handleResize = () => {
+    if (window.innerWidth > 768 && mobileMenuOpen.value) {
+        mobileMenuOpen.value = false;
+    }
+};
+
+const handleKeydown = (e) => {
+    if (e.key === 'Escape' && mobileMenuOpen.value) {
+        mobileMenuOpen.value = false;
+    }
+};
+
 onMounted(() => {
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKeydown);
 
     try {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -78,6 +92,8 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('resize', handleResize);
+    window.removeEventListener('keydown', handleKeydown);
 });
 
 const features = [
@@ -257,10 +273,17 @@ const faqs = [
     <Head title="Nimbus by VMCore — Modern Server Management" />
 
     <div class="landing" :class="{ 'mobile-menu-open': mobileMenuOpen }">
+        <!-- Backdrop for mobile menu overlay -->
+        <div 
+            v-if="mobileMenuOpen" 
+            class="navbar__backdrop" 
+            @click="mobileMenuOpen = false"
+        ></div>
+
         <!-- ======================== NAVBAR ======================== -->
-        <nav class="navbar" :class="{ 'navbar--scrolled': scrolled }">
+        <nav class="navbar" :class="{ 'navbar--scrolled': scrolled, 'navbar--mobile-open': mobileMenuOpen }">
             <div class="navbar__inner">
-                <Link href="/" class="navbar__brand">
+                <Link href="/" class="navbar__brand" @click="mobileMenuOpen = false">
                     <div class="navbar__logo-box">
                         <img src="/favicon.png?v=2" alt="Nimbus" class="navbar__logo-img" />
                     </div>
@@ -275,7 +298,7 @@ const faqs = [
                 </div>
 
                 <div class="navbar__actions">
-                    <template v-if="$page.props.auth.user">
+                    <template v-if="$page.props.auth?.user">
                         <Link :href="route('dashboard')" class="btn btn--primary btn--sm">Dashboard</Link>
                     </template>
                     <template v-else>
@@ -284,27 +307,68 @@ const faqs = [
                     </template>
                 </div>
 
-                <button class="navbar__hamburger" @click="mobileMenuOpen = !mobileMenuOpen">
+                <button 
+                    class="navbar__hamburger" 
+                    @click="mobileMenuOpen = !mobileMenuOpen" 
+                    :aria-expanded="mobileMenuOpen"
+                    aria-label="Toggle navigation menu"
+                >
                     <span class="material-symbols-rounded">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
                 </button>
             </div>
 
-            <!-- Mobile Menu -->
-            <div class="navbar__mobile" :class="{ 'navbar__mobile--open': mobileMenuOpen }">
-                <a href="#features" class="navbar__mobile-link" @click="mobileMenuOpen = false">Features</a>
-                <a href="#how-it-works" class="navbar__mobile-link" @click="mobileMenuOpen = false">How It Works</a>
-                <a href="#pricing" class="navbar__mobile-link" @click="mobileMenuOpen = false">Pricing</a>
-                <a href="https://nimbus-docs.vmcore.in/" class="navbar__mobile-link" target="_blank">Docs</a>
-                <div class="navbar__mobile-actions">
-                    <template v-if="$page.props.auth.user">
-                        <Link :href="route('dashboard')" class="btn btn--primary btn--full">Dashboard</Link>
-                    </template>
-                    <template v-else>
-                        <Link :href="route('login')" class="btn btn--outline btn--full">Login</Link>
-                        <Link :href="route('register')" class="btn btn--primary btn--full">Get Started</Link>
-                    </template>
+            <!-- Mobile Menu Dropdown -->
+            <transition name="slide-fade">
+                <div v-if="mobileMenuOpen" class="navbar__mobile">
+                    <div class="navbar__mobile-nav">
+                        <a href="#features" class="navbar__mobile-link" @click="mobileMenuOpen = false">
+                            <span class="navbar__mobile-link-inner">
+                                <span class="material-symbols-rounded navbar__mobile-icon">tune</span>
+                                <span>Features</span>
+                            </span>
+                            <span class="material-symbols-rounded navbar__mobile-link-arrow">chevron_right</span>
+                        </a>
+                        <a href="#how-it-works" class="navbar__mobile-link" @click="mobileMenuOpen = false">
+                            <span class="navbar__mobile-link-inner">
+                                <span class="material-symbols-rounded navbar__mobile-icon">alt_route</span>
+                                <span>How It Works</span>
+                            </span>
+                            <span class="material-symbols-rounded navbar__mobile-link-arrow">chevron_right</span>
+                        </a>
+                        <a href="#pricing" class="navbar__mobile-link" @click="mobileMenuOpen = false">
+                            <span class="navbar__mobile-link-inner">
+                                <span class="material-symbols-rounded navbar__mobile-icon">sell</span>
+                                <span>Pricing &amp; Plans</span>
+                            </span>
+                            <span class="material-symbols-rounded navbar__mobile-link-arrow">chevron_right</span>
+                        </a>
+                        <a href="https://nimbus-docs.vmcore.in/" class="navbar__mobile-link" target="_blank" @click="mobileMenuOpen = false">
+                            <span class="navbar__mobile-link-inner">
+                                <span class="material-symbols-rounded navbar__mobile-icon">menu_book</span>
+                                <span>Documentation</span>
+                            </span>
+                            <span class="material-symbols-rounded navbar__mobile-link-arrow">open_in_new</span>
+                        </a>
+                    </div>
+
+                    <div class="navbar__mobile-actions">
+                        <template v-if="$page.props.auth?.user">
+                            <Link :href="route('dashboard')" class="btn btn--primary btn--full" @click="mobileMenuOpen = false">
+                                <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px;">dashboard</span>
+                                Go to Workspace
+                            </Link>
+                        </template>
+                        <template v-else>
+                            <Link :href="route('login')" class="btn btn--outline btn--full" @click="mobileMenuOpen = false">
+                                Sign In
+                            </Link>
+                            <Link :href="route('register')" class="btn btn--primary btn--full" @click="mobileMenuOpen = false">
+                                Get Started Free
+                            </Link>
+                        </template>
+                    </div>
                 </div>
-            </div>
+            </transition>
         </nav>
 
         <!-- ======================== HERO ======================== -->
@@ -970,13 +1034,33 @@ const faqs = [
 .btn--ghost:hover { color: var(--color-heading); }
 
 /* ============================================================
-   NAVBAR
+   NAVBAR & MOBILE NAVIGATION
    ============================================================ */
 .navbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     border-bottom: 1px solid transparent; transition: all var(--transition);
 }
-.navbar--scrolled { background: rgba(255,255,255,0.85); backdrop-filter: blur(16px) saturate(180%); border-bottom-color: var(--color-border); }
+.navbar--scrolled,
+.navbar--mobile-open {
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom-color: var(--color-border) !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+}
+.navbar__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 95;
+    animation: navBackdropFade 0.2s ease-out;
+}
+@keyframes navBackdropFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 .navbar__inner {
     width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 24px;
     display: flex; align-items: center; justify-content: space-between; height: 64px;
@@ -996,23 +1080,109 @@ const faqs = [
 }
 .navbar__link:hover { color: var(--color-heading); }
 .navbar__actions { display: flex; align-items: center; gap: 12px; }
-.navbar__hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--color-heading); padding: 4px; }
-.navbar__mobile { display: none; }
+.navbar__hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    color: var(--color-heading);
+    transition: all 0.15s ease;
+    padding: 0;
+}
+.navbar__hamburger:hover,
+.navbar__hamburger:active {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--color-border);
+}
+.navbar__hamburger .material-symbols-rounded {
+    font-size: 24px;
+    line-height: 1;
+}
+
+/* Slide fade animation for mobile dropdown */
+.slide-fade-enter-active {
+    transition: all 0.22s ease-out;
+}
+.slide-fade-leave-active {
+    transition: all 0.16s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    transform: translateY(-8px);
+    opacity: 0;
+}
 
 @media (max-width: 768px) {
+    .navbar__inner {
+        padding: 0 16px;
+    }
     .navbar__links, .navbar__actions { display: none; }
     .navbar__hamburger { display: flex; }
     .navbar__mobile {
-        display: none; flex-direction: column; gap: 8px;
-        padding: 16px 24px 24px; background: var(--color-card);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px 20px;
+        background: #ffffff;
         border-bottom: 1px solid var(--color-border);
+        box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12);
+        max-height: calc(100dvh - 64px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
-    .navbar__mobile--open { display: flex; }
+    .navbar__mobile-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
     .navbar__mobile-link {
-        font-size: 15px; font-weight: 500; color: var(--color-body);
-        text-decoration: none; padding: 10px 0; border-bottom: 1px solid var(--color-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--color-heading);
+        text-decoration: none;
+        padding: 11px 14px;
+        border-radius: 10px;
+        background: transparent;
+        transition: all 0.15s ease;
     }
-    .navbar__mobile-actions { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; }
+    .navbar__mobile-link:hover,
+    .navbar__mobile-link:active {
+        background: rgba(16, 185, 129, 0.08);
+        color: var(--color-primary-hover);
+    }
+    .navbar__mobile-link-inner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .navbar__mobile-icon {
+        font-size: 18px;
+        color: var(--color-primary);
+    }
+    .navbar__mobile-link-arrow {
+        font-size: 18px;
+        color: #94a3b8;
+        transition: transform 0.15s ease, color 0.15s ease;
+    }
+    .navbar__mobile-link:hover .navbar__mobile-link-arrow {
+        transform: translateX(2px);
+        color: var(--color-primary-hover);
+    }
+    .navbar__mobile-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-top: 14px;
+        border-top: 1px solid var(--color-border);
+    }
 }
 
 /* ============================================================
