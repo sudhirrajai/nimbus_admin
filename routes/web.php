@@ -6,12 +6,24 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    $selfHostedPlans = \App\Models\Plan::where('is_active', true)
+        ->selfHosted()
+        ->orderBy('price_usd')
+        ->get();
+
+    $managedHostingPlans = \App\Models\Plan::where('is_active', true)
+        ->managedHosting()
+        ->orderBy('price_usd')
+        ->get();
+
     return Inertia::render('Landing', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        'plans' => \App\Models\Plan::where('is_active', true)->orderBy('price_usd')->get(),
+        'selfHostedPlans' => $selfHostedPlans,
+        'managedHostingPlans' => $managedHostingPlans,
+        'plans' => $selfHostedPlans,
     ]);
 })->name('home');
 
@@ -96,8 +108,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Plans Management
     Route::get('/plans', [AdminPlanController::class, 'index'])->name('plans.index');
+    Route::post('/plans', [AdminPlanController::class, 'store'])->name('plans.store');
     Route::get('/plans/{plan}/edit', [AdminPlanController::class, 'edit'])->name('plans.edit');
     Route::put('/plans/{plan}', [AdminPlanController::class, 'update'])->name('plans.update');
+    Route::delete('/plans/{plan}', [AdminPlanController::class, 'destroy'])->name('plans.destroy');
+    Route::post('/plans/{plan}/toggle-active', [AdminPlanController::class, 'toggleActive'])->name('plans.toggle-active');
 
     // Releases Management
     Route::get('/releases', [AdminReleaseController::class, 'index'])->name('releases.index');

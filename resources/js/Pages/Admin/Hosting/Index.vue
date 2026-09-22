@@ -8,6 +8,7 @@ const props = defineProps({
     accounts: Object,
     requests: Object,
     users: Array,
+    managedPlans: Array,
 });
 
 const activeTab = ref('accounts'); // 'accounts', 'servers', 'requests'
@@ -68,9 +69,10 @@ const accountForm = useForm({
     user_id: '',
     hosting_server_id: '',
     domain: '',
-    plan_name: 'Managed Cloud VPS',
+    plan_name: 'Starter Cloud',
     status: 'active',
     billing_cycle: 'yearly',
+    starts_at: '',
     amount: 3800,
     renewal_price: 4790,
     currency: 'INR',
@@ -82,22 +84,61 @@ const accountForm = useForm({
     notes: '',
 });
 
+const recalculateRenewalDate = () => {
+    if (!accountForm.starts_at) return;
+    const start = new Date(accountForm.starts_at);
+    if (isNaN(start.getTime())) return;
+
+    const cycle = accountForm.billing_cycle || 'yearly';
+    const renewal = new Date(start);
+    if (cycle === 'monthly') {
+        renewal.setMonth(renewal.getMonth() + 1);
+    } else if (cycle === 'quarterly') {
+        renewal.setMonth(renewal.getMonth() + 3);
+    } else if (cycle === 'semi_annual') {
+        renewal.setMonth(renewal.getMonth() + 6);
+    } else if (cycle === 'biennial') {
+        renewal.setFullYear(renewal.getFullYear() + 2);
+    } else if (cycle === 'triennial') {
+        renewal.setFullYear(renewal.getFullYear() + 3);
+    } else {
+        renewal.setFullYear(renewal.getFullYear() + 1);
+    }
+    accountForm.renews_at = renewal.toISOString().substring(0, 10);
+};
+
+const onPlanSelectChange = (event) => {
+    const slug = event.target.value;
+    if (!slug) return;
+    const plan = (props.managedPlans || []).find(p => p.slug === slug);
+    if (plan) {
+        accountForm.plan_name = plan.name;
+        accountForm.amount = plan.price_inr;
+        accountForm.renewal_price = plan.renewal_price_inr || plan.price_inr;
+        accountForm.billing_cycle = plan.billing_period === '/month' ? 'monthly' : 'yearly';
+        recalculateRenewalDate();
+    }
+};
+
 const openNewAccountModal = (prefillUserId = '', prefillDomain = '') => {
     editingAccount.value = null;
     accountForm.reset();
     accountForm.user_id = prefillUserId || (props.users[0]?.id || '');
     accountForm.hosting_server_id = props.servers[0]?.id || '';
     accountForm.domain = prefillDomain;
-    accountForm.plan_name = 'Managed Cloud VPS';
+
+    const defaultPlan = props.managedPlans && props.managedPlans.length > 0 ? props.managedPlans[0] : null;
+    accountForm.plan_name = defaultPlan ? defaultPlan.name : 'Starter Cloud';
     accountForm.status = 'active';
-    accountForm.billing_cycle = 'yearly';
-    accountForm.amount = 3800;
-    accountForm.renewal_price = 4790;
+    accountForm.billing_cycle = defaultPlan?.billing_period === '/month' ? 'monthly' : 'yearly';
+    accountForm.amount = defaultPlan ? defaultPlan.price_inr : 3800;
+    accountForm.renewal_price = defaultPlan ? (defaultPlan.renewal_price_inr || defaultPlan.price_inr) : 4790;
     accountForm.currency = 'INR';
 
-    const nextYear = new Date();
-    nextYear.setFullYear(nextYear.getFullYear() + 1);
-    accountForm.renews_at = nextYear.toISOString().substring(0, 10);
+    const today = new Date();
+    accountForm.starts_at = today.toISOString().substring(0, 10);
+    recalculateRenewalDate();
+
     accountForm.auto_invoice = true;
     accountForm.renewal_invoice_days = 14;
     accountForm.payment_status = 'paid';
@@ -116,6 +157,7 @@ const openEditAccountModal = (account) => {
     accountForm.billing_cycle = account.billing_cycle || 'yearly';
     accountForm.amount = account.initial_price || 0;
     accountForm.renewal_price = account.renewal_price || 0;
+    accountForm.starts_at = account.starts_at ? account.starts_at.substring(0, 10) : (account.created_at ? account.created_at.substring(0, 10) : '');
     accountForm.renews_at = account.renews_at ? account.renews_at.substring(0, 10) : '';
     accountForm.auto_invoice = account.auto_invoice !== undefined ? Boolean(account.auto_invoice) : true;
     accountForm.renewal_invoice_days = account.renewal_invoice_days || 14;
@@ -343,8 +385,11 @@ const formatRenewalBadge = (dateStr) => {
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-xs">
-                                        <div v-if="account.renews_at">
-                                            <div class="font-medium text-gray-900">{{ formatDate(account.renews_at) }}</div>
+                                        <div class="text-[11px] text-gray-600">
+                                            Start: <span class="font-medium text-gray-900">{{ formatDate(account.starts_at || account.created_at) }}</span>
+                                        </div>
+                                        <div v-if="account.renews_at" class="mt-0.5">
+                                            <div class="text-[11px] text-gray-600">Due: <span class="font-medium text-gray-900">{{ formatDate(account.renews_at) }}</span></div>
                                             <div class="mt-1 flex items-center gap-1.5">
                                                 <span 
                                                     :class="formatRenewalBadge(account.renews_at).class"
@@ -627,6 +672,20 @@ const formatRenewalBadge = (dateStr) => {
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Assigned Domain</label>
                         <input type="text" v-model="accountForm.domain" placeholder="example.com" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5 font-mono" required />
                     </div>
+                    <!-- Quick Plan Template Selection (Optional) -->
+                    <div v-if="managedPlans && managedPlans.length > 0" class="p-3 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-1">
+                        <label class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1">
+                            <span class="material-symbols-rounded text-sm text-emerald-600">tune</span>
+                            Load from Managed Plan Template (Optional)
+                        </label>
+                        <select @change="onPlanSelectChange" class="w-full bg-white border border-emerald-300 rounded-lg text-xs p-2 text-gray-800 focus:ring-emerald-500 focus:border-emerald-500">
+                            <option value="">-- Choose pre-configured plan or customize below --</option>
+                            <option v-for="plan in managedPlans" :key="plan.id" :value="plan.slug">
+                                {{ plan.name }} — ₹{{ plan.price_inr.toLocaleString('en-IN') }}{{ plan.billing_period }} (Renews: ₹{{ (plan.renewal_price_inr || plan.price_inr).toLocaleString('en-IN') }})
+                            </option>
+                        </select>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Plan / Tier Name</label>
@@ -642,17 +701,31 @@ const formatRenewalBadge = (dateStr) => {
                         </div>
                     </div>
 
-                    <!-- Billing Cycle & Renewal Pricing Configuration -->
+                    <!-- Billing Cycle, Term Start Date & Renewal Pricing Configuration -->
                     <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-rounded text-emerald-600 text-base">calendar_month</span>
-                            <span class="text-xs font-bold text-gray-900">Billing Term & Renewal Pricing</span>
+                            <span class="text-xs font-bold text-gray-900">Term Dates & Renewal Pricing (Synchronized to Invoice)</span>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Start Date (Term Start)</label>
+                                <input 
+                                    type="date" 
+                                    v-model="accountForm.starts_at" 
+                                    @change="recalculateRenewalDate"
+                                    class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2" 
+                                    required 
+                                />
+                            </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Billing Cycle</label>
-                                <select v-model="accountForm.billing_cycle" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2">
+                                <select 
+                                    v-model="accountForm.billing_cycle" 
+                                    @change="recalculateRenewalDate"
+                                    class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2"
+                                >
                                     <option value="yearly">1 Year (Annual)</option>
                                     <option value="monthly">1 Month</option>
                                     <option value="quarterly">3 Months (Quarterly)</option>
@@ -662,7 +735,7 @@ const formatRenewalBadge = (dateStr) => {
                                 </select>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Next Renewal Due Date</label>
+                                <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1">Next Renewal Date</label>
                                 <input type="date" v-model="accountForm.renews_at" class="w-full bg-white border border-gray-300 rounded-lg text-xs p-2" required />
                             </div>
                         </div>

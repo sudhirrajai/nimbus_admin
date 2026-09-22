@@ -32,11 +32,17 @@ class AdminHostingController extends Controller
 
         $users = User::select('id', 'name', 'email')->orderBy('name')->get();
 
+        $managedPlans = \App\Models\Plan::managedHosting()
+            ->where('is_active', true)
+            ->orderBy('price_inr')
+            ->get();
+
         return Inertia::render('Admin/Hosting/Index', [
             'servers' => $servers,
             'accounts' => $accounts,
             'requests' => $requests,
             'users' => $users,
+            'managedPlans' => $managedPlans,
         ]);
     }
 
@@ -109,6 +115,7 @@ class AdminHostingController extends Controller
             'status' => 'required|in:active,suspended,terminated',
             'notes' => 'nullable|string|max:1000',
             'billing_cycle' => 'nullable|string|in:monthly,quarterly,semi_annual,yearly,biennial,triennial',
+            'starts_at' => 'nullable|date',
             'amount' => 'nullable|numeric|min:0', // initial term price (e.g. 3800)
             'renewal_price' => 'nullable|numeric|min:0', // subsequent renewal price (e.g. 4790)
             'currency' => 'nullable|string|max:10',
@@ -126,10 +133,21 @@ class AdminHostingController extends Controller
         $autoInvoice = $request->has('auto_invoice') ? $request->boolean('auto_invoice') : true;
         $leadDays = isset($validated['renewal_invoice_days']) ? (int)$validated['renewal_invoice_days'] : 14;
 
-        // Determine expiration / renewal date
+        $startsAt = !empty($validated['starts_at']) 
+            ? \Carbon\Carbon::parse($validated['starts_at']) 
+            : now();
+
+        // Determine expiration / renewal date based on starts_at if not given
         $renewsAt = !empty($validated['renews_at']) 
             ? \Carbon\Carbon::parse($validated['renews_at']) 
-            : now()->addYear();
+            : (match ($billingCycle) {
+                'monthly' => $startsAt->copy()->addMonth(),
+                'quarterly' => $startsAt->copy()->addMonths(3),
+                'semi_annual' => $startsAt->copy()->addMonths(6),
+                'biennial' => $startsAt->copy()->addYears(2),
+                'triennial' => $startsAt->copy()->addYears(3),
+                default => $startsAt->copy()->addYear(),
+            });
 
         $account = HostingAccount::create([
             'user_id' => $validated['user_id'],
@@ -141,6 +159,7 @@ class AdminHostingController extends Controller
             'plan_name' => $validated['plan_name'],
             'status' => $validated['status'],
             'billing_cycle' => $billingCycle,
+            'starts_at' => $startsAt,
             'initial_price' => $initialPrice,
             'renewal_price' => $renewalPrice,
             'currency' => $currency,
@@ -150,24 +169,27 @@ class AdminHostingController extends Controller
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        // Automatically generate the initial invoice for the user
+        // Automatically generate the initial invoice for the user with synchronized start and end term dates
         $user = User::find($validated['user_id']);
         $server = HostingServer::find($validated['hosting_server_id']);
         $paymentStatus = $validated['payment_status'] ?? 'paid';
         $paymentMethod = $validated['payment_method'] ?? 'Admin Assignment';
+
+        $formattedStart = $startsAt->format('d/m/Y');
+        $formattedEnd = $renewsAt->format('d/m/Y');
 
         \App\Models\Invoice::create([
             'user_id' => $user->id,
             'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
             'type' => 'hosting_plan',
             'plan_name' => $validated['plan_name'],
-            'description' => "Managed Cloud Hosting for {$validated['domain']} ({$validated['plan_name']}) - Initial Term",
+            'description' => "Managed Cloud Hosting for {$validated['domain']} ({$validated['plan_name']}) - Term: {$formattedStart} to {$formattedEnd}",
             'amount' => $initialPrice,
             'currency' => $currency,
             'status' => $paymentStatus,
             'payment_method' => $paymentMethod,
-            'due_date' => now(),
-            'period_start' => now(),
+            'due_date' => $startsAt,
+            'period_start' => $startsAt,
             'period_end' => $renewsAt,
             'paid_at' => ($paymentStatus === 'paid') ? now() : null,
             'hosting_account_id' => $account->id,
@@ -182,11 +204,11 @@ class AdminHostingController extends Controller
             ],
         ]);
 
-        return back()->with('success', 'Client hosting account and initial invoice generated successfully.');
+        return back()->with('success', 'Client hosting account and synchronized initial invoice generated successfully.');
     }
 
     /**
-     * Update account status, renewal pricing or details.
+     * Update account status, start date, renewal pricing or details and sync invoice.
      */
     public function updateAccount(Request $request, HostingAccount $account)
     {
@@ -196,6 +218,7 @@ class AdminHostingController extends Controller
             'plan_name' => 'required|string|max:255',
             'status' => 'required|in:active,suspended,terminated',
             'billing_cycle' => 'nullable|string|in:monthly,quarterly,semi_annual,yearly,biennial,triennial',
+            'starts_at' => 'nullable|date',
             'initial_price' => 'nullable|numeric|min:0',
             'renewal_price' => 'nullable|numeric|min:0',
             'renews_at' => 'nullable|date',
@@ -203,6 +226,14 @@ class AdminHostingController extends Controller
             'renewal_invoice_days' => 'nullable|integer|min:1|max:90',
             'notes' => 'nullable|string|max:1000',
         ]);
+
+        $startsAt = !empty($validated['starts_at']) 
+            ? \Carbon\Carbon::parse($validated['starts_at']) 
+            : ($account->starts_at ?? $account->created_at ?? now());
+
+        $renewsAt = !empty($validated['renews_at']) 
+            ? \Carbon\Carbon::parse($validated['renews_at']) 
+            : $account->renews_at;
 
         $account->update([
             'server_id' => $validated['hosting_server_id'],
@@ -213,15 +244,45 @@ class AdminHostingController extends Controller
             'plan_name' => $validated['plan_name'],
             'status' => $validated['status'],
             'billing_cycle' => $validated['billing_cycle'] ?? $account->billing_cycle ?? 'yearly',
+            'starts_at' => $startsAt,
             'initial_price' => isset($validated['initial_price']) ? (float)$validated['initial_price'] : $account->initial_price,
             'renewal_price' => isset($validated['renewal_price']) ? (float)$validated['renewal_price'] : $account->renewal_price,
-            'renews_at' => !empty($validated['renews_at']) ? \Carbon\Carbon::parse($validated['renews_at']) : $account->renews_at,
+            'renews_at' => $renewsAt,
             'auto_invoice' => $request->has('auto_invoice') ? $request->boolean('auto_invoice') : $account->auto_invoice,
             'renewal_invoice_days' => isset($validated['renewal_invoice_days']) ? (int)$validated['renewal_invoice_days'] : ($account->renewal_invoice_days ?? 14),
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        return back()->with('success', 'Hosting account updated successfully.');
+        // Synchronize with associated invoice (update dates, term in description, and amount if pending)
+        $invoice = $account->invoices()->orderBy('created_at', 'asc')->first() ?? $account->latestInvoice;
+        if ($invoice) {
+            $formattedStart = $startsAt->format('d/m/Y');
+            $formattedEnd = $renewsAt ? $renewsAt->format('d/m/Y') : '';
+
+            $invoiceUpdate = [
+                'period_start' => $startsAt,
+                'period_end' => $renewsAt,
+                'plan_name' => $validated['plan_name'],
+                'description' => "Managed Cloud Hosting for {$validated['domain']} ({$validated['plan_name']}) - Term: {$formattedStart} to {$formattedEnd}",
+            ];
+
+            if ($invoice->status !== 'paid') {
+                $invoiceUpdate['due_date'] = $startsAt;
+                if (isset($validated['initial_price']) && (float)$validated['initial_price'] > 0) {
+                    $invoiceUpdate['amount'] = (float)$validated['initial_price'];
+                }
+            }
+
+            $billingDetails = $invoice->billing_details ?? [];
+            $billingDetails['domain'] = $validated['domain'];
+            $billingDetails['billing_cycle'] = $account->billing_cycle;
+            $billingDetails['renewal_price'] = $account->renewal_price;
+            $invoiceUpdate['billing_details'] = $billingDetails;
+
+            $invoice->update($invoiceUpdate);
+        }
+
+        return back()->with('success', 'Hosting account and associated invoice updated successfully.');
     }
 
     /**

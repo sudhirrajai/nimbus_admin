@@ -6,12 +6,15 @@ const props = defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
     plans: Array,
+    selfHostedPlans: Array,
+    managedHostingPlans: Array,
 });
 
 const scrolled = ref(false);
 const mobileMenuOpen = ref(false);
 const openFaq = ref(null);
 const selectedCurrency = ref('USD');
+const activeServiceTab = ref('managed_hosting'); // 'managed_hosting' or 'self_hosted'
 
 const handleScroll = () => {
     scrolled.value = window.scrollY > 20;
@@ -19,6 +22,11 @@ const handleScroll = () => {
 
 const toggleFaq = (index) => {
     openFaq.value = openFaq.value === index ? null : index;
+};
+
+const scrollToPricing = () => {
+    const el = document.getElementById('pricing');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
 };
 
 onMounted(() => {
@@ -50,10 +58,11 @@ const features = [
     { icon: 'web', title: 'WordPress Manager', desc: 'Manage themes, plugins, and users for WordPress installations with upcoming one-click install support.' },
 ];
 
-const defaultPlans = [
+const defaultSelfHostedPlans = [
     {
-        name: 'Free',
+        name: 'Free Starter',
         slug: 'free',
+        type: 'self_hosted',
         price_usd: 0,
         price_inr: 0,
         billing_period: 'forever',
@@ -62,8 +71,9 @@ const defaultPlans = [
         cta_text: 'Start Free'
     },
     {
-        name: 'Pro',
+        name: 'Pro License',
         slug: 'pro',
+        type: 'self_hosted',
         price_usd: 19,
         price_inr: 499,
         billing_period: '/year',
@@ -72,8 +82,9 @@ const defaultPlans = [
         cta_text: 'Buy Pro Now'
     },
     {
-        name: 'Enterprise',
+        name: 'Enterprise License',
         slug: 'enterprise',
+        type: 'self_hosted',
         price_usd: 49,
         price_inr: 1999,
         billing_period: '/year',
@@ -83,8 +94,83 @@ const defaultPlans = [
     }
 ];
 
+const defaultManagedPlans = [
+    {
+        name: 'Starter Cloud',
+        slug: 'starter-cloud',
+        type: 'managed_hosting',
+        price_usd: 49,
+        renewal_price_usd: 59,
+        price_inr: 3800,
+        renewal_price_inr: 4790,
+        billing_period: '/year',
+        is_popular: false,
+        features: [
+            '1 vCPU & 2GB RAM Cloud Node',
+            '30GB NVMe High-Speed Storage',
+            'Fully Managed by VMCORE Team',
+            'Free Auto-Renewing SSL',
+            'Automated Daily Backups',
+            'Standard Server Monitoring',
+        ],
+        cta_text: 'Get Managed Starter',
+        description: 'Perfect for personal sites, blogs, and light production workloads.'
+    },
+    {
+        name: 'Business Cloud',
+        slug: 'business-cloud',
+        type: 'managed_hosting',
+        price_usd: 99,
+        renewal_price_usd: 119,
+        price_inr: 7990,
+        renewal_price_inr: 9990,
+        billing_period: '/year',
+        is_popular: true,
+        features: [
+            '2 vCPU & 4GB RAM Dedicated Node',
+            '80GB NVMe Enterprise Storage',
+            'Fully Managed by Nimbus Engineers',
+            'Priority 24/7 Operations Support',
+            'Fail2ban & Advanced DDoS Shield',
+            'Automated Hourly / Daily Backups',
+            'Staging Environments & Git Deploy',
+        ],
+        cta_text: 'Deploy Business Cloud',
+        description: 'High-performance cloud for e-commerce, agencies, and high-traffic sites.'
+    },
+    {
+        name: 'Enterprise Cloud',
+        slug: 'enterprise-cloud',
+        type: 'managed_hosting',
+        price_usd: 199,
+        renewal_price_usd: 249,
+        price_inr: 16990,
+        renewal_price_inr: 19990,
+        billing_period: '/year',
+        is_popular: false,
+        features: [
+            '4 vCPU & 8GB RAM High-Performance Node',
+            '160GB NVMe Extreme Storage',
+            'Dedicated VMCORE SysAdmin Support',
+            'Custom Nginx & PHP Optimization',
+            'White Glove Migration Included',
+            'Real-time Uptime SLA (99.9%)',
+            'Custom Daemon & Supervisor Management',
+        ],
+        cta_text: 'Get Enterprise Cloud',
+        description: 'Maximum speed, dedicated isolated resources, and direct sysadmin support.'
+    }
+];
+
 const activePlans = computed(() => {
-    return props.plans && props.plans.length > 0 ? props.plans : defaultPlans;
+    if (activeServiceTab.value === 'managed_hosting') {
+        return (props.managedHostingPlans && props.managedHostingPlans.length > 0)
+            ? props.managedHostingPlans
+            : defaultManagedPlans;
+    }
+    return (props.selfHostedPlans && props.selfHostedPlans.length > 0)
+        ? props.selfHostedPlans
+        : (props.plans && props.plans.length > 0 ? props.plans : defaultSelfHostedPlans);
 });
 
 const testimonials = [
@@ -109,12 +195,12 @@ const testimonials = [
 ];
 
 const faqs = [
-    { q: 'What is Nimbus?', a: 'Nimbus is a modern, lightweight server management panel built with Laravel and Vue.js. It provides an intuitive web interface for managing domains, databases, SSL certificates, deployments, and more on Ubuntu/Debian servers.' },
-    { q: 'Can I self-host it?', a: 'Absolutely. Nimbus is designed to be self-hosted on your own servers. Install it with a single command and you have full control over your infrastructure with no vendor lock-in.' },
-    { q: 'Does it support Docker?', a: 'Docker support is on our roadmap for the future vision phase. Currently, Nimbus manages native server services including Nginx, PHP-FPM, MariaDB, Node.js, and Supervisor.' },
-    { q: 'Is there a free plan?', a: 'Yes! The free plan is free forever and includes 1 server, unlimited domains, SSL automation, file manager, web terminal, and community support. No credit card required.' },
-    { q: 'Can I use my own server?', a: 'Yes. Nimbus works on any Ubuntu 22.04+ or Debian 11+ server with root access and minimum 1GB RAM. It installs Nginx, PHP 8.2, MariaDB, Node.js, Composer, and Supervisor automatically.' },
-    { q: 'What web servers are supported?', a: 'Currently Nimbus supports Nginx with automatic configuration management. Apache and Caddy support are on the roadmap for Q2-Q3 2026.' },
+    { q: 'What are the two ways to use Nimbus?', a: 'Just like Coolify, Nimbus offers two clear pathways: (1) Self-Host Nimbus on your own VPS or bare-metal server (AWS, Hetzner, DigitalOcean) with 1-line installation and full control; or (2) Choose Fully Managed Cloud Hosting where the VMCORE engineering team handles servers, backups, uptime, and security for you.' },
+    { q: 'Can I self-host it for free?', a: 'Yes! The Self-Hosted Starter plan is completely free forever and allows you to manage 1 server with 3 domains, automated SSL, file manager, and web terminal.' },
+    { q: 'What is included in Fully Managed Cloud Hosting?', a: 'With Fully Managed Cloud, you do not need to manage any Linux servers or DevOps. We provide dedicated high-speed NVMe cloud instances, handle security updates, configure firewalls, take automated daily backups, and provide 24/7 technical monitoring.' },
+    { q: 'Can I migrate between Self-Hosted and Managed Cloud?', a: 'Yes! Our team provides free white-glove site and database migration from any external host or self-hosted Nimbus node to our Managed Cloud at any time.' },
+    { q: 'What operating systems are supported for self-hosting?', a: 'Nimbus installs on Ubuntu 22.04+ or Debian 11+ servers with root access and minimum 1GB RAM. It automatically configures Nginx, PHP 8.2+, MariaDB, Node.js, and Supervisor.' },
+    { q: 'Can I request custom server specs or enterprise agreements?', a: 'Yes! Through our Managed Cloud Enterprise tier, our team designs custom high-availability clusters, dedicated IP blocks, and custom SLA agreements.' },
 ];
 </script>
 
@@ -177,29 +263,29 @@ const faqs = [
             <div class="container hero__grid">
                 <div class="hero__content">
                     <div class="hero__badge">
-                        <span class="hero__badge-emoji">🚀</span>
-                        <span class="hero__badge-text">INTRODUCING NIMBUS V2</span>
+                        <span class="hero__badge-emoji">⚡</span>
+                        <span class="hero__badge-text">SELF-HOST OR FULLY MANAGED CLOUD</span>
                     </div>
 
                     <h1 class="hero__title">
-                        Deploy, Manage &amp;<br />
-                        <span class="hero__title-accent">Scale Your Servers</span><br />
+                        Deploy, Host &amp;<br />
+                        <span class="hero__title-accent">Scale Any Server</span><br />
                         Without Complexity.
                     </h1>
 
                     <p class="hero__subtitle">
-                        Nimbus is a lightweight, high-performance server management platform built for developers and teams who want the simplicity of modern cloud platforms without vendor lock-in.
+                        Like Coolify for modern web infrastructure — install Nimbus on your own VPS with a 1-line script, or let our team handle everything with <strong>Fully Managed Nimbus Cloud Hosting</strong>.
                     </p>
 
                     <div class="hero__ctas">
-                        <Link :href="route('register')" class="btn btn--primary btn--lg">Start Free</Link>
-                        <a href="#dashboard-preview" class="btn btn--outline btn--lg">Live Demo</a>
+                        <a href="#deploy-options" class="btn btn--primary btn--lg">Choose Your Way</a>
+                        <a href="#pricing" class="btn btn--outline btn--lg">View Plans &amp; Pricing</a>
                     </div>
 
                     <div class="hero__trust-checks">
-                        <span class="hero__check"><span class="hero__check-icon">✓</span> Free forever plan</span>
-                        <span class="hero__check"><span class="hero__check-icon">✓</span> No credit card required</span>
-                        <span class="hero__check"><span class="hero__check-icon">✓</span> Self-hosted</span>
+                        <span class="hero__check"><span class="hero__check-icon">✓</span> 1-Line Self-Host Installer</span>
+                        <span class="hero__check"><span class="hero__check-icon">✓</span> 100% Zero-DevOps Cloud</span>
+                        <span class="hero__check"><span class="hero__check-icon">✓</span> Free SSL &amp; Automated Backups</span>
                     </div>
                 </div>
 
@@ -280,6 +366,112 @@ const faqs = [
                     </div>
                     <div class="hero__float hero__float--4">
                         <span class="material-symbols-rounded" style="font-size:18px">terminal</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================== TWO WAYS TO DEPLOY ======================== -->
+        <section id="deploy-options" class="deploy-options py-16 bg-slate-50/70 border-t border-b border-gray-200">
+            <div class="container">
+                <div class="section-header text-center max-w-2xl mx-auto mb-12">
+                    <span class="section-header__label font-bold text-xs uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block mb-3">Two Ways to Deploy</span>
+                    <h2 class="section-header__title text-3xl sm:text-4xl font-black text-gray-950 tracking-tight">Your Hardware or Ours.<br/>You Pick The Experience.</h2>
+                    <p class="section-header__subtitle text-sm text-gray-600 mt-3 leading-relaxed">
+                        Whether you want 100% root control over your own VPS or want us to manage the entire server infrastructure for you, Nimbus has you covered.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <!-- Card 1: Fully Managed Cloud (Highlighted) -->
+                    <div class="bg-gradient-to-b from-emerald-50/40 to-white border-2 border-emerald-500 rounded-2xl p-8 shadow-md transition-all flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider py-1.5 px-4 rounded-bl-xl shadow-xs">
+                            Fully Managed • Zero Ops
+                        </div>
+                        <div>
+                            <div class="h-12 w-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-5 shadow-xs">
+                                <span class="material-symbols-rounded text-2xl">cloud_sync</span>
+                            </div>
+                            <h3 class="text-xl font-black text-gray-950 mb-2">Fully Managed Cloud Hosting</h3>
+                            <p class="text-xs text-gray-600 leading-relaxed mb-6">
+                                Don't want to manage Linux kernels, firewall rules, security patches, or server crashes? We deploy, manage, and monitor your cloud instance 24/7 on high-speed NVMe infrastructure.
+                            </p>
+
+                            <div class="bg-emerald-100/60 border border-emerald-200/80 rounded-xl p-3.5 mb-6 text-xs text-emerald-950 font-medium space-y-1">
+                                <div class="font-bold flex items-center gap-1.5 text-emerald-900">
+                                    <span class="material-symbols-rounded text-sm">verified_user</span>
+                                    Hands-off Cloud Infrastructure
+                                </div>
+                                <div class="text-[11px] text-emerald-850">
+                                    We handle backups, security updates, uptime, and performance tuning. You just deploy your applications.
+                                </div>
+                            </div>
+
+                            <ul class="space-y-2.5 text-xs text-gray-700 mb-6">
+                                <li class="flex items-center gap-2">
+                                    <span class="text-emerald-600 font-bold">✓</span>
+                                    <span>High-speed NVMe cloud instances with dedicated resources</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="text-emerald-600 font-bold">✓</span>
+                                    <span>Automated remote backups &amp; 24/7 system health monitoring</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="text-emerald-600 font-bold">✓</span>
+                                    <span>Free white-glove site migration by VMCORE engineers</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button 
+                            @click="activeServiceTab = 'managed_hosting'; scrollToPricing()"
+                            class="btn btn--primary btn--full font-bold"
+                        >
+                            Explore Managed Cloud Packages
+                        </button>
+                    </div>
+
+                    <!-- Card 2: Self-Hosted -->
+                    <div class="bg-white border-2 border-gray-200 hover:border-slate-400 rounded-2xl p-8 shadow-sm transition-all flex flex-col justify-between relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider py-1.5 px-4 rounded-bl-xl border-l border-b border-gray-200">
+                            Self-Host Nimbus
+                        </div>
+                        <div>
+                            <div class="h-12 w-12 rounded-xl bg-slate-900 text-white flex items-center justify-center mb-5 shadow-xs">
+                                <span class="material-symbols-rounded text-2xl">terminal</span>
+                            </div>
+                            <h3 class="text-xl font-black text-gray-950 mb-2">Self-Hosted On Your Servers</h3>
+                            <p class="text-xs text-gray-600 leading-relaxed mb-6">
+                                Bring your own VPS or bare-metal machine (Hetzner, AWS, DigitalOcean, Linode, OVH). Run a single command and unlock an elite server management control panel with zero vendor lock-in.
+                            </p>
+
+                            <div class="bg-slate-950 text-slate-200 rounded-xl p-3.5 text-xs font-mono flex items-center justify-between border border-slate-800 mb-6 overflow-x-auto">
+                                <span class="text-emerald-400 font-bold select-none pr-2">$</span>
+                                <code class="truncate text-[11px]">curl -fsSL https://nimbus.vmcore.in/install.sh | bash</code>
+                            </div>
+
+                            <ul class="space-y-2.5 text-xs text-gray-700 mb-6">
+                                <li class="flex items-center gap-2">
+                                    <span class="text-emerald-600 font-bold">✓</span>
+                                    <span>Full root access &amp; 100% data sovereignty</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="text-emerald-600 font-bold">✓</span>
+                                    <span>Modular toolkit: Nginx, PHP, MySQL, Git, Cron &amp; SSL</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="text-emerald-600 font-bold">✓</span>
+                                    <span>Free forever starter tier + affordable multi-server plans</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button 
+                            @click="activeServiceTab = 'self_hosted'; scrollToPricing()"
+                            class="btn btn--outline btn--full font-bold"
+                        >
+                            View Self-Hosted Plans
+                        </button>
                     </div>
                 </div>
             </div>
@@ -444,9 +636,33 @@ const faqs = [
         <section id="pricing" class="pricing">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-header__label">Pricing</span>
-                    <h2 class="section-header__title">Simple, Transparent Pricing</h2>
-                    <p class="section-header__subtitle">Start free. Scale when you're ready.</p>
+                    <span class="section-header__label font-bold text-xs uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block mb-3">Plans &amp; Pricing</span>
+                    <h2 class="section-header__title text-3xl sm:text-4xl font-black text-gray-950 tracking-tight">Transparent, Predictable Pricing</h2>
+                    <p class="section-header__subtitle text-sm text-gray-600 mt-2">Choose between Fully Managed Cloud Hosting or Self-Hosted Control Panel licenses.</p>
+                </div>
+
+                <!-- Dual Service Switcher: Managed Hosting vs Self-Hosted (Coolify model) -->
+                <div class="flex justify-center mb-6">
+                    <div class="inline-flex p-1.5 bg-gray-200/80 rounded-2xl border border-gray-300 shadow-2xs gap-1 max-w-full overflow-x-auto">
+                        <button 
+                            type="button"
+                            @click="activeServiceTab = 'managed_hosting'"
+                            :class="activeServiceTab === 'managed_hosting' ? 'bg-white text-gray-950 shadow-sm font-bold border border-gray-200' : 'text-gray-600 hover:text-gray-900 font-medium'"
+                            class="px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 whitespace-nowrap"
+                        >
+                            <span class="material-symbols-rounded text-base text-emerald-600">cloud</span>
+                            Fully Managed Cloud Hosting
+                        </button>
+                        <button 
+                            type="button"
+                            @click="activeServiceTab = 'self_hosted'"
+                            :class="activeServiceTab === 'self_hosted' ? 'bg-white text-gray-950 shadow-sm font-bold border border-gray-200' : 'text-gray-600 hover:text-gray-900 font-medium'"
+                            class="px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 whitespace-nowrap"
+                        >
+                            <span class="material-symbols-rounded text-base text-purple-600">terminal</span>
+                            Self-Hosted Nimbus Licenses
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Dynamic Currency Switcher -->
@@ -475,15 +691,19 @@ const faqs = [
                     <div class="pricing-card" :class="{ 'pricing-card--popular': plan.is_popular }" v-for="(plan, i) in activePlans" :key="plan.slug || i">
                         <div v-if="plan.is_popular" class="pricing-card__badge">Most Popular</div>
                         <h3 class="pricing-card__name">{{ plan.name }}</h3>
+                        <p v-if="plan.description" class="text-xs text-gray-500 mb-3 min-h-[30px] leading-relaxed">{{ plan.description }}</p>
                         <div class="pricing-card__price">
                             <span class="pricing-card__amount">
                                 {{ 
                                     selectedCurrency === 'USD' 
                                         ? (plan.price_usd === 0 ? '$0' : '$' + plan.price_usd) 
-                                        : (plan.price_inr === 0 ? '₹0' : '₹' + plan.price_inr.toLocaleString('en-IN'))
+                                        : (plan.price_inr === 0 ? '₹0' : '₹' + Number(plan.price_inr || 0).toLocaleString('en-IN'))
                                 }}
                             </span>
                             <span class="pricing-card__period">{{ plan.billing_period }}</span>
+                        </div>
+                        <div v-if="(plan.renewal_price_inr && plan.renewal_price_inr !== plan.price_inr) || (plan.renewal_price_usd && plan.renewal_price_usd !== plan.price_usd)" class="text-[11px] text-emerald-700 font-mono mb-4">
+                            Renews at: {{ selectedCurrency === 'USD' ? '$' + (plan.renewal_price_usd || plan.price_usd) : '₹' + Number(plan.renewal_price_inr || plan.price_inr).toLocaleString('en-IN') }}{{ plan.billing_period }}
                         </div>
                         <ul class="pricing-card__features">
                             <li v-for="feat in plan.features" :key="feat">

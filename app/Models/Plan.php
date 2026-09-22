@@ -30,6 +30,7 @@ class Plan extends Model
     protected $fillable = [
         'name',
         'slug',
+        'type',
         'price_inr',
         'renewal_price_inr',
         'price_usd',
@@ -50,6 +51,19 @@ class Plan extends Model
         'is_active' => 'boolean',
         'is_popular' => 'boolean',
     ];
+
+    public function scopeSelfHosted($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('type', 'self_hosted')
+              ->orWhereNull('type');
+        });
+    }
+
+    public function scopeManagedHosting($query)
+    {
+        return $query->where('type', 'managed_hosting');
+    }
 
     /**
      * Check if a module is enabled by default in this plan.

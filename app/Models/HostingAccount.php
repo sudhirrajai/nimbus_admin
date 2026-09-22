@@ -24,6 +24,7 @@ class HostingAccount extends Model
         'initial_price',
         'renewal_price',
         'currency',
+        'starts_at',
         'renews_at',
         'auto_invoice',
         'renewal_invoice_days',
@@ -34,6 +35,7 @@ class HostingAccount extends Model
     protected $casts = [
         'initial_price' => 'decimal:2',
         'renewal_price' => 'decimal:2',
+        'starts_at' => 'datetime',
         'renews_at' => 'datetime',
         'auto_invoice' => 'boolean',
         'renewal_invoice_days' => 'integer',

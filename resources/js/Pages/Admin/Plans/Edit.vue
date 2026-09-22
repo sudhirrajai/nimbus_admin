@@ -12,6 +12,7 @@ const featuresText = ref((props.plan.features || []).join('\n'));
 
 const form = useForm({
     name: props.plan.name,
+    type: props.plan.type || 'self_hosted',
     price_inr: props.plan.price_inr,
     renewal_price_inr: props.plan.renewal_price_inr ?? props.plan.price_inr,
     price_usd: props.plan.price_usd,
@@ -77,7 +78,7 @@ const submit = () => {
         <div class="max-w-3xl">
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-gray-900">
                 <form @submit.prevent="submit" class="space-y-6">
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                         <!-- Plan Name -->
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Plan Name</label>
@@ -88,6 +89,20 @@ const submit = () => {
                                 required
                             />
                             <div v-if="form.errors.name" class="text-xs text-red-600 mt-1">{{ form.errors.name }}</div>
+                        </div>
+
+                        <!-- Plan Type (Self-Hosted vs Fully Managed) -->
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Plan Category / Type</label>
+                            <select 
+                                v-model="form.type" 
+                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
+                                required
+                            >
+                                <option value="self_hosted">Self-Hosted Nimbus License</option>
+                                <option value="managed_hosting">Fully Managed Cloud Hosting</option>
+                            </select>
+                            <div v-if="form.errors.type" class="text-xs text-red-600 mt-1">{{ form.errors.type }}</div>
                         </div>
 
                         <!-- Plan Slug -->
