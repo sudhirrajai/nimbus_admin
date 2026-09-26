@@ -30,6 +30,12 @@ class HostingAccount extends Model
         'renewal_invoice_days',
         'status',
         'notes',
+        'uptime_status',
+        'uptime_status_code',
+        'uptime_response_time_ms',
+        'uptime_last_checked_at',
+        'uptime_last_error',
+        'uptime_last_alert_at',
     ];
 
     protected $casts = [
@@ -39,6 +45,10 @@ class HostingAccount extends Model
         'renews_at' => 'datetime',
         'auto_invoice' => 'boolean',
         'renewal_invoice_days' => 'integer',
+        'uptime_status_code' => 'integer',
+        'uptime_response_time_ms' => 'integer',
+        'uptime_last_checked_at' => 'datetime',
+        'uptime_last_alert_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -129,6 +139,11 @@ class HostingAccount extends Model
     public function latestInvoice()
     {
         return $this->hasOne(Invoice::class)->latestOfMany();
+    }
+
+    public function uptimeLogs()
+    {
+        return $this->hasMany(HostingAccountUptimeLog::class)->orderBy('created_at', 'desc');
     }
 
     /**

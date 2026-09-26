@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('invoices:generate-renewals')->dailyAt('01:00');
+Schedule::command('hosting:check-uptime')->everyFifteenMinutes();

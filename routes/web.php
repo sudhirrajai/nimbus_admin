@@ -148,6 +148,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/hosting/accounts/{account}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'destroyAccount'])->name('hosting.accounts.destroy');
     Route::get('/hosting/accounts/{account}/sso', [\App\Http\Controllers\Admin\AdminHostingController::class, 'loginAccount'])->name('hosting.accounts.sso');
     Route::post('/hosting/accounts/{account}/renewal-invoice', [\App\Http\Controllers\Admin\AdminHostingController::class, 'generateRenewalInvoice'])->name('hosting.accounts.renewal-invoice');
+    Route::post('/hosting/accounts/{account}/check-uptime', [\App\Http\Controllers\Admin\AdminHostingController::class, 'checkAccountUptime'])->name('hosting.accounts.check-uptime');
+    Route::post('/hosting/uptime/check-all', [\App\Http\Controllers\Admin\AdminHostingController::class, 'checkAllUptime'])->name('hosting.uptime.check-all');
     Route::post('/hosting/renewals/check', [\App\Http\Controllers\Admin\AdminHostingController::class, 'runRenewalCheck'])->name('hosting.renewals.check');
 
     Route::patch('/hosting/requests/{hostingRequest}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'updateRequestStatus'])->name('hosting.requests.update');

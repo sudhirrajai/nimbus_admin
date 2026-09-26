@@ -249,6 +249,42 @@ const formatRenewalBadge = (dateStr) => {
     if (days <= 30) return { text: `Due in ${days} days`, class: 'bg-blue-50 text-blue-700 border-blue-200' };
     return { text: `In ${days} days`, class: 'bg-slate-50 text-slate-700 border-slate-200' };
 };
+
+// Uptime monitor state & actions
+const pingingAccountId = ref(null);
+const pingingAll = ref(false);
+
+const checkAccountUptime = (account) => {
+    pingingAccountId.value = account.id;
+    router.post(route('admin.hosting.accounts.check-uptime', account.id), {}, {
+        preserveScroll: true,
+        onFinish: () => {
+            pingingAccountId.value = null;
+        }
+    });
+};
+
+const checkAllUptime = () => {
+    pingingAll.value = true;
+    router.post(route('admin.hosting.uptime.check-all'), {}, {
+        preserveScroll: true,
+        onFinish: () => {
+            pingingAll.value = false;
+        }
+    });
+};
+
+const formatTimeAgo = (dateStr) => {
+    if (!dateStr) return 'Never checked';
+    const diffSec = Math.floor((new Date() - new Date(dateStr)) / 1000);
+    if (diffSec < 0 || diffSec < 45) return 'Just now';
+    if (diffSec < 90) return '1m ago';
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${Math.floor(diffHours / 24)}d ago`;
+};
 </script>
 
 <template>
@@ -273,6 +309,16 @@ const formatRenewalBadge = (dateStr) => {
                     >
                         <span class="material-symbols-rounded text-sm">dns</span>
                         Add Nimbus Node
+                    </button>
+                    <button 
+                        v-if="activeTab === 'accounts'"
+                        @click="checkAllUptime"
+                        :disabled="pingingAll"
+                        class="bg-white hover:bg-slate-50 text-gray-700 border border-gray-200 px-3 sm:px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-2xs flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                        title="Ping all active websites now, verify HTTP 200 OK, and dispatch email alerts for down sites"
+                    >
+                        <span class="material-symbols-rounded text-sm text-emerald-600" :class="{ 'animate-spin': pingingAll }">radar</span>
+                        {{ pingingAll ? 'Pinging All...' : 'Ping All Sites' }}
                     </button>
                     <button 
                         v-if="activeTab === 'accounts'"
@@ -350,6 +396,7 @@ const formatRenewalBadge = (dateStr) => {
                                 <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Client User</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Assigned Domain</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Uptime (200 OK)</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Plan & Cycle</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Term & Renewal Rate</th>
                                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Next Renewal</th>
@@ -359,7 +406,7 @@ const formatRenewalBadge = (dateStr) => {
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 <tr v-if="!accounts.data || accounts.data.length === 0">
-                                    <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-500">
+                                    <td colspan="8" class="px-6 py-8 text-center text-sm text-gray-500">
                                         No managed hosting accounts assigned yet. Click "Assign Client Account" to add your first client.
                                     </td>
                                 </tr>
@@ -373,6 +420,39 @@ const formatRenewalBadge = (dateStr) => {
                                             {{ account.domain }}
                                         </span>
                                         <div class="text-[10px] text-gray-400 mt-1">Node: {{ account.server?.name || 'Unassigned' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <div v-if="account.uptime_status === 'up'" class="inline-flex flex-col items-center">
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                200 OK
+                                                <span v-if="account.uptime_response_time_ms" class="text-emerald-600/80 font-mono font-normal">({{ account.uptime_response_time_ms }}ms)</span>
+                                            </span>
+                                            <span class="text-[9px] text-gray-400 mt-1">
+                                                {{ formatTimeAgo(account.uptime_last_checked_at) }}
+                                            </span>
+                                        </div>
+                                        <div v-else-if="account.uptime_status === 'down'" class="inline-flex flex-col items-center" :title="account.uptime_last_error">
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
+                                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                                {{ account.uptime_status_code ? `HTTP ${account.uptime_status_code}` : 'DOWN' }}
+                                            </span>
+                                            <span class="text-[9px] text-rose-600 font-medium truncate max-w-[130px] mt-0.5" :title="account.uptime_last_error">
+                                                {{ account.uptime_last_error || 'DNS / Connection error' }}
+                                            </span>
+                                            <span class="text-[9px] text-gray-400">
+                                                {{ formatTimeAgo(account.uptime_last_checked_at) }}
+                                            </span>
+                                        </div>
+                                        <div v-else class="inline-flex flex-col items-center">
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                Pending
+                                            </span>
+                                            <span class="text-[9px] text-gray-400 mt-1">
+                                                Click Ping to test
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4 text-xs">
                                         <div class="font-semibold text-gray-800">{{ account.plan_name }}</div>
@@ -422,6 +502,17 @@ const formatRenewalBadge = (dateStr) => {
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-1.5">
+                                            <button 
+                                                @click="checkAccountUptime(account)"
+                                                :disabled="pingingAccountId === account.id"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 text-xs font-semibold rounded border border-gray-200 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
+                                                title="Ping domain now to verify HTTP 200 OK and check DNS"
+                                            >
+                                                <span class="material-symbols-rounded text-sm text-emerald-600" :class="{ 'animate-spin': pingingAccountId === account.id }">
+                                                    {{ pingingAccountId === account.id ? 'refresh' : 'network_ping' }}
+                                                </span>
+                                                Ping
+                                            </button>
                                             <a 
                                                 :href="route('admin.hosting.accounts.sso', account.id)"
                                                 target="_blank"

@@ -139,14 +139,30 @@ const formatDate = (dateStr) => {
                             </span>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 pt-2">
-                            <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                            <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Node IP / Host</div>
-                                <div class="text-xs text-gray-900 font-mono font-bold">{{ account.server?.ip_address || 'Dedicated VPS' }}</div>
+                                <div class="text-xs text-gray-900 font-mono font-bold truncate">{{ account.server?.ip_address || 'Dedicated VPS' }}</div>
                             </div>
-                            <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
+                            <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Renewal Due Date</div>
                                 <div class="text-xs text-emerald-700 font-semibold">{{ formatDate(account.renews_at) }}</div>
+                            </div>
+                            <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
+                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Live Website Health</div>
+                                <div v-if="account.uptime_status === 'up'" class="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span>200 OK</span>
+                                    <span v-if="account.uptime_response_time_ms" class="text-[11px] font-mono text-gray-400 font-normal">({{ account.uptime_response_time_ms }}ms)</span>
+                                </div>
+                                <div v-else-if="account.uptime_status === 'down'" class="flex items-center gap-1.5 text-xs font-bold text-rose-600" :title="account.uptime_last_error">
+                                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                    <span>Down / Alert</span>
+                                </div>
+                                <div v-else class="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <span>Monitoring Active</span>
+                                </div>
                             </div>
                         </div>
                     </div>

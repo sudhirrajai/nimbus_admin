@@ -405,4 +405,36 @@ class AdminHostingController extends Controller
 
         return redirect()->away($redirectUrl);
     }
+
+    /**
+     * Run immediate uptime ping check for a specific hosting account.
+     */
+    public function checkAccountUptime(Request $request, HostingAccount $account, \App\Services\UptimeMonitorService $monitor)
+    {
+        $adminEmail = $request->user()?->email;
+        $result = $monitor->checkAccount($account, $adminEmail);
+
+        if ($result['status'] === 'up') {
+            return back()->with('success', "{$account->domain} is UP (HTTP 200 OK — {$result['response_time_ms']}ms).");
+        } else {
+            $msg = $result['error'] ?: 'Downtime detected';
+            return back()->with('error', "{$account->domain} is DOWN: {$msg}. Downtime alert email sent to {$adminEmail}.");
+        }
+    }
+
+    /**
+     * Run uptime ping checks for all active hosting accounts.
+     */
+    public function checkAllUptime(Request $request, \App\Services\UptimeMonitorService $monitor)
+    {
+        $adminEmail = $request->user()?->email;
+        $results = $monitor->checkAll($adminEmail);
+
+        $msg = "Uptime scan complete: {$results['total']} domains checked. {$results['up']} UP (Green), {$results['down']} DOWN (Red).";
+        if ($results['down'] > 0) {
+            $msg .= " Downtime alerts dispatched to {$adminEmail}.";
+        }
+
+        return back()->with('success', $msg);
+    }
 }
