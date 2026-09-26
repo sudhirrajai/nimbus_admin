@@ -15,7 +15,7 @@ use Throwable;
 class UptimeMonitorService
 {
     /**
-     * Check uptime for a single hosting account.
+     * Check uptime for a single hosting account with public DNS & external reachability verification.
      */
     public function checkAccount(HostingAccount $account, ?string $adminEmail = null): array
     {
@@ -37,22 +37,58 @@ class UptimeMonitorService
         $responseTimeMs = null;
         $errorMessage = null;
 
-        // Step 1: DNS Resolution Check
-        $dnsIp = @gethostbyname($cleanDomain);
-        if ($dnsIp === $cleanDomain) {
-            // PHP gethostbyname returns the original hostname when DNS resolution fails
+        // Step 1: Local & Public DNS Verification
+        $localIp = @gethostbyname($cleanDomain);
+
+        // Check if local DNS failed or resolves to loopback / sinkhole (e.g. 127.0.0.1)
+        if ($localIp === '127.0.0.1' || $localIp === '0.0.0.0' || str_starts_with($localIp, '127.') || $localIp === '::1') {
+            $status = 'down';
+            $errorMessage = "DNS resolves to loopback/sinkhole IP ({$localIp}). Domain is sinkholed by ISP or misconfigured in DNS.";
+        } elseif ($localIp === $cleanDomain) {
+            $status = 'down';
             $errorMessage = "DNS A record failed to resolve. Domain '{$cleanDomain}' is unresolvable or DNS records have changed.";
-        } else {
-            // Step 2: HTTP / HTTPS Ping
+        }
+
+        // Query Public DNS (Google DNS over HTTPS) to verify public internet propagation
+        if ($errorMessage === null) {
+            try {
+                $dohResponse = Http::timeout(4)->get("https://dns.google/resolve", [
+                    'name' => $cleanDomain,
+                    'type' => 'A',
+                ]);
+                if ($dohResponse->successful()) {
+                    $answers = $dohResponse->json('Answer') ?? [];
+                    $publicIps = array_filter(array_map(fn($a) => $a['data'] ?? null, $answers));
+
+                    if (empty($publicIps)) {
+                        $status = 'down';
+                        $errorMessage = "Public DNS (Google 8.8.8.8) could not find active A records for '{$cleanDomain}'.";
+                    } else {
+                        foreach ($publicIps as $pip) {
+                            if ($pip === '127.0.0.1' || $pip === '0.0.0.0' || str_starts_with($pip, '127.')) {
+                                $status = 'down';
+                                $errorMessage = "Public DNS returned loopback/sinkhole IP ({$pip}). Domain is sinkholed or invalid.";
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable $dohEx) {
+                // Non-fatal if Google DoH is temporarily unreachable
+            }
+        }
+
+        // Step 2: HTTP / HTTPS Ping (Only if DNS check passed)
+        if ($errorMessage === null) {
             $targetUrl = "https://{$cleanDomain}";
             $start = microtime(true);
 
             try {
+                // Verify SSL so invalid/mismatched certs (which block browsers) are detected as DOWN
                 $response = Http::withHeaders([
                     'User-Agent' => 'Nimbus-Uptime-Monitor/1.0 (+https://nimbus-host.vmcore.in)',
-                    'Accept' => '*/*',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 ])
-                ->withoutVerifying()
                 ->timeout(10)
                 ->connectTimeout(6)
                 ->get($targetUrl);
@@ -60,8 +96,15 @@ class UptimeMonitorService
                 $latency = (int) round((microtime(true) - $start) * 1000);
                 $statusCode = $response->status();
                 $responseTimeMs = $latency;
+                $body = $response->body();
 
-                if ($statusCode === 200) {
+                // Check if response is the Nimbus Admin Panel default vhost rather than the client's site
+                $isDefaultNimbus = (str_contains($body, 'Nimbus by VMCore') || str_contains($body, 'nimbus-host.vmcore.in')) && !str_contains($cleanDomain, 'vmcore.in');
+
+                if ($isDefaultNimbus) {
+                    $status = 'down';
+                    $errorMessage = "Misconfigured VHost: Domain returned Nimbus Admin default panel instead of client website.";
+                } elseif ($statusCode === 200) {
                     $status = 'up';
                     $errorMessage = null;
                 } else {
@@ -70,44 +113,50 @@ class UptimeMonitorService
                     $errorMessage = "HTTP {$statusCode} {$reason}";
                 }
             } catch (Throwable $e) {
-                // If HTTPS failed, try HTTP once in case SSL is not installed or invalid port 443
-                try {
-                    $httpUrl = "http://{$cleanDomain}";
-                    $httpStart = microtime(true);
-                    $httpResponse = Http::withHeaders([
-                        'User-Agent' => 'Nimbus-Uptime-Monitor/1.0 (+https://nimbus-host.vmcore.in)',
-                        'Accept' => '*/*',
-                    ])
-                    ->timeout(8)
-                    ->connectTimeout(5)
-                    ->get($httpUrl);
+                $rawMsg = $e->getMessage();
+                $latency = (int) round((microtime(true) - $start) * 1000);
+                $responseTimeMs = $latency;
+                $status = 'down';
+                $statusCode = null;
 
-                    $httpLatency = (int) round((microtime(true) - $httpStart) * 1000);
-                    $statusCode = $httpResponse->status();
-                    $responseTimeMs = $httpLatency;
+                if (str_contains($rawMsg, 'SSL') || str_contains($rawMsg, 'certificate') || str_contains($rawMsg, 'CERT') || str_contains($rawMsg, 'WRONG_PRINCIPAL')) {
+                    $errorMessage = "SSL Certificate Invalid: Certificate does not match domain or is expired. Browsers block access.";
+                } elseif (str_contains($rawMsg, 'timed out') || str_contains($rawMsg, 'Operation timed out')) {
+                    $errorMessage = "Connection timed out after 10s. Server is unresponsive or port 443 is blocked.";
+                } elseif (str_contains($rawMsg, 'Could not resolve host') || str_contains($rawMsg, 'Name or service not known')) {
+                    $errorMessage = "DNS lookup failed: Host '{$cleanDomain}' could not be resolved.";
+                } elseif (str_contains($rawMsg, 'Connection refused')) {
+                    $errorMessage = "Connection refused on ports 80/443. Web server may be offline or firewall blocking traffic.";
+                } else {
+                    // Try HTTP fallback to see if port 80 is online
+                    try {
+                        $httpUrl = "http://{$cleanDomain}";
+                        $httpStart = microtime(true);
+                        $httpResponse = Http::withHeaders([
+                            'User-Agent' => 'Nimbus-Uptime-Monitor/1.0 (+https://nimbus-host.vmcore.in)',
+                        ])
+                        ->timeout(8)
+                        ->connectTimeout(5)
+                        ->get($httpUrl);
 
-                    if ($statusCode === 200) {
-                        $status = 'up';
-                        $errorMessage = null;
-                    } else {
-                        $status = 'down';
-                        $reason = $httpResponse->reason() ?: 'Non-200 Response';
-                        $errorMessage = "HTTP {$statusCode} {$reason} (over HTTP)";
-                    }
-                } catch (Throwable $httpException) {
-                    $latency = (int) round((microtime(true) - $start) * 1000);
-                    $responseTimeMs = $latency;
-                    $status = 'down';
-                    $statusCode = null;
+                        $httpLatency = (int) round((microtime(true) - $httpStart) * 1000);
+                        $statusCode = $httpResponse->status();
+                        $responseTimeMs = $httpLatency;
+                        $httpBody = $httpResponse->body();
 
-                    $rawMsg = $httpException->getMessage();
-                    if (str_contains($rawMsg, 'timed out') || str_contains($rawMsg, 'Operation timed out')) {
-                        $errorMessage = "Connection timed out after 10s. Server is unresponsive or blocking incoming traffic.";
-                    } elseif (str_contains($rawMsg, 'Could not resolve host') || str_contains($rawMsg, 'Name or service not known')) {
-                        $errorMessage = "DNS A record lookup failed: Host '{$cleanDomain}' could not be resolved.";
-                    } elseif (str_contains($rawMsg, 'Connection refused')) {
-                        $errorMessage = "Connection refused on ports 80/443. Web server (Nginx/Apache) may be stopped.";
-                    } else {
+                        $isDefaultNimbusHttp = (str_contains($httpBody, 'Nimbus by VMCore') || str_contains($httpBody, 'nimbus-host.vmcore.in')) && !str_contains($cleanDomain, 'vmcore.in');
+
+                        if ($isDefaultNimbusHttp) {
+                            $status = 'down';
+                            $errorMessage = "Misconfigured VHost: Domain returned Nimbus Admin default panel instead of client website.";
+                        } elseif ($statusCode === 200) {
+                            $status = 'up';
+                            $errorMessage = null; // Site is UP over HTTP
+                        } else {
+                            $status = 'down';
+                            $errorMessage = "HTTP {$statusCode} {$httpResponse->reason()}";
+                        }
+                    } catch (Throwable $httpEx) {
                         $errorMessage = Str::limit($rawMsg, 250);
                     }
                 }
