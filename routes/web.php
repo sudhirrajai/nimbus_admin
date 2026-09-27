@@ -168,7 +168,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/testimonials/{testimonial}', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'update'])->name('testimonials.update');
     Route::delete('/testimonials/{testimonial}', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'destroy'])->name('testimonials.destroy');
     Route::post('/testimonials/{testimonial}/toggle-active', [\App\Http\Controllers\Admin\AdminTestimonialController::class, 'toggleActive'])->name('testimonials.toggle-active');
+
+    // Feedback Forms & Reviews Management (Admin)
+    Route::get('/feedback', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'index'])->name('feedback.index');
+    Route::post('/feedback', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'store'])->name('feedback.store');
+    Route::put('/feedback/{feedbackForm}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'update'])->name('feedback.update');
+    Route::delete('/feedback/{feedbackForm}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'destroy'])->name('feedback.destroy');
+    Route::post('/feedback/{feedbackForm}/toggle-active', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'toggleActive'])->name('feedback.toggle-active');
+    Route::post('/feedback/generate-ai', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'generateAiQuestions'])->name('feedback.generate-ai');
+    Route::post('/feedback/{feedbackForm}/send-invitation', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'sendInvitation'])->name('feedback.send-invitation');
+    Route::post('/feedback/submissions/{submission}/promote-testimonial', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'promoteToTestimonial'])->name('feedback.submissions.promote');
+    Route::delete('/feedback/submissions/{submission}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'destroySubmission'])->name('feedback.submissions.destroy');
 });
+
+// Public Client Feedback Routes
+Route::get('/feedback/{identifier}', [\App\Http\Controllers\FeedbackController::class, 'show'])->name('feedback.show');
+Route::post('/feedback/{identifier}', [\App\Http\Controllers\FeedbackController::class, 'submit'])->name('feedback.submit');
 
 // Client Managed Hosting Routes
 Route::middleware(['auth'])->group(function () {

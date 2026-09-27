@@ -69,6 +69,7 @@ class PlanTest extends TestCase
 
         $response = $this->actingAs($admin)->put("/admin/plans/{$proPlan->id}", [
             'name' => 'Pro Premium Pack',
+            'type' => 'self_hosted',
             'price_inr' => 599,
             'price_usd' => 25,
             'billing_period' => '/year',
