@@ -24,6 +24,8 @@ const pageTitle = computed(() => {
     if (route().current('admin.plans.*')) return 'Manage Plans';
     if (route().current('admin.testimonials.*')) return 'Testimonials';
     if (route().current('admin.feedback.*')) return 'Client Feedback & Reviews';
+    if (route().current('admin.tickets.*')) return 'Support Tickets Management';
+    if (route().current('tickets.*')) return 'Support Tickets';
     if (route().current('admin.releases.index')) return 'Releases';
     if (route().current('admin.reports.index')) return 'Bug Reports';
     if (route().current('profile.edit')) return 'Profile';
@@ -130,6 +132,19 @@ const isRouteActive = (routeName) => {
                 >
                     <span class="material-symbols-rounded text-lg">receipt_long</span>
                     Invoices
+                </Link>
+
+                <Link 
+                    :href="route('tickets.index')" 
+                    :class="[
+                        route().current('tickets.*') 
+                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                    ]"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                >
+                    <span class="material-symbols-rounded text-lg">support_agent</span>
+                    Support Tickets
                 </Link>
 
                 <div v-if="$page.props.auth.user.is_admin" class="pt-6">
@@ -250,6 +265,19 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">rate_review</span>
                         Client Feedback
+                    </Link>
+
+                    <Link 
+                        :href="route('admin.tickets.index')" 
+                        :class="[
+                            route().current('admin.tickets.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">support_agent</span>
+                        Support Tickets
                     </Link>
 
                     <Link 
@@ -443,6 +471,20 @@ const isRouteActive = (routeName) => {
                             <span class="material-symbols-rounded text-lg">receipt_long</span>
                             Invoices
                         </Link>
+
+                        <Link 
+                            :href="route('tickets.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                route().current('tickets.*') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">support_agent</span>
+                            Support Tickets
+                        </Link>
                         <Link 
                             :href="route('admin.users.index')" 
                             @click="showingNavigationDropdown = false"
@@ -524,6 +566,20 @@ const isRouteActive = (routeName) => {
                         >
                             <span class="material-symbols-rounded text-lg">rate_review</span>
                             Client Feedback
+                        </Link>
+
+                        <Link 
+                            :href="route('admin.tickets.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                route().current('admin.tickets.*') 
+                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        >
+                            <span class="material-symbols-rounded text-lg">support_agent</span>
+                            Support Tickets
                         </Link>
 
                         <Link 

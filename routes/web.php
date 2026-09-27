@@ -63,6 +63,13 @@ Route::middleware('auth')->group(function () {
     // Payment Routes
     Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
     Route::post('/payment/verify', [PaymentController::class, 'verifyPayment'])->name('payment.verify');
+
+    // Support Tickets (Client)
+    Route::get('/tickets', [\App\Http\Controllers\TicketController::class, 'index'])->name('tickets.index');
+    Route::post('/tickets', [\App\Http\Controllers\TicketController::class, 'store'])->name('tickets.store');
+    Route::get('/tickets/{ticket}', [\App\Http\Controllers\TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\TicketController::class, 'reply'])->name('tickets.reply');
+    Route::post('/tickets/{ticket}/close', [\App\Http\Controllers\TicketController::class, 'close'])->name('tickets.close');
 });
 
 use App\Http\Controllers\Admin\AdminUserController;
@@ -179,6 +186,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/feedback/{feedbackForm}/send-invitation', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'sendInvitation'])->name('feedback.send-invitation');
     Route::post('/feedback/submissions/{submission}/promote-testimonial', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'promoteToTestimonial'])->name('feedback.submissions.promote');
     Route::delete('/feedback/submissions/{submission}', [\App\Http\Controllers\Admin\AdminFeedbackController::class, 'destroySubmission'])->name('feedback.submissions.destroy');
+
+    // Support Tickets (Admin)
+    Route::get('/tickets', [\App\Http\Controllers\Admin\AdminTicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [\App\Http\Controllers\Admin\AdminTicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Admin\AdminTicketController::class, 'reply'])->name('tickets.reply');
+    Route::patch('/tickets/{ticket}/status', [\App\Http\Controllers\Admin\AdminTicketController::class, 'updateStatus'])->name('tickets.update-status');
+    Route::patch('/tickets/{ticket}/priority', [\App\Http\Controllers\Admin\AdminTicketController::class, 'updatePriority'])->name('tickets.update-priority');
+    Route::delete('/tickets/{ticket}', [\App\Http\Controllers\Admin\AdminTicketController::class, 'destroy'])->name('tickets.destroy');
 });
 
 // Public Client Feedback Routes
