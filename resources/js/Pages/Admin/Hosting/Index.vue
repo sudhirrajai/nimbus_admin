@@ -218,6 +218,14 @@ const triggerRenewalCheck = () => {
 };
 
 // Request management
+const showRequestDetailsModal = ref(false);
+const selectedRequest = ref(null);
+
+const openRequestDetailsModal = (req) => {
+    selectedRequest.value = req;
+    showRequestDetailsModal.value = true;
+};
+
 const updateRequestStatus = (req, status) => {
     router.patch(route('admin.hosting.requests.update', req.id), { status }, {
         preserveScroll: true
@@ -638,19 +646,33 @@ const formatTimeAgo = (dateStr) => {
                                         No managed hosting inquiries submitted yet.
                                     </td>
                                 </tr>
-                                <tr v-for="req in requests.data" :key="req.id" class="hover:bg-slate-50/50 transition-colors">
+                                <tr v-for="req in requests.data" :key="req.id" class="hover:bg-slate-50/80 transition-colors cursor-pointer group" @click="openRequestDetailsModal(req)">
                                     <td class="px-6 py-4">
-                                        <div class="text-sm font-bold text-gray-900">{{ req.name }}</div>
+                                        <div class="text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition-colors flex items-center gap-1.5">
+                                            {{ req.name }}
+                                            <span class="material-symbols-rounded text-sm text-gray-400 group-hover:text-emerald-600">visibility</span>
+                                        </div>
                                         <div class="text-xs text-gray-500">{{ req.email }}</div>
+                                        <div v-if="req.phone" class="text-[11px] text-gray-400 font-mono mt-0.5">{{ req.phone }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-xs font-semibold text-gray-800">
                                         {{ req.plan_requested }}
                                     </td>
-                                    <td class="px-6 py-4 font-mono text-xs text-emerald-700">
+                                    <td class="px-6 py-4 font-mono text-xs text-emerald-700 font-bold">
                                         {{ req.domain || 'N/A' }}
                                     </td>
-                                    <td class="px-6 py-4 text-xs text-gray-600 max-w-xs truncate">
-                                        {{ req.requirements || 'None provided' }}
+                                    <td class="px-6 py-4 text-xs text-gray-600 max-w-sm">
+                                        <div class="line-clamp-2 leading-relaxed">
+                                            {{ req.requirements || 'None provided' }}
+                                        </div>
+                                        <button 
+                                            v-if="req.requirements && req.requirements.length > 40" 
+                                            @click.stop="openRequestDetailsModal(req)" 
+                                            class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 hover:underline mt-1 inline-flex items-center gap-0.5 cursor-pointer"
+                                        >
+                                            <span>Read full request</span>
+                                            <span class="material-symbols-rounded text-xs">arrow_forward</span>
+                                        </button>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <span 
@@ -664,19 +686,27 @@ const formatTimeAgo = (dateStr) => {
                                             {{ req.status }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 text-right">
+                                    <td class="px-6 py-4 text-right" @click.stop>
                                         <div class="flex items-center justify-end gap-2">
+                                            <button 
+                                                @click="openRequestDetailsModal(req)"
+                                                class="px-2.5 py-1 text-xs font-semibold text-gray-700 bg-white hover:bg-slate-100 rounded border border-gray-200 shadow-2xs inline-flex items-center gap-1 cursor-pointer transition-colors"
+                                                title="View full request details"
+                                            >
+                                                <span class="material-symbols-rounded text-xs">info</span>
+                                                Details
+                                            </button>
                                             <button 
                                                 v-if="req.status === 'pending'"
                                                 @click="openNewAccountModal(req.user_id, req.domain)"
-                                                class="px-2.5 py-1 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-sm"
+                                                class="px-2.5 py-1 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-sm cursor-pointer transition-all"
                                             >
                                                 Provision Account
                                             </button>
                                             <button 
                                                 v-if="req.status === 'pending'"
                                                 @click="updateRequestStatus(req, 'rejected')"
-                                                class="px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded border border-rose-200"
+                                                class="px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded border border-rose-200 cursor-pointer transition-all"
                                             >
                                                 Reject
                                             </button>
@@ -976,6 +1006,113 @@ const formatTimeAgo = (dateStr) => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- HOSTING INQUIRY DETAILS MODAL -->
+        <div v-if="showRequestDetailsModal && selectedRequest" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-7 border border-gray-200 animate-scale-up space-y-5">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                            <span class="material-symbols-rounded text-xl">cloud_done</span>
+                        </span>
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900">Hosting Inquiry Details</h3>
+                            <p class="text-xs text-gray-500">Submitted on {{ formatDate(selectedRequest.created_at) || 'Recently' }}</p>
+                        </div>
+                    </div>
+                    <button @click="showRequestDetailsModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+                        <span class="material-symbols-rounded text-lg">close</span>
+                    </button>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-gray-200">
+                    <div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider block text-[10px]">Client / Organization</span>
+                        <span class="text-sm font-bold text-gray-900 block mt-0.5">{{ selectedRequest.name }}</span>
+                    </div>
+
+                    <div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider block text-[10px]">Status</span>
+                        <span 
+                            :class="{
+                                'bg-amber-50 text-amber-700 border-amber-200': selectedRequest.status === 'pending',
+                                'bg-emerald-50 text-emerald-700 border-emerald-200': selectedRequest.status === 'approved',
+                                'bg-rose-50 text-rose-700 border-rose-200': selectedRequest.status === 'rejected'
+                            }"
+                            class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border mt-1"
+                        >
+                            {{ selectedRequest.status }}
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider block text-[10px]">Email Address</span>
+                        <a :href="`mailto:${selectedRequest.email}`" class="text-emerald-700 font-medium hover:underline break-all block mt-0.5">
+                            {{ selectedRequest.email }}
+                        </a>
+                    </div>
+
+                    <div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider block text-[10px]">Contact Phone</span>
+                        <span class="font-mono text-gray-800 block mt-0.5">{{ selectedRequest.phone || 'Not provided' }}</span>
+                    </div>
+
+                    <div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider block text-[10px]">Requested Plan</span>
+                        <span class="font-semibold text-gray-800 block mt-0.5">{{ selectedRequest.plan_requested }}</span>
+                    </div>
+
+                    <div>
+                        <span class="text-gray-400 font-bold uppercase tracking-wider block text-[10px]">Target Domain</span>
+                        <span class="font-mono font-bold text-emerald-800 block mt-0.5">{{ selectedRequest.domain || 'N/A' }}</span>
+                    </div>
+                </div>
+
+                <!-- Full Requirements & Notes Section -->
+                <div>
+                    <label class="text-[10px] font-bold text-gray-600 uppercase tracking-wider block mb-1.5">
+                        Full Traffic Requirements &amp; Client Notes
+                    </label>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs text-gray-800 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto">
+                        {{ selectedRequest.requirements || 'No specific requirements or notes provided with this inquiry.' }}
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div>
+                        <button
+                            v-if="selectedRequest.status === 'pending'"
+                            type="button"
+                            @click="updateRequestStatus(selectedRequest, 'rejected'); showRequestDetailsModal = false;"
+                            class="px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50 rounded-lg border border-rose-200 transition-colors cursor-pointer"
+                        >
+                            Reject Request
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            @click="showRequestDetailsModal = false"
+                            class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                            Close
+                        </button>
+                        <button
+                            v-if="selectedRequest.status === 'pending'"
+                            type="button"
+                            @click="showRequestDetailsModal = false; openNewAccountModal(selectedRequest.user_id, selectedRequest.domain);"
+                            class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                        >
+                            <span class="material-symbols-rounded text-sm">dns</span>
+                            Provision Account
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
