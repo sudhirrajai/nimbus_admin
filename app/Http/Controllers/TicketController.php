@@ -44,7 +44,7 @@ class TicketController extends Controller
         // Also fetch user's active hosting accounts or licenses for quick reference
         $userServices = [
             'licenses' => $user->licenses()->select('id', 'license_key', 'domain', 'status')->get(),
-            'hosting' => $user->hostingAccounts()->select('id', 'domain', 'status')->get(),
+            'hosting' => $user->hostingAccounts()->select('id', 'primary_domain', 'status')->get(),
         ];
 
         return Inertia::render('Tickets/Index', [

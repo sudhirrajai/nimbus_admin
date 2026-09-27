@@ -21,6 +21,21 @@ class TicketTest extends TestCase
             'is_admin' => false,
         ]);
 
+        $server = \App\Models\HostingServer::create([
+            'name' => 'Server 1',
+            'ip_address' => '1.2.3.4',
+            'nimbus_url' => 'https://srv1.vmcore.in',
+            'api_secret' => 'secret123',
+            'status' => 'active',
+        ]);
+
+        \App\Models\HostingAccount::create([
+            'user_id' => $user->id,
+            'server_id' => $server->id,
+            'primary_domain' => 'clientdomain.com',
+            'status' => 'active',
+        ]);
+
         $response = $this->actingAs($user)->get(route('tickets.index'));
         $response->assertStatus(200);
     }
