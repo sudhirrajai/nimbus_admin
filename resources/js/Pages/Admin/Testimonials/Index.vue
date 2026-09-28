@@ -248,9 +248,9 @@ const avgRating = computed(() => {
         </div>
 
         <!-- ======================= CREATE MODAL ======================= -->
-        <div v-if="isCreateModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-lg overflow-hidden animate-fade-in">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div v-if="isCreateModalOpen" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-xs">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-lg my-auto max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
+                <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                             <span class="material-symbols-rounded text-lg">add_comment</span>
@@ -262,7 +262,7 @@ const avgRating = computed(() => {
                     </button>
                 </div>
 
-                <form @submit.prevent="submitCreate" class="p-6 space-y-4">
+                <form @submit.prevent="submitCreate" class="p-4 sm:p-6 space-y-4 overflow-y-auto">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Client / Brand Name *</label>
@@ -377,9 +377,9 @@ const avgRating = computed(() => {
         </div>
 
         <!-- ======================= EDIT MODAL ======================= -->
-        <div v-if="isEditModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-lg overflow-hidden animate-fade-in">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div v-if="isEditModalOpen" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-xs">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-lg my-auto max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
+                <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                             <span class="material-symbols-rounded text-lg">edit</span>
@@ -391,7 +391,7 @@ const avgRating = computed(() => {
                     </button>
                 </div>
 
-                <form @submit.prevent="submitEdit" class="p-6 space-y-4">
+                <form @submit.prevent="submitEdit" class="p-4 sm:p-6 space-y-4 overflow-y-auto">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Client / Brand Name *</label>

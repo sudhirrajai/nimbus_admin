@@ -91,7 +91,7 @@ const priorityClasses = {
             <!-- Ticket Overview Card -->
             <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                         <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
                             #{{ ticket.ticket_number }}
                         </span>
@@ -119,7 +119,7 @@ const priorityClasses = {
                     {{ ticket.subject }}
                 </h1>
 
-                <div class="flex items-center gap-4 text-xs text-gray-500 pt-2 border-t border-gray-100">
+                <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-gray-500 pt-2 border-t border-gray-100">
                     <span class="flex items-center gap-1">
                         <span class="material-symbols-rounded text-sm text-gray-400">category</span>
                         Category: <strong>{{ categoryLabels[ticket.category] || ticket.category }}</strong>

@@ -38,7 +38,7 @@ const isRouteActive = (routeName) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 text-gray-900 selection:bg-emerald-500/10 font-sans">
+    <div class="min-h-screen bg-slate-50 text-gray-900 selection:bg-emerald-500/10 font-sans overflow-x-hidden">
         
         <!-- Desktop Left Sidebar -->
         <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-gray-200 bg-white md:flex md:flex-col transition-all duration-300">
@@ -325,26 +325,25 @@ const isRouteActive = (routeName) => {
         <!-- Mobile Drawer Menu (Slide-out Sidebar) -->
         <div v-if="showingNavigationDropdown" class="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true">
             <!-- Backdrop -->
-            <div class="fixed inset-0 bg-black/40" @click="showingNavigationDropdown = false"></div>
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" @click="showingNavigationDropdown = false"></div>
 
             <!-- Drawer Container -->
-            <div class="relative flex w-full max-w-xs flex-1 flex-col bg-white border-r border-gray-200 pt-5 pb-4 animate-slide-in">
-                <!-- Close Button -->
-                <div class="absolute top-0 right-0 -mr-12 pt-2">
-                    <button @click="showingNavigationDropdown = false" class="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                        <span class="material-symbols-rounded text-white">close</span>
+            <div class="relative flex w-full max-w-[280px] sm:max-w-xs flex-1 flex-col bg-white border-r border-gray-200 pt-4 pb-4 animate-slide-in shadow-2xl z-10">
+                <!-- Drawer Header with integrated close button -->
+                <div class="flex shrink-0 items-center justify-between gap-2.5 px-5 pb-4 border-b border-gray-200">
+                    <Link :href="route('dashboard')" @click="showingNavigationDropdown = false" class="flex items-center gap-2.5">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2">
+                            <ApplicationLogo class="h-5 w-5 fill-white" />
+                        </div>
+                        <span class="text-base font-bold tracking-tight text-gray-900">Nimbus <span class="text-xs font-semibold text-gray-500">by VMCore</span></span>
+                    </Link>
+                    <button @click="showingNavigationDropdown = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-slate-100 transition-colors" aria-label="Close menu">
+                        <span class="material-symbols-rounded text-xl">close</span>
                     </button>
                 </div>
 
-                <div class="flex shrink-0 items-center gap-2.5 px-6 pb-4 border-b border-gray-200">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2">
-                        <ApplicationLogo class="h-5 w-5 fill-white" />
-                    </div>
-                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus <span class="text-xs font-semibold text-gray-500">by VMCore</span></span>
-                </div>
-
                 <!-- Nav list inside Mobile Drawer -->
-                <nav class="mt-6 flex-1 space-y-1.5 px-4 overflow-y-auto">
+                <nav class="mt-4 flex-1 space-y-1.5 px-4 overflow-y-auto">
                     <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Workspace</div>
                     <Link 
                         :href="route('dashboard')" 
@@ -430,7 +429,21 @@ const isRouteActive = (routeName) => {
                         Invoices
                     </Link>
 
-                    <div v-if="$page.props.auth.user.is_admin" class="pt-6">
+                    <Link 
+                        :href="route('tickets.index')" 
+                        @click="showingNavigationDropdown = false"
+                        :class="[
+                            route().current('tickets.*') 
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                        ]"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    >
+                        <span class="material-symbols-rounded text-lg">support_agent</span>
+                        Support Tickets
+                    </Link>
+
+                    <div v-if="$page.props.auth.user.is_admin" class="pt-5">
                         <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Administration</div>
                         <Link 
                             :href="route('admin.licenses.index')" 
@@ -472,19 +485,6 @@ const isRouteActive = (routeName) => {
                             Invoices
                         </Link>
 
-                        <Link 
-                            :href="route('tickets.index')" 
-                            @click="showingNavigationDropdown = false"
-                            :class="[
-                                route().current('tickets.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
-                            ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
-                        >
-                            <span class="material-symbols-rounded text-lg">support_agent</span>
-                            Support Tickets
-                        </Link>
                         <Link 
                             :href="route('admin.users.index')" 
                             @click="showingNavigationDropdown = false"
@@ -559,8 +559,8 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.feedback.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
+                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
                             ]"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
                         >
@@ -611,33 +611,54 @@ const isRouteActive = (routeName) => {
                         </Link>
                     </div>
                 </nav>
+
+                <!-- Mobile Drawer Footer: User profile & Logout -->
+                <div class="border-t border-gray-200 p-3 mt-auto">
+                    <div class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg bg-slate-50 border border-gray-200">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0 shadow-sm shadow-emerald-500/10">
+                                {{ $page.props.auth.user.name.substring(0, 2) }}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-gray-900 truncate">{{ $page.props.auth.user.name }}</div>
+                                <div class="text-[10px] text-gray-500 truncate">{{ $page.props.auth.user.email }}</div>
+                            </div>
+                        </div>
+                        <Link :href="route('logout')" method="post" as="button" class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors shrink-0" title="Log Out">
+                            <span class="material-symbols-rounded text-lg">logout</span>
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
 
-            <!-- Desktop Shell Top Header Navbar -->
-        <div class="md:pl-64 flex flex-col flex-1">
-            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white/80 backdrop-blur-md px-6 print:hidden">
-                <!-- Left: Hamburger + Breadcrumbs -->
-                <div class="flex items-center gap-4">
-                    <button @click="showingNavigationDropdown = true" class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-slate-50 md:hidden outline-none">
+        <!-- Desktop Shell Top Header Navbar -->
+        <div class="md:pl-64 flex flex-col flex-1 min-h-screen min-w-0">
+            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white/80 backdrop-blur-md px-4 sm:px-6 print:hidden">
+                <!-- Left: Hamburger + Page Title / Breadcrumbs -->
+                <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <button @click="showingNavigationDropdown = true" class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-slate-50 md:hidden outline-none shrink-0" aria-label="Open navigation menu">
                         <span class="material-symbols-rounded">menu</span>
                     </button>
 
-                    <!-- Breadcrumbs -->
-                    <nav class="hidden sm:flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-550">
-                        <span class="text-gray-500">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Admin' : 'App' }}</span>
-                        <span class="material-symbols-rounded text-xs select-none text-gray-400">chevron_right</span>
-                        <span class="text-gray-900">{{ pageTitle }}</span>
+                    <!-- Breadcrumbs (Tablet & Desktop) -->
+                    <nav class="hidden sm:flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-550 truncate">
+                        <span class="text-gray-500 shrink-0">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Admin' : 'App' }}</span>
+                        <span class="material-symbols-rounded text-xs select-none text-gray-400 shrink-0">chevron_right</span>
+                        <span class="text-gray-900 truncate">{{ pageTitle }}</span>
                     </nav>
+
+                    <!-- Page Title (Mobile Only) -->
+                    <span class="sm:hidden text-sm font-bold text-gray-900 truncate">{{ pageTitle }}</span>
                 </div>
 
                 <!-- Right: Actions/Dropdown -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4 shrink-0">
                     <Dropdown align="right" width="48" content-classes="py-1 bg-white border border-gray-200">
                         <template #trigger>
-                            <button type="button" class="flex items-center gap-2 rounded-lg bg-slate-50 p-1.5 pl-3 border border-gray-200 hover:bg-slate-100 transition-all outline-none">
-                                <span class="text-xs font-semibold text-gray-700">{{ $page.props.auth.user.name }}</span>
-                                <div class="h-6 w-6 rounded bg-emerald-500 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm shadow-emerald-500/10">
+                            <button type="button" class="flex items-center gap-2 rounded-lg bg-slate-50 p-1.5 pl-2 sm:pl-3 border border-gray-200 hover:bg-slate-100 transition-all outline-none">
+                                <span class="hidden sm:inline text-xs font-semibold text-gray-700 truncate max-w-[120px]">{{ $page.props.auth.user.name }}</span>
+                                <div class="h-6 w-6 rounded bg-emerald-500 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm shadow-emerald-500/10 shrink-0">
                                     {{ $page.props.auth.user.name.substring(0, 2) }}
                                 </div>
                             </button>
@@ -663,21 +684,21 @@ const isRouteActive = (routeName) => {
             </header>
 
             <!-- Page Header Inner (Slots) -->
-            <div v-if="$slots.header" class="border-b border-gray-200 bg-white py-4 sm:py-6 px-4 sm:px-6 lg:px-8 print:hidden">
-                <div class="mx-auto max-w-7xl">
+            <div v-if="$slots.header" class="border-b border-gray-200 bg-white py-4 sm:py-6 px-4 sm:px-6 lg:px-8 print:hidden min-w-0">
+                <div class="mx-auto max-w-7xl min-w-0">
                     <slot name="header" />
                 </div>
             </div>
 
             <!-- Page Main Content Container -->
-            <main class="flex-1 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 bg-slate-50">
-                <div class="mx-auto max-w-7xl">
+            <main class="flex-1 py-5 sm:py-8 px-4 sm:px-6 lg:px-8 bg-slate-50 min-w-0">
+                <div class="mx-auto max-w-7xl min-w-0">
                     <slot />
                 </div>
             </main>
 
             <!-- Footer -->
-            <footer class="border-t border-gray-200 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-white/40 print:hidden">
+            <footer class="border-t border-gray-200 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-white/40 print:hidden min-w-0">
                 <div class="mx-auto max-w-7xl text-center text-xs text-gray-500">
                     &copy; {{ new Date().getFullYear() }} Nimbus by VMCore. All rights reserved.
                 </div>

@@ -147,11 +147,11 @@ const formatDateTime = (dateStr) => {
                                 </div>
                                 <div>
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">{{ license.plan }} Plan License</span>
-                                    <h4 class="text-sm font-bold text-gray-900 font-mono mt-0.5">{{ license.license_key }}</h4>
+                                    <h4 class="text-sm font-bold text-gray-900 font-mono mt-0.5 break-all">{{ license.license_key }}</h4>
                                 </div>
                             </div>
                             <span 
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border shrink-0"
                                 :class="[
                                     license.status === 'active' 
                                         ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
@@ -163,7 +163,7 @@ const formatDateTime = (dateStr) => {
                         </div>
 
                         <!-- Details Grid -->
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Connected Server IP</div>
                                 <div class="text-xs text-gray-900 font-mono font-bold truncate">{{ license.server_ip || 'Awaiting install...' }}</div>
@@ -196,7 +196,7 @@ const formatDateTime = (dateStr) => {
                     </div>
 
                     <!-- Actions Bar -->
-                    <div v-if="license.status === 'active'" class="bg-slate-50/50 px-6 py-3.5 border-t border-gray-200 flex items-center gap-3">
+                    <div v-if="license.status === 'active'" class="bg-slate-50/50 px-4 sm:px-6 py-3 sm:py-3.5 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                         <button 
                             @click="disconnectMachine(license)" 
                             :disabled="!license.machine_id && !license.server_ip"

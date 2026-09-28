@@ -393,10 +393,10 @@ const formatDateTime = (dateStr) => {
         </div>
 
         <!-- ================= EDIT USER MODAL ================= -->
-        <div v-if="showEditModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-gray-200 animate-scale-up">
+        <div v-if="showEditModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full my-auto max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 animate-scale-up">
                 <!-- Header -->
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="h-9 w-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
                             <span class="material-symbols-rounded text-lg">manage_accounts</span>
@@ -412,7 +412,7 @@ const formatDateTime = (dateStr) => {
                 </div>
 
                 <!-- Form -->
-                <form @submit.prevent="submitEditUser" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <form @submit.prevent="submitEditUser" class="p-4 sm:p-6 space-y-4 overflow-y-auto">
                     <!-- Client ID Identifier Badge -->
                     <div class="bg-slate-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
                         <span class="text-xs text-gray-500 font-medium">Customer Reference:</span>
@@ -484,7 +484,7 @@ const formatDateTime = (dateStr) => {
                                 class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
                             />
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">City</label>
                                 <input 
@@ -504,7 +504,7 @@ const formatDateTime = (dateStr) => {
                                 />
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Postal / PIN Code</label>
                                 <input 
@@ -630,10 +630,10 @@ const formatDateTime = (dateStr) => {
         </div>
 
         <!-- ================= CREATE USER MODAL ================= -->
-        <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-gray-200 animate-scale-up">
+        <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full my-auto max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 animate-scale-up">
                 <!-- Header -->
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="h-9 w-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
                             <span class="material-symbols-rounded text-lg">person_add</span>
@@ -649,7 +649,7 @@ const formatDateTime = (dateStr) => {
                 </div>
 
                 <!-- Form -->
-                <form @submit.prevent="submitCreateUser" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <form @submit.prevent="submitCreateUser" class="p-4 sm:p-6 space-y-4 overflow-y-auto">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Full Name</label>
@@ -711,7 +711,7 @@ const formatDateTime = (dateStr) => {
                                 class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
                             />
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">City</label>
                                 <input 
@@ -731,7 +731,7 @@ const formatDateTime = (dateStr) => {
                                 />
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Postal / PIN Code</label>
                                 <input 

@@ -721,8 +721,8 @@ const formatTimeAgo = (dateStr) => {
         </div>
 
         <!-- SERVER MODAL -->
-        <div v-if="showServerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 border border-gray-200">
+        <div v-if="showServerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-4 sm:p-6 border border-gray-200 my-auto max-h-[90vh] overflow-y-auto">
                 <h3 class="text-base font-bold text-gray-900 mb-4">
                     {{ editingServer ? 'Edit Nimbus Node' : 'Add Nimbus Server Node' }}
                 </h3>
@@ -731,7 +731,7 @@ const formatTimeAgo = (dateStr) => {
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Node Identifier / Name</label>
                         <input type="text" v-model="serverForm.name" placeholder="e.g. Nimbus Cloud Node #1" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" required />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Server IP Address</label>
                             <input type="text" v-model="serverForm.ip_address" placeholder="66.116.204.19" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" required />
@@ -770,7 +770,7 @@ const formatTimeAgo = (dateStr) => {
 
         <!-- ACCOUNT MODAL (ASSIGN / EDIT) -->
         <div v-if="showAccountModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
-            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 border border-gray-200 my-8">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-4 sm:p-6 border border-gray-200 my-auto max-h-[90vh] overflow-y-auto">
                 <h3 class="text-base font-bold text-gray-900 mb-4">
                     {{ editingAccount ? 'Edit Client Hosting Account & Renewal' : 'Assign Client Hosting Account' }}
                 </h3>
@@ -809,7 +809,7 @@ const formatTimeAgo = (dateStr) => {
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Plan / Tier Name</label>
                             <input type="text" v-model="accountForm.plan_name" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" required />
@@ -928,8 +928,8 @@ const formatTimeAgo = (dateStr) => {
         </div>
 
         <!-- RENEWAL INVOICE MODAL -->
-        <div v-if="showRenewalModal && targetAccountForRenewal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-            <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-gray-200 animate-scale-up">
+        <div v-if="showRenewalModal && targetAccountForRenewal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-4 sm:p-6 border border-gray-200 animate-scale-up my-auto max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-rounded text-emerald-600 text-lg">receipt_long</span>
@@ -1010,8 +1010,8 @@ const formatTimeAgo = (dateStr) => {
         </div>
 
         <!-- HOSTING INQUIRY DETAILS MODAL -->
-        <div v-if="showRequestDetailsModal && selectedRequest" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-7 border border-gray-200 animate-scale-up space-y-5">
+        <div v-if="showRequestDetailsModal && selectedRequest" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm overflow-y-auto">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-4 sm:p-7 border border-gray-200 animate-scale-up space-y-4 sm:space-y-5 my-auto max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between pb-3 border-b border-gray-100">
                     <div class="flex items-center gap-2.5">
                         <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
@@ -1028,7 +1028,7 @@ const formatTimeAgo = (dateStr) => {
                 </div>
 
                 <!-- Info Grid -->
-                <div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-gray-200">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-gray-200">
                     <div>
                         <span class="text-gray-400 font-bold uppercase tracking-wider block text-[10px]">Client / Organization</span>
                         <span class="text-sm font-bold text-gray-900 block mt-0.5">{{ selectedRequest.name }}</span>

@@ -178,7 +178,7 @@ const getFeatures = (plan) => {
 
         <div class="space-y-6">
             <!-- Navigation Tabs (Standard Theme Style) -->
-            <div class="flex items-center gap-2 border-b border-gray-200">
+            <div class="flex items-center gap-2 border-b border-gray-200 overflow-x-auto whitespace-nowrap pb-1 sm:pb-0">
                 <button 
                     type="button"
                     @click="activeTab = 'managed_hosting'"
@@ -187,7 +187,7 @@ const getFeatures = (plan) => {
                             ? 'border-emerald-500 text-emerald-600 font-semibold' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     ]"
-                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer"
+                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer shrink-0"
                 >
                     <span class="material-symbols-rounded text-base">cloud_done</span>
                     Fully Managed Cloud Hosting
@@ -201,7 +201,7 @@ const getFeatures = (plan) => {
                             ? 'border-emerald-500 text-emerald-600 font-semibold' 
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     ]"
-                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer"
+                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors cursor-pointer shrink-0"
                 >
                     <span class="material-symbols-rounded text-base">terminal</span>
                     Nimbus Self-Host Licenses
@@ -379,9 +379,9 @@ const getFeatures = (plan) => {
         </div>
 
         <!-- Request Managed Hosting Modal -->
-        <div v-if="showHostingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div class="bg-white border border-gray-200 rounded-xl p-6 w-full max-w-lg shadow-2xl animate-fade-in relative text-gray-900">
-                <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
+        <div v-if="showHostingModal" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-black/40 backdrop-blur-sm p-3 sm:p-4">
+            <div class="bg-white border border-gray-200 rounded-xl p-5 sm:p-6 w-full max-w-lg my-auto max-h-[90vh] flex flex-col shadow-2xl animate-fade-in relative text-gray-900 overflow-hidden">
+                <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-4 shrink-0">
                     <div>
                         <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
                             <span class="material-symbols-rounded text-emerald-600">cloud_upload</span>
@@ -394,7 +394,7 @@ const getFeatures = (plan) => {
                     </button>
                 </div>
 
-                <form @submit.prevent="submitHostingRequest" class="space-y-4">
+                <form @submit.prevent="submitHostingRequest" class="space-y-4 overflow-y-auto">
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Target Website Domain *</label>
                         <input 

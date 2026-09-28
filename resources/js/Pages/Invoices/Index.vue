@@ -146,11 +146,11 @@ const formatDate = (dateStr) => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="invoices && invoices.links && invoices.links.length > 3" class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-slate-50/50">
-                    <div class="text-xs text-gray-500">
+                <div v-if="invoices && invoices.links && invoices.links.length > 3" class="px-4 sm:px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50">
+                    <div class="text-xs text-gray-500 text-center sm:text-left">
                         Showing {{ invoices.from }} to {{ invoices.to }} of {{ invoices.total }} invoices
                     </div>
-                    <div class="flex items-center gap-1">
+                    <div class="flex flex-wrap items-center justify-center gap-1">
                         <template v-for="(link, i) in invoices.links" :key="i">
                             <Link 
                                 v-if="link.url"

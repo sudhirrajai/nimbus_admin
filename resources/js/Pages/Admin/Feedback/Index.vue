@@ -403,7 +403,7 @@ const filteredSubmissions = computed(() => {
             </div>
 
             <!-- Metric Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
                     <div class="flex items-center justify-between text-gray-500 mb-2">
                         <span class="text-xs font-bold uppercase tracking-wider">Total Submissions</span>
@@ -449,8 +449,8 @@ const filteredSubmissions = computed(() => {
             </div>
 
             <!-- Navigation Tabs -->
-            <div class="border-b border-gray-200">
-                <nav class="flex space-x-8" aria-label="Tabs">
+            <div class="border-b border-gray-200 overflow-x-auto pb-1 sm:pb-0">
+                <nav class="flex space-x-4 sm:space-x-8 min-w-max" aria-label="Tabs">
                     <button
                         @click="activeTab = 'forms'"
                         :class="[
@@ -631,7 +631,7 @@ const filteredSubmissions = computed(() => {
             <div v-else-if="activeTab === 'submissions'" class="space-y-4">
                 
                 <!-- Filters Bar -->
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
                     <div class="relative w-full sm:w-80">
                         <span class="material-symbols-rounded absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
                         <input
@@ -645,7 +645,7 @@ const filteredSubmissions = computed(() => {
                     <div class="flex items-center gap-3 w-full sm:w-auto">
                         <select
                             v-model="filterFormId"
-                            class="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-emerald-500"
+                            class="w-full sm:w-auto border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-emerald-500"
                         >
                             <option value="">All Feedback Forms</option>
                             <option v-for="f in forms" :key="f.id" :value="f.id">{{ f.title }}</option>
@@ -831,17 +831,17 @@ const filteredSubmissions = computed(() => {
 
             <!-- MODAL 1: Form Builder (Create & Edit) -->
             <div v-if="isFormModalOpen" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                <div class="bg-white rounded-2xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl space-y-6 my-8 max-h-[90vh] flex flex-col">
+                <div class="bg-white rounded-2xl max-w-3xl w-full p-4 sm:p-8 shadow-2xl space-y-5 sm:space-y-6 my-auto sm:my-8 max-h-[90vh] flex flex-col">
                     
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between border-b border-gray-200 pb-4 flex-shrink-0">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 pb-4 flex-shrink-0">
                         <div>
                             <h2 class="text-xl font-bold text-gray-900">
                                 {{ isEditing ? 'Edit Feedback Form' : 'Create Feedback Form' }}
                             </h2>
                             <p class="text-xs text-gray-500 mt-0.5">Customize questionnaire fields, review metrics, and client experience.</p>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 self-end sm:self-auto">
                             <!-- AI Generator Trigger -->
                             <button
                                 type="button"
@@ -1275,7 +1275,7 @@ const filteredSubmissions = computed(() => {
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Client Name *</label>
                             <input
@@ -1347,7 +1347,7 @@ const filteredSubmissions = computed(() => {
 
             <!-- MODAL 5: Detailed Submission Answers Drawer / Modal -->
             <div v-if="isViewAnswersModalOpen && viewingSubmission" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-scale-up">
+                <div class="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-7 shadow-2xl space-y-4 sm:space-y-5 animate-scale-up my-auto max-h-[90vh] overflow-y-auto">
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                         <div>
                             <h3 class="text-base font-bold text-gray-900">Feedback Submission Details</h3>
@@ -1365,7 +1365,7 @@ const filteredSubmissions = computed(() => {
                     </div>
 
                     <!-- Star Rating Banner -->
-                    <div class="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl flex items-center justify-between">
+                    <div class="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                         <div>
                             <span class="text-xs font-bold text-amber-900 uppercase tracking-wider block">Overall Star Rating</span>
                             <span class="text-[11px] text-amber-700">Client satisfaction score</span>
@@ -1447,7 +1447,7 @@ const filteredSubmissions = computed(() => {
                         </div>
                     </div>
 
-                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                    <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-gray-500">
                         <div>Submitted: {{ new Date(viewingSubmission.created_at).toLocaleString() }}</div>
                         <button
                             @click="isViewAnswersModalOpen = false"

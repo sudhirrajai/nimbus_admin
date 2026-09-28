@@ -101,55 +101,55 @@ const priorityClasses = {
             </div>
 
             <!-- Metrics Row -->
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-xs">
                     <div class="flex items-center justify-between text-gray-500 mb-2">
                         <span class="text-xs font-bold uppercase tracking-wider">Total</span>
                         <span class="material-symbols-rounded text-slate-400 text-xl">confirmation_number</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-gray-900">{{ metrics.total }}</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-gray-900">{{ metrics.total }}</div>
                     <div class="text-xs text-gray-500 mt-1">Total requests filed</div>
                 </div>
 
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-xs">
                     <div class="flex items-center justify-between text-gray-500 mb-2">
                         <span class="text-xs font-bold uppercase tracking-wider">Open</span>
                         <span class="material-symbols-rounded text-emerald-600 text-xl">mark_email_unread</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-emerald-600">{{ metrics.open }}</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600">{{ metrics.open }}</div>
                     <div class="text-xs text-emerald-700 mt-1 font-medium">Awaiting staff review</div>
                 </div>
 
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-xs">
                     <div class="flex items-center justify-between text-gray-500 mb-2">
                         <span class="text-xs font-bold uppercase tracking-wider">In Progress</span>
                         <span class="material-symbols-rounded text-blue-600 text-xl">sync</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-blue-600">{{ metrics.in_progress }}</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-blue-600">{{ metrics.in_progress }}</div>
                     <div class="text-xs text-blue-600 mt-1">Under investigation</div>
                 </div>
 
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-xs">
                     <div class="flex items-center justify-between text-gray-500 mb-2">
                         <span class="text-xs font-bold uppercase tracking-wider">Answered</span>
                         <span class="material-symbols-rounded text-indigo-600 text-xl">reply_all</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-indigo-600">{{ metrics.answered }}</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-indigo-600">{{ metrics.answered }}</div>
                     <div class="text-xs text-indigo-600 mt-1">Awaiting client response</div>
                 </div>
 
-                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-xs col-span-2 sm:col-span-1">
                     <div class="flex items-center justify-between text-gray-500 mb-2">
                         <span class="text-xs font-bold uppercase tracking-wider">Resolved</span>
                         <span class="material-symbols-rounded text-purple-600 text-xl">task_alt</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-purple-600">{{ metrics.resolved }}</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-purple-600">{{ metrics.resolved }}</div>
                     <div class="text-xs text-purple-600 mt-1 font-medium">Solved tickets</div>
                 </div>
             </div>
 
             <!-- Filters Bar -->
-            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="bg-white border border-gray-200 rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
                 <div class="relative w-full md:w-80">
                     <span class="material-symbols-rounded absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
                     <input
@@ -160,7 +160,7 @@ const priorityClasses = {
                     />
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 w-full md:w-auto">
                     <select
                         v-model="status"
                         @change="onFilterChange"

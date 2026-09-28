@@ -246,8 +246,8 @@ const formatDateTime = (dateStr) => {
         </div>
 
         <!-- Feature Overrides Modal -->
-        <div v-if="featureLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div class="bg-white border border-gray-200 rounded-xl p-6 w-full max-w-2xl shadow-2xl animate-fade-in relative text-gray-900 max-h-[90vh] overflow-y-auto">
+        <div v-if="featureLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
+            <div class="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 w-full max-w-2xl shadow-2xl animate-fade-in relative text-gray-900 max-h-[90vh] overflow-y-auto my-auto">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
                     <div>
                         <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
@@ -318,8 +318,8 @@ const formatDateTime = (dateStr) => {
         </div>
 
         <!-- Edit Modal Dialog (Breeze style) -->
-        <div v-if="editingLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div class="bg-white border border-gray-200 rounded-lg p-8 w-full max-w-md shadow-2xl animate-fade-in relative text-gray-900">
+        <div v-if="editingLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
+            <div class="bg-white border border-gray-200 rounded-lg p-5 sm:p-8 w-full max-w-md shadow-2xl animate-fade-in relative text-gray-900 max-h-[90vh] overflow-y-auto my-auto">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
                     <h3 class="text-lg font-bold text-gray-900">Edit License</h3>
                     <button @click="editingLicense = null" class="text-gray-400 hover:text-gray-650">
@@ -362,8 +362,8 @@ const formatDateTime = (dateStr) => {
         </div>
 
         <!-- Generate Modal Dialog (Breeze style) -->
-        <div v-if="generatingLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div class="bg-white border border-gray-200 rounded-lg p-8 w-full max-w-md shadow-2xl animate-fade-in relative text-gray-900">
+        <div v-if="generatingLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
+            <div class="bg-white border border-gray-200 rounded-lg p-5 sm:p-8 w-full max-w-md shadow-2xl animate-fade-in relative text-gray-900 max-h-[90vh] overflow-y-auto my-auto">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
                     <h3 class="text-lg font-bold text-gray-900">Generate License</h3>
                     <button @click="generatingLicense = false; generateForm.reset()" class="text-gray-400 hover:text-gray-650">

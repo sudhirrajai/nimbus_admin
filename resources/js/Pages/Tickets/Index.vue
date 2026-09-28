@@ -128,8 +128,8 @@ const priorityClasses = {
             </div>
 
             <!-- Filters Bar -->
-            <div class="border-b border-gray-200 flex items-center justify-between">
-                <nav class="flex space-x-6" aria-label="Tabs">
+            <div class="border-b border-gray-200 overflow-x-auto pb-1 sm:pb-0">
+                <nav class="flex space-x-4 sm:space-x-6 min-w-max" aria-label="Tabs">
                     <button
                         @click="setStatusFilter('all')"
                         :class="[
@@ -263,10 +263,10 @@ const priorityClasses = {
             </div>
 
             <!-- MODAL: Open New Ticket -->
-            <div v-if="isCreateModalOpen" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                <div class="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5">
+            <div v-if="isCreateModalOpen" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+                <div class="bg-white rounded-2xl max-w-xl w-full p-5 sm:p-7 my-auto max-h-[90vh] flex flex-col shadow-2xl space-y-4 sm:space-y-5 overflow-hidden">
                     
-                    <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 shrink-0">
                         <div class="flex items-center gap-2.5">
                             <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
                                 <span class="material-symbols-rounded text-xl">confirmation_number</span>
@@ -281,7 +281,7 @@ const priorityClasses = {
                         </button>
                     </div>
 
-                    <form @submit.prevent="submitTicket" class="space-y-4">
+                    <form @submit.prevent="submitTicket" class="space-y-4 overflow-y-auto">
                         
                         <!-- Subject -->
                         <div>

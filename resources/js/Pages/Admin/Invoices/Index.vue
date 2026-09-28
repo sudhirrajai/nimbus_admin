@@ -224,8 +224,8 @@ const formatDate = (dateStr) => {
             </div>
 
             <!-- Filters Bar -->
-            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-xs flex flex-col sm:flex-row items-center gap-4 justify-between">
-                <div class="flex items-center gap-3 w-full sm:w-auto">
+            <div class="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4 justify-between">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                     <div class="relative flex-1 sm:w-80">
                         <span class="material-symbols-rounded absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
                         <input 
@@ -247,10 +247,10 @@ const formatDate = (dateStr) => {
                         <option value="cancelled">Cancelled</option>
                     </select>
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <div class="flex items-center gap-2 justify-end">
                     <button 
                         @click="handleFilter" 
-                        class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors"
+                        class="flex-1 sm:flex-initial px-3 py-2 bg-slate-100 hover:bg-slate-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors text-center"
                     >
                         Apply Filters
                     </button>
@@ -427,9 +427,9 @@ const formatDate = (dateStr) => {
         </div>
 
         <!-- Create Manual Invoice Modal -->
-        <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full overflow-hidden border border-gray-200 animate-scale-up">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+        <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full my-auto max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 animate-scale-up">
+                <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50 shrink-0">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-rounded text-emerald-600">post_add</span>
                         <h3 class="font-bold text-gray-900 text-base">Issue Client Invoice</h3>
@@ -439,7 +439,7 @@ const formatDate = (dateStr) => {
                     </button>
                 </div>
 
-                <form @submit.prevent="submitInvoiceForm" class="p-6 space-y-4">
+                <form @submit.prevent="submitInvoiceForm" class="p-4 sm:p-6 space-y-4 overflow-y-auto">
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Target Client User</label>
                         <select v-model="invoiceForm.user_id" class="w-full text-sm rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" required>
@@ -449,7 +449,7 @@ const formatDate = (dateStr) => {
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Category / Type</label>
                             <select v-model="invoiceForm.type" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
@@ -469,7 +469,7 @@ const formatDate = (dateStr) => {
                         <textarea v-model="invoiceForm.description" rows="2" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" required></textarea>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Amount</label>
                             <input type="number" step="0.01" min="0" v-model="invoiceForm.amount" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" required />
@@ -484,7 +484,7 @@ const formatDate = (dateStr) => {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Status</label>
                             <select v-model="invoiceForm.status" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
@@ -516,9 +516,9 @@ const formatDate = (dateStr) => {
         </div>
 
         <!-- Edit Invoice & Transaction ID Modal -->
-        <div v-if="showEditModal && editingInvoice" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full overflow-hidden border border-gray-200 animate-scale-up">
-                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+        <div v-if="showEditModal && editingInvoice" class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full my-auto max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 animate-scale-up">
+                <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-slate-50 shrink-0">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-rounded text-emerald-600">edit_note</span>
                         <div>
@@ -531,7 +531,7 @@ const formatDate = (dateStr) => {
                     </button>
                 </div>
 
-                <form @submit.prevent="submitEditForm" class="p-6 space-y-4">
+                <form @submit.prevent="submitEditForm" class="p-4 sm:p-6 space-y-4 overflow-y-auto">
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
                             Transaction / Reference ID
@@ -545,7 +545,7 @@ const formatDate = (dateStr) => {
                         <p class="text-[11px] text-gray-400 mt-1">This transaction ID will be printed on the official invoice receipt and included in client emails.</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Payment Status</label>
                             <select v-model="editForm.status" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
@@ -566,7 +566,7 @@ const formatDate = (dateStr) => {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Amount</label>
                             <input 

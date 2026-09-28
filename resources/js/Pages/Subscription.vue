@@ -149,7 +149,7 @@ const getFallbackFeatures = (planSlug) => {
                             </div>
 
                             <!-- Meta Grid -->
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
                                     <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Connected IP</div>
                                     <div class="text-xs font-mono font-bold text-gray-900 truncate">{{ license.server_ip || 'Awaiting installation' }}</div>
@@ -173,7 +173,7 @@ const getFallbackFeatures = (planSlug) => {
                         </div>
 
                         <!-- Card Footer -->
-                        <div class="bg-slate-50/50 px-6 py-4 border-t border-gray-200 flex items-center justify-between text-xs">
+                        <div class="bg-slate-50/50 px-4 sm:px-6 py-3.5 sm:py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                             <Link :href="route('self-host.index')" class="text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1.5">
                                 <span class="material-symbols-rounded text-sm">terminal</span>
                                 Manage Deployment
@@ -227,7 +227,7 @@ const getFallbackFeatures = (planSlug) => {
                             </div>
 
                             <!-- Pricing & Renewal Term Box -->
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
                                     <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Plan &amp; Cycle</div>
                                     <div class="text-sm font-bold text-gray-900">{{ account.plan_name }}</div>
@@ -243,7 +243,7 @@ const getFallbackFeatures = (planSlug) => {
                             </div>
 
                             <!-- Node & Server Details -->
-                            <div class="flex items-center justify-between text-xs text-gray-500 pt-1">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs text-gray-500 pt-1">
                                 <span>Assigned Node: <strong class="text-gray-800">{{ account.server?.name || account.server?.ip_address || 'Dedicated VPS' }}</strong></span>
                                 <span v-if="account.auto_invoice" class="text-emerald-600 font-semibold flex items-center gap-1">
                                     <span class="material-symbols-rounded text-sm">bolt</span>
@@ -253,7 +253,7 @@ const getFallbackFeatures = (planSlug) => {
                         </div>
 
                         <!-- Card Footer -->
-                        <div class="bg-slate-50/50 px-6 py-4 border-t border-gray-200 flex items-center justify-between text-xs">
+                        <div class="bg-slate-50/50 px-4 sm:px-6 py-3.5 sm:py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                             <a 
                                 :href="route('hosting.accounts.client-sso', account.id)"
                                 target="_blank"
