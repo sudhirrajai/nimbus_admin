@@ -65,6 +65,9 @@ class FeedbackInvitation extends Model
 
     public function getInviteUrlAttribute(): string
     {
+        if (empty($this->token)) {
+            return '';
+        }
         return route('feedback.show', ['identifier' => $this->token]);
     }
 }

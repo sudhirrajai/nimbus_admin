@@ -71,6 +71,9 @@ class FeedbackForm extends Model
 
     public function getPublicUrlAttribute(): string
     {
+        if (empty($this->slug)) {
+            return '';
+        }
         return route('feedback.show', ['identifier' => $this->slug]);
     }
 

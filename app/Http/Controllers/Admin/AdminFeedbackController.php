@@ -48,7 +48,7 @@ class AdminFeedbackController extends Controller
                 ];
             });
 
-        $submissions = FeedbackSubmission::with(['form:id,title,slug', 'invitation:id,token,recipient_email', 'testimonial:id,quote'])
+        $submissions = FeedbackSubmission::with(['form:id,title,slug,questions', 'invitation:id,token,recipient_email', 'testimonial:id,quote'])
             ->latest()
             ->paginate(15)
             ->withQueryString();

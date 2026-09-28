@@ -291,6 +291,65 @@ const openViewAnswers = (sub) => {
     isViewAnswersModalOpen.value = true;
 };
 
+// Map submission answers back to their full question labels and types
+const getSubmissionQA = (sub) => {
+    if (!sub) return [];
+
+    // 1. Resolve form questions: check sub.form.questions, or find in props.forms
+    let questions = sub.form?.questions;
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+        const found = (props.forms || []).find(f => f.id === sub.feedback_form_id);
+        if (found?.questions && Array.isArray(found.questions)) {
+            questions = found.questions;
+        }
+    }
+    questions = questions || [];
+
+    const answers = sub.answers || {};
+    const processedKeys = new Set();
+    const result = [];
+
+    // Map by form questions to preserve order and exact labels
+    questions.forEach((q, idx) => {
+        const qId = q.id || `q_${idx}`;
+        processedKeys.add(qId);
+        const val = answers[qId] !== undefined ? answers[qId] : null;
+
+        result.push({
+            id: qId,
+            index: idx + 1,
+            label: q.label || `Question #${idx + 1}`,
+            type: q.type || 'text',
+            value: val,
+            hasValue: val !== null && val !== '' && val !== undefined,
+        });
+    });
+
+    // Handle any extra keys in answers not found in the questions array (e.g. legacy or modified form)
+    Object.keys(answers).forEach((k) => {
+        if (!processedKeys.has(k)) {
+            const val = answers[k];
+            let label = k.replace(/^q_/, '').replace(/_/g, ' ');
+            if (/^\d+$/.test(label)) {
+                label = `Custom Question (#${label.slice(-4)})`;
+            } else {
+                label = label.charAt(0).toUpperCase() + label.slice(1);
+            }
+
+            result.push({
+                id: k,
+                index: result.length + 1,
+                label: label,
+                type: typeof val === 'number' && val >= 1 && val <= 5 ? 'rating' : 'text',
+                value: val,
+                hasValue: val !== null && val !== '' && val !== undefined,
+            });
+        }
+    });
+
+    return result;
+};
+
 // Delete Submission
 const deleteSubmission = (sub) => {
     if (confirm(`Are you sure you want to delete this feedback submission from ${sub.client_name}?`)) {
@@ -1288,64 +1347,111 @@ const filteredSubmissions = computed(() => {
 
             <!-- MODAL 5: Detailed Submission Answers Drawer / Modal -->
             <div v-if="isViewAnswersModalOpen && viewingSubmission" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                <div class="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5">
+                <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-scale-up">
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                         <div>
-                            <h3 class="text-base font-bold text-gray-900">Submission Details</h3>
-                            <p class="text-xs text-gray-500">From {{ viewingSubmission.client_name }} ({{ viewingSubmission.client_email }})</p>
+                            <h3 class="text-base font-bold text-gray-900">Feedback Submission Details</h3>
+                            <div class="text-xs text-gray-500 mt-0.5 flex flex-wrap items-center gap-1.5">
+                                <span class="font-semibold text-gray-800">{{ viewingSubmission.client_name }}</span>
+                                <span class="text-gray-400">({{ viewingSubmission.client_email }})</span>
+                                <span v-if="viewingSubmission.client_company" class="text-emerald-700 font-medium">
+                                    &bull; {{ viewingSubmission.client_company }}
+                                </span>
+                            </div>
                         </div>
-                        <button @click="isViewAnswersModalOpen = false" class="text-gray-400 hover:text-gray-600">
+                        <button @click="isViewAnswersModalOpen = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
                             <span class="material-symbols-rounded">close</span>
                         </button>
                     </div>
 
                     <!-- Star Rating Banner -->
-                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-amber-800 uppercase tracking-wider">Overall Rating</span>
-                        <div class="flex items-center text-amber-400">
-                            <span v-for="s in 5" :key="s" class="material-symbols-rounded text-xl">
-                                {{ s <= viewingSubmission.rating ? 'star' : 'star_border' }}
-                            </span>
-                            <span class="ml-1 text-sm font-extrabold text-amber-900">{{ viewingSubmission.rating }}/5</span>
+                    <div class="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-amber-900 uppercase tracking-wider block">Overall Star Rating</span>
+                            <span class="text-[11px] text-amber-700">Client satisfaction score</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center text-amber-400">
+                                <span v-for="s in 5" :key="s" class="material-symbols-rounded text-xl">
+                                    {{ s <= viewingSubmission.rating ? 'star' : 'star_border' }}
+                                </span>
+                            </div>
+                            <span class="text-sm font-extrabold text-amber-950">{{ viewingSubmission.rating }} / 5</span>
                         </div>
                     </div>
 
-                    <!-- Primary Feedback -->
-                    <div v-if="viewingSubmission.feedback" class="space-y-1">
-                        <div class="text-xs font-bold uppercase tracking-wider text-gray-500">Client Review</div>
-                        <div class="p-3.5 bg-slate-50 border border-gray-200 rounded-xl text-sm text-gray-800 leading-relaxed italic">
+                    <!-- Primary Feedback / Review Quote -->
+                    <div v-if="viewingSubmission.feedback" class="space-y-1.5">
+                        <div class="text-xs font-bold uppercase tracking-wider text-gray-500">Client Review / Testimonial Quote</div>
+                        <div class="p-3.5 bg-slate-50 border border-gray-200 rounded-xl text-xs sm:text-sm text-gray-800 leading-relaxed italic">
                             "{{ viewingSubmission.feedback }}"
                         </div>
                     </div>
 
-                    <!-- Suggestions -->
-                    <div v-if="viewingSubmission.suggestions" class="space-y-1">
+                    <!-- Suggestions & Ideas -->
+                    <div v-if="viewingSubmission.suggestions" class="space-y-1.5">
                         <div class="text-xs font-bold uppercase tracking-wider text-gray-500">Suggestions &amp; Ideas</div>
-                        <div class="p-3.5 bg-emerald-50/50 border border-emerald-200 rounded-xl text-sm text-emerald-900 leading-relaxed">
+                        <div class="p-3.5 bg-emerald-50/40 border border-emerald-200 rounded-xl text-xs sm:text-sm text-emerald-950 leading-relaxed">
                             {{ viewingSubmission.suggestions }}
                         </div>
                     </div>
 
                     <!-- Answers to Dynamic Questions -->
-                    <div v-if="viewingSubmission.answers && Object.keys(viewingSubmission.answers).length > 0" class="space-y-3 pt-2">
-                        <div class="text-xs font-bold uppercase tracking-wider text-gray-500">Questionnaire Answers</div>
-                        <div class="space-y-2">
+                    <div class="space-y-3 pt-2">
+                        <div class="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                            <span>Questionnaire Answers ({{ getSubmissionQA(viewingSubmission).length }})</span>
+                            <span v-if="viewingSubmission.form?.title" class="text-[11px] font-normal text-emerald-700 font-sans">
+                                Form: {{ viewingSubmission.form.title }}
+                            </span>
+                        </div>
+
+                        <div v-if="getSubmissionQA(viewingSubmission).length === 0" class="text-xs text-gray-400 italic p-3 bg-gray-50 rounded-lg">
+                            No questionnaire answers were recorded for this submission.
+                        </div>
+
+                        <div v-else class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
                             <div
-                                v-for="(val, key) in viewingSubmission.answers"
-                                :key="key"
-                                class="p-3 bg-gray-50 rounded-lg text-xs"
+                                v-for="item in getSubmissionQA(viewingSubmission)"
+                                :key="item.id"
+                                class="p-3.5 bg-slate-50 border border-gray-200/90 rounded-xl text-xs space-y-1.5 transition-all"
                             >
-                                <span class="font-bold text-gray-700 block mb-0.5">{{ key }}:</span>
-                                <span class="text-gray-900 font-medium">{{ val }}</span>
+                                <div class="flex items-start justify-between gap-2">
+                                    <span class="font-bold text-gray-900 leading-snug flex items-center gap-1.5">
+                                        <span class="w-4 h-4 rounded bg-gray-200 text-gray-600 font-mono text-[10px] flex items-center justify-center flex-shrink-0">
+                                            {{ item.index }}
+                                        </span>
+                                        {{ item.label }}
+                                    </span>
+                                    <span class="text-[10px] uppercase font-semibold text-gray-400 bg-white px-2 py-0.5 rounded border border-gray-200 flex-shrink-0">
+                                        {{ item.type }}
+                                    </span>
+                                </div>
+
+                                <div v-if="item.type === 'rating' && item.hasValue" class="flex items-center gap-2 pt-0.5">
+                                    <div class="flex items-center text-amber-400">
+                                        <span v-for="s in 5" :key="s" class="material-symbols-rounded text-base">
+                                            {{ s <= Number(item.value) ? 'star' : 'star_border' }}
+                                        </span>
+                                    </div>
+                                    <span class="font-bold text-gray-800 text-xs">({{ item.value }} / 5)</span>
+                                </div>
+
+                                <div v-else-if="item.hasValue" class="text-gray-800 font-medium text-xs whitespace-pre-wrap bg-white p-2.5 rounded-lg border border-gray-200">
+                                    {{ item.value }}
+                                </div>
+
+                                <div v-else class="text-gray-400 italic text-[11px] pt-0.5">
+                                    (No answer provided by client)
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                         <div>Submitted: {{ new Date(viewingSubmission.created_at).toLocaleString() }}</div>
                         <button
                             @click="isViewAnswersModalOpen = false"
-                            class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 font-semibold text-gray-700 cursor-pointer"
+                            class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 font-semibold text-gray-700 cursor-pointer transition-colors"
                         >
                             Close
                         </button>
