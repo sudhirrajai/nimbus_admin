@@ -7,7 +7,9 @@ use App\Models\FeedbackInvitation;
 use App\Models\FeedbackSubmission;
 use App\Models\Testimonial;
 use App\Models\User;
+use App\Notifications\FeedbackSubmissionThankYouNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class FeedbackTest extends TestCase
@@ -47,6 +49,8 @@ class FeedbackTest extends TestCase
             ]
         );
 
+        Notification::fake();
+
         $response = $this->post(route('feedback.submit', ['identifier' => $form->slug]), [
             'rating' => 5,
             'client_name' => 'John Doe',
@@ -68,6 +72,13 @@ class FeedbackTest extends TestCase
             'rating' => 5,
             'client_company' => 'Acme Labs',
         ]);
+
+        Notification::assertSentOnDemand(
+            FeedbackSubmissionThankYouNotification::class,
+            function ($notification, $channels, $notifiable) {
+                return $notifiable->routes['mail'] === 'john@acme.test';
+            }
+        );
     }
 
     public function test_admin_can_generate_ai_questions(): void

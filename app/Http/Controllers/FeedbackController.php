@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\FeedbackForm;
 use App\Models\FeedbackInvitation;
 use App\Models\FeedbackSubmission;
+use App\Notifications\FeedbackSubmissionThankYouNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class FeedbackController extends Controller
@@ -157,6 +160,19 @@ class FeedbackController extends Controller
                 'status' => 'submitted',
                 'completed_at' => now(),
             ]);
+        }
+
+        // Send a copy of the response with thank-you email to client
+        if (!empty($submission->client_email) && !str_ends_with($submission->client_email, '@feedback.local') && filter_var($submission->client_email, FILTER_VALIDATE_EMAIL)) {
+            try {
+                Notification::route('mail', $submission->client_email)
+                    ->notify(new FeedbackSubmissionThankYouNotification($form, $submission));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to dispatch feedback thank-you email: ' . $e->getMessage(), [
+                    'submission_id' => $submission->id,
+                    'email' => $submission->client_email,
+                ]);
+            }
         }
 
         return back()->with('submitted', true);
