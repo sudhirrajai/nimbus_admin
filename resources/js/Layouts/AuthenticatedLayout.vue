@@ -1,9 +1,24 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { Sun, Moon } from 'lucide-vue-next';
+
+const lightTheme = ref(false);
+
+onMounted(() => {
+    const saved = window.localStorage.getItem('rook-theme');
+    if (saved === 'light') {
+        lightTheme.value = true;
+    }
+});
+
+const toggleTheme = () => {
+    lightTheme.value = !lightTheme.value;
+    window.localStorage.setItem('rook-theme', lightTheme.value ? 'light' : 'dark');
+};
 
 const showingNavigationDropdown = ref(false);
 const page = usePage();
@@ -38,7 +53,7 @@ const isRouteActive = (routeName) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 text-gray-900 selection:bg-emerald-500/10 font-sans overflow-x-hidden">
+    <div class="min-h-screen rook-dashboard font-sans overflow-x-hidden" :data-theme="lightTheme ? 'light' : 'dark'">
         
         <!-- Desktop Left Sidebar -->
         <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-gray-200 bg-white md:flex md:flex-col transition-all duration-300">
@@ -653,7 +668,18 @@ const isRouteActive = (routeName) => {
                 </div>
 
                 <!-- Right: Actions/Dropdown -->
-                <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <button
+                        type="button"
+                        @click="toggleTheme"
+                        class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-slate-50 text-gray-500 hover:text-gray-900 transition-all outline-none"
+                        :title="`Switch to ${lightTheme ? 'dark' : 'light'} theme`"
+                        aria-label="Toggle theme"
+                    >
+                        <Moon v-if="lightTheme" :size="16" aria-hidden="true" />
+                        <Sun v-else :size="16" aria-hidden="true" />
+                    </button>
+
                     <Dropdown align="right" width="48" content-classes="py-1 bg-white border border-gray-200">
                         <template #trigger>
                             <button type="button" class="flex items-center gap-2 rounded-lg bg-slate-50 p-1.5 pl-2 sm:pl-3 border border-gray-200 hover:bg-slate-100 transition-all outline-none">
