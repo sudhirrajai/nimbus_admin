@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&amp;display=swap');
+      .rook-badge {
+        fill: #101713;
+        stroke: #87d7a0;
+        stroke-width: 1.8;
+        stroke-linejoin: round;
+      }
+      .rook-letter {
+        font-family: 'IBM Plex Mono', 'Courier New', monospace;
+        font-size: 18px;
+        font-weight: 700;
+        fill: #87d7a0;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+    </style>
+  </defs>
+  <!-- Background with authentic asymmetrical rounded corners (7px 7px 7px 3px scaled to 32x32: rTL=8, rTR=8, rBR=8, rBL=3.5) -->
+  <path class="rook-badge" d="M 10 2.5 L 22 2.5 C 26.1 2.5 29.5 5.9 29.5 10 L 29.5 22 C 29.5 26.1 26.1 29.5 22 29.5 L 6.5 29.5 C 4.3 29.5 2.5 27.7 2.5 25.5 L 2.5 10 C 2.5 5.9 5.9 2.5 10 2.5 Z" />
+  <text x="16" y="16.5" class="rook-letter">r</text>
+</svg>

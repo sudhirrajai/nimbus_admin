@@ -1,3 +1,6 @@
 <template>
-    <img src="/nimbus_logo.png?v=2" alt="Nimbus Logo" class="h-full w-auto object-contain" />
+    <div class="brand inline-flex items-center gap-2">
+        <span class="brand-mark" aria-hidden="true">r</span>
+        <span class="text-xl font-bold tracking-tight text-[var(--text)] font-display">rook</span>
+    </div>
 </template>
