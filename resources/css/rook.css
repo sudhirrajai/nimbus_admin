@@ -653,12 +653,20 @@ a { color: inherit; }
   color: var(--text);
 }
 
-.rook-dashboard .bg-white {
+.rook-dashboard header,
+.rook-dashboard header[class*="bg-white"],
+.rook-dashboard aside,
+.rook-dashboard .bg-white,
+.rook-dashboard .bg-white\/80,
+.rook-dashboard .bg-white\/90,
+.rook-dashboard .bg-white\/70,
+.rook-dashboard .bg-white\/50,
+.rook-dashboard .bg-white\/40 {
   background-color: var(--panel) !important;
 }
 
 .rook-dashboard .bg-slate-50 {
-  background-color: var(--page) !important;
+  background-color: var(--panel-hi) !important;
 }
 
 .rook-dashboard .bg-slate-50\/50 {
@@ -666,6 +674,11 @@ a { color: inherit; }
 }
 
 .rook-dashboard .bg-slate-100 {
+  background-color: var(--panel-hi) !important;
+}
+
+.rook-dashboard .hover\:bg-slate-50:hover,
+.rook-dashboard .hover\:bg-slate-100:hover {
   background-color: var(--panel-hi) !important;
 }
 

@@ -649,22 +649,22 @@ const isRouteActive = (routeName) => {
 
         <!-- Desktop Shell Top Header Navbar -->
         <div class="md:pl-64 flex flex-col flex-1 min-h-screen min-w-0">
-            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white/80 backdrop-blur-md px-4 sm:px-6 print:hidden">
+            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[var(--edge)] bg-[var(--panel)]/95 backdrop-blur-md px-4 sm:px-6 print:hidden">
                 <!-- Left: Hamburger + Page Title / Breadcrumbs -->
                 <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                    <button @click="showingNavigationDropdown = true" class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-slate-50 md:hidden outline-none shrink-0" aria-label="Open navigation menu">
+                    <button @click="showingNavigationDropdown = true" class="inline-flex items-center justify-center rounded-lg p-2 text-[var(--text-soft)] hover:bg-[var(--panel-hi)] md:hidden outline-none shrink-0" aria-label="Open navigation menu">
                         <span class="material-symbols-rounded">menu</span>
                     </button>
 
                     <!-- Breadcrumbs (Tablet & Desktop) -->
-                    <nav class="hidden sm:flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-550 truncate">
-                        <span class="text-gray-500 shrink-0">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Admin' : 'App' }}</span>
-                        <span class="material-symbols-rounded text-xs select-none text-gray-400 shrink-0">chevron_right</span>
-                        <span class="text-gray-900 truncate">{{ pageTitle }}</span>
+                    <nav class="hidden sm:flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] truncate">
+                        <span class="text-[var(--text-muted)] shrink-0">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Admin' : 'App' }}</span>
+                        <span class="material-symbols-rounded text-xs select-none text-[var(--text-muted)] shrink-0">chevron_right</span>
+                        <span class="text-[var(--text)] truncate">{{ pageTitle }}</span>
                     </nav>
 
                     <!-- Page Title (Mobile Only) -->
-                    <span class="sm:hidden text-sm font-bold text-gray-900 truncate">{{ pageTitle }}</span>
+                    <span class="sm:hidden text-sm font-bold text-[var(--text)] truncate">{{ pageTitle }}</span>
                 </div>
 
                 <!-- Right: Actions/Dropdown -->
@@ -672,7 +672,7 @@ const isRouteActive = (routeName) => {
                     <button
                         type="button"
                         @click="toggleTheme"
-                        class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-slate-50 text-gray-500 hover:text-gray-900 transition-all outline-none"
+                        class="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--edge)] bg-[var(--panel-hi)] text-[var(--text-soft)] hover:text-[var(--text)] hover:border-[var(--edge-strong)] transition-all outline-none"
                         :title="`Switch to ${lightTheme ? 'dark' : 'light'} theme`"
                         aria-label="Toggle theme"
                     >
@@ -680,26 +680,26 @@ const isRouteActive = (routeName) => {
                         <Sun v-else :size="16" aria-hidden="true" />
                     </button>
 
-                    <Dropdown align="right" width="48" content-classes="py-1 bg-white border border-gray-200">
+                    <Dropdown align="right" width="48" content-classes="py-1 bg-[var(--panel)] border border-[var(--edge)] shadow-xl rounded-lg">
                         <template #trigger>
-                            <button type="button" class="flex items-center gap-2 rounded-lg bg-slate-50 p-1.5 pl-2 sm:pl-3 border border-gray-200 hover:bg-slate-100 transition-all outline-none">
-                                <span class="hidden sm:inline text-xs font-semibold text-gray-700 truncate max-w-[120px]">{{ $page.props.auth.user.name }}</span>
-                                <div class="h-6 w-6 rounded bg-emerald-500 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm shadow-emerald-500/10 shrink-0">
+                            <button type="button" class="flex items-center gap-2.5 rounded-lg bg-[var(--panel-hi)] p-1.5 pl-2 sm:pl-3 border border-[var(--edge)] hover:border-[var(--edge-strong)] transition-all outline-none">
+                                <span class="hidden sm:inline text-xs font-semibold text-[var(--text)] truncate max-w-[120px]">{{ $page.props.auth.user.name }}</span>
+                                <div class="h-6 w-6 rounded bg-[var(--accent)] flex items-center justify-center text-[10px] font-bold text-[var(--accent-ink)] uppercase shadow-sm shrink-0">
                                     {{ $page.props.auth.user.name.substring(0, 2) }}
                                 </div>
                             </button>
                         </template>
 
                         <template #content>
-                            <DropdownLink :href="route('profile.edit')" class="rounded-md"> 
-                                <span class="flex items-center gap-2 text-xs text-gray-700">
-                                    <span class="material-symbols-rounded text-sm text-gray-500">person</span>
+                            <DropdownLink :href="route('profile.edit')" class="rounded-md hover:bg-[var(--panel-hi)] text-[var(--text-soft)] hover:text-[var(--text)]"> 
+                                <span class="flex items-center gap-2 text-xs">
+                                    <span class="material-symbols-rounded text-sm text-[var(--text-muted)]">person</span>
                                     My Profile 
                                 </span>
                             </DropdownLink>
-                            <div class="my-1 border-t border-gray-200"></div>
-                            <DropdownLink :href="route('logout')" method="post" as="button" class="w-full text-left rounded-md">
-                                <span class="flex items-center gap-2 text-xs text-red-600">
+                            <div class="my-1 border-t border-[var(--edge)]"></div>
+                            <DropdownLink :href="route('logout')" method="post" as="button" class="w-full text-left rounded-md hover:bg-[var(--panel-hi)] text-red-500 hover:text-red-400">
+                                <span class="flex items-center gap-2 text-xs">
                                     <span class="material-symbols-rounded text-sm text-red-500">logout</span>
                                     Log Out
                                 </span>
@@ -710,22 +710,22 @@ const isRouteActive = (routeName) => {
             </header>
 
             <!-- Page Header Inner (Slots) -->
-            <div v-if="$slots.header" class="border-b border-gray-200 bg-white py-4 sm:py-6 px-4 sm:px-6 lg:px-8 print:hidden min-w-0">
+            <div v-if="$slots.header" class="border-b border-[var(--edge)] bg-[var(--panel)] py-4 sm:py-6 px-4 sm:px-6 lg:px-8 print:hidden min-w-0">
                 <div class="mx-auto max-w-7xl min-w-0">
                     <slot name="header" />
                 </div>
             </div>
 
             <!-- Page Main Content Container -->
-            <main class="flex-1 py-5 sm:py-8 px-4 sm:px-6 lg:px-8 bg-slate-50 min-w-0">
+            <main class="flex-1 py-5 sm:py-8 px-4 sm:px-6 lg:px-8 bg-[var(--page)] min-w-0">
                 <div class="mx-auto max-w-7xl min-w-0">
                     <slot />
                 </div>
             </main>
 
             <!-- Footer -->
-            <footer class="border-t border-gray-200 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-white/40 print:hidden min-w-0">
-                <div class="mx-auto max-w-7xl text-center text-xs text-gray-500">
+            <footer class="border-t border-[var(--edge)] py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-[var(--panel)] print:hidden min-w-0">
+                <div class="mx-auto max-w-7xl text-center text-xs text-[var(--text-muted)]">
                     &copy; {{ new Date().getFullYear() }} Nimbus by VMCore. All rights reserved.
                 </div>
             </footer>
