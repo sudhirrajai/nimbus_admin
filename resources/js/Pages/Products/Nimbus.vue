@@ -228,7 +228,7 @@ const currentYear = new Date().getFullYear();
             <div class="shell header-inner">
                 <Link :href="route('home')" class="brand" aria-label="Home">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span>rook</span>
+                    <span>ook</span>
                 </Link>
 
                 <nav :class="['nav-links', { 'is-open': menuOpen }]" aria-label="Main navigation">
@@ -585,7 +585,7 @@ const currentYear = new Date().getFullYear();
                     <div class="footer-brand-col">
                         <Link :href="route('home')" class="brand">
                             <span class="brand-mark" aria-hidden="true">r</span>
-                            <span>rook</span>
+                            <span>ook</span>
                         </Link>
                         <p class="footer-brand-copy">
                             Managed Cloud Hosting &amp; Developer Infrastructure by VMCore. High-performance software and 24/7 reliability care.

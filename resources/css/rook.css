@@ -135,21 +135,22 @@ a { color: inherit; }
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 3.5px;
   text-decoration: none;
-  font: 700 21px/1 var(--display);
-  letter-spacing: -.055em;
+  font: 700 22px/1 var(--display);
+  letter-spacing: -.04em;
 }
 .brand-mark {
-  width: 27px;
-  height: 27px;
+  width: 26px;
+  height: 26px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--accent);
-  border-radius: 8px 8px 8px 3px;
+  border: 1.5px solid var(--accent);
+  border-radius: 7px 7px 7px 3px;
   color: var(--accent-text);
-  font: 600 14px/1 var(--mono);
-  transform: rotate(-2deg);
+  font: 700 14px/1 var(--mono);
+  transform: rotate(-1deg);
+  margin-right: 0.5px;
 }
 .nav-links { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 30px); margin-left: auto; }
 .nav-links a, .nav-actions a {
