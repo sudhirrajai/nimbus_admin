@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { Search } from 'lucide-vue-next';
 
 const props = defineProps({
     users: Array
@@ -225,13 +226,15 @@ const formatDateTime = (dateStr) => {
 
             <!-- Search & Filters Toolbar -->
             <div class="bg-[var(--panel)] border border-[var(--edge)] rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="relative flex-1 w-full">
-                    <span class="material-symbols-rounded absolute left-3 top-2.5 text-[var(--text-soft)] text-lg">search</span>
+                <div class="relative flex-1 w-full flex items-center">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-soft)]">
+                        <Search :size="15" />
+                    </div>
                     <input 
                         v-model="search"
                         type="text"
                         placeholder="Search by name, email, client code, company..."
-                        class="w-full pl-10 text-xs rounded-lg border-[var(--edge)] bg-[var(--panel-hi)] text-[var(--text)] focus:border-emerald-500 focus:ring-emerald-500"
+                        class="w-full pl-10 pr-4 py-2 text-xs rounded-lg border border-[var(--edge)] bg-[var(--panel-hi)] text-[var(--text)] focus:border-emerald-500 focus:ring-emerald-500 placeholder:text-[var(--text-muted)] transition-all"
                     />
                 </div>
 

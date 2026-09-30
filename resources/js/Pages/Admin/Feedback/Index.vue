@@ -632,8 +632,8 @@ const filteredSubmissions = computed(() => {
                 
                 <!-- Filters Bar -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
-                    <div class="relative w-full sm:w-80">
-                        <span class="material-symbols-rounded absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
+                    <div class="relative w-full sm:w-80 flex items-center">
+                        <span class="material-symbols-rounded pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
                         <input
                             type="text"
                             v-model="searchQuery"

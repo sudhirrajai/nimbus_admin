@@ -61,7 +61,7 @@ const isRouteActive = (routeName) => {
             <div class="flex h-16 items-center gap-3 border-b border-gray-200 px-6">
                 <Link :href="route('dashboard')" class="brand flex items-center" aria-label="Rook Dashboard">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span class="text-xl font-bold tracking-tight text-gray-900">ook</span>
+                    <span class="text-xl font-bold tracking-tight text-gray-900">rook</span>
                 </Link>
             </div>
 
@@ -333,7 +333,7 @@ const isRouteActive = (routeName) => {
                 <div class="flex shrink-0 items-center justify-between gap-2.5 px-5 pb-4 border-b border-gray-200">
                     <Link :href="route('dashboard')" @click="showingNavigationDropdown = false" class="brand flex items-center" aria-label="Rook Dashboard">
                         <span class="brand-mark" aria-hidden="true">r</span>
-                        <span class="text-xl font-bold tracking-tight text-gray-900">ook</span>
+                        <span class="text-xl font-bold tracking-tight text-gray-900">rook</span>
                     </Link>
                     <button @click="showingNavigationDropdown = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-slate-100 transition-colors" aria-label="Close menu">
                         <span class="material-symbols-rounded text-xl">close</span>

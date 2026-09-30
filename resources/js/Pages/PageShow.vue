@@ -19,7 +19,7 @@ const mobileMenuOpen = ref(false);
             <div class="page-navbar__inner">
                 <Link href="/" class="brand" aria-label="Rook">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span>ook</span>
+                    <span>rook</span>
                 </Link>
                 <div class="page-navbar__actions">
                     <Link href="/" class="btn btn--outline btn--sm">Back to Home</Link>

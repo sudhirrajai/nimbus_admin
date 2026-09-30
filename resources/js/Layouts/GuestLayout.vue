@@ -52,7 +52,7 @@ const toggleTheme = () => {
                 <div class="flex flex-col items-center mb-6">
                     <Link :href="route('home')" class="brand mb-3" aria-label="Home">
                         <span class="brand-mark" aria-hidden="true">r</span>
-                        <span>ook</span>
+                        <span>rook</span>
                     </Link>
                 </div>
 

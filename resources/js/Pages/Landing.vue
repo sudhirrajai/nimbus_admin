@@ -381,7 +381,7 @@ const currentYear = new Date().getFullYear();
             <div class="shell header-inner">
                 <a class="brand" href="#top" aria-label="Rook home" data-testid="link-home">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span>ook</span>
+                    <span>rook</span>
                 </a>
 
                 <nav :class="['nav-links', { 'is-open': menuOpen }]" aria-label="Main navigation">
@@ -961,7 +961,7 @@ const currentYear = new Date().getFullYear();
                     <div class="footer-brand-col">
                         <a class="brand" href="#top" aria-label="Rook home">
                             <span class="brand-mark" aria-hidden="true">r</span>
-                            <span>ook</span>
+                            <span>rook</span>
                         </a>
                         <p class="footer-brand-copy">
                             We handle the servers. You ship the code. Managed hosting with a human on the other end.

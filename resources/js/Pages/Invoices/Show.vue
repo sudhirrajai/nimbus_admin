@@ -175,7 +175,7 @@ const numberToWords = (num) => {
                         <div class="flex items-center gap-3">
                             <div class="brand flex items-center" aria-label="Rook">
                                 <span class="brand-mark" aria-hidden="true">r</span>
-                                <span class="text-2xl font-black tracking-tight text-gray-950 font-sans">ook</span>
+                                <span class="text-2xl font-black tracking-tight text-gray-950 font-sans">rook</span>
                             </div>
                             <span class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase block ml-1">Managed Cloud &amp; Products</span>
                         </div>
@@ -299,44 +299,44 @@ const numberToWords = (num) => {
                 <!-- 5. TOTAL IN WORDS & TRANSACTIONS SECTION -->
                 <div class="space-y-6 pt-2">
                     <!-- Total in words -->
-                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4 text-xs flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-2">
-                        <span class="font-bold text-gray-700 shrink-0">Total Amount (in words):</span>
-                        <span class="text-gray-900 font-semibold capitalize break-words">
+                    <div class="rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] p-3 sm:p-4 text-xs flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-2">
+                        <span class="font-bold text-[var(--text-soft)] shrink-0">Total Amount (in words):</span>
+                        <span class="text-[var(--text)] font-semibold capitalize break-words">
                             Rupees {{ numberToWords(invoice.amount) }} only
                         </span>
                     </div>
 
                     <!-- Transactions Table -->
                     <div class="space-y-2.5">
-                        <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Transactions</h3>
-                        <div class="overflow-x-auto rounded-lg border border-gray-200 -mx-2 px-2 sm:mx-0 sm:px-0">
+                        <h3 class="text-xs font-bold text-[var(--text)] uppercase tracking-wider">Transactions</h3>
+                        <div class="overflow-x-auto rounded-lg border border-[var(--edge)] -mx-2 px-2 sm:mx-0 sm:px-0">
                             <table class="w-full min-w-[480px] sm:min-w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-gray-100 text-gray-900 text-xs font-bold border-b border-gray-200">
+                                    <tr class="bg-[var(--panel-hi)] text-[var(--text)] text-xs font-bold border-b border-[var(--edge)]">
                                         <th class="py-3 px-3 sm:px-4">Transaction Date</th>
                                         <th class="py-3 px-3 sm:px-4">Gateway</th>
                                         <th class="py-3 px-3 sm:px-4">Transaction ID</th>
                                         <th class="py-3 px-3 sm:px-4 text-right">Amount</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-xs text-gray-800 divide-y divide-gray-200">
+                                <tbody class="text-xs text-[var(--text)] divide-y divide-[var(--edge)]">
                                     <tr>
                                         <td class="py-3 px-3 sm:px-4 font-medium whitespace-nowrap">
                                             {{ invoice.paid_at ? formatOrdinalDate(invoice.paid_at) : formatOrdinalDate(invoice.created_at) }}
                                         </td>
-                                        <td class="py-3 px-3 sm:px-4 text-gray-600">
+                                        <td class="py-3 px-3 sm:px-4 text-[var(--text-soft)]">
                                             {{ invoice.payment_method || 'Online Payment' }}
                                         </td>
-                                        <td class="py-3 px-3 sm:px-4 font-mono text-gray-700 break-all">
+                                        <td class="py-3 px-3 sm:px-4 font-mono text-[var(--text-soft)] break-all">
                                             {{ invoice.payment_id || (invoice.status === 'paid' ? 'Completed' : 'Pending') }}
                                         </td>
-                                        <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold text-gray-950 whitespace-nowrap">
+                                        <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold text-[var(--text)] whitespace-nowrap">
                                             {{ formatCurrency(invoice.amount, invoice.currency) }}
                                         </td>
                                     </tr>
-                                    <tr class="bg-gray-50 font-bold">
-                                        <td colspan="3" class="py-3 px-3 sm:px-4 text-right text-gray-700 uppercase tracking-wider text-[11px]">Balance Due</td>
-                                        <td class="py-3 px-3 sm:px-4 text-right font-mono text-sm text-gray-950 whitespace-nowrap">
+                                    <tr class="bg-[var(--panel-hi)] font-bold">
+                                        <td colspan="3" class="py-3 px-3 sm:px-4 text-right text-[var(--text-soft)] uppercase tracking-wider text-[11px]">Balance Due</td>
+                                        <td class="py-3 px-3 sm:px-4 text-right font-mono text-sm text-[var(--text)] whitespace-nowrap">
                                             {{ formatCurrency(invoice.status === 'paid' ? 0 : invoice.amount, invoice.currency) }}
                                         </td>
                                     </tr>
