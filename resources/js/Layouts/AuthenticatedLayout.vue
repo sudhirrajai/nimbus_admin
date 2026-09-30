@@ -4,7 +4,32 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Sun, Moon } from 'lucide-vue-next';
+import { 
+    Sun, 
+    Moon, 
+    LayoutDashboard, 
+    Cloud, 
+    ShoppingBag, 
+    CreditCard, 
+    Receipt, 
+    LifeBuoy, 
+    Key, 
+    Server, 
+    Users, 
+    Settings, 
+    FileText, 
+    Layers, 
+    Quote, 
+    MessageSquare, 
+    Package, 
+    Bug, 
+    LogOut, 
+    Menu, 
+    X, 
+    User, 
+    ChevronRight,
+    Terminal
+} from 'lucide-vue-next';
 
 const lightTheme = ref(false);
 
@@ -56,268 +81,299 @@ const isRouteActive = (routeName) => {
     <div class="min-h-screen rook-dashboard font-sans overflow-x-hidden" :data-theme="lightTheme ? 'light' : 'dark'">
         
         <!-- Desktop Left Sidebar -->
-        <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-gray-200 bg-white md:flex md:flex-col transition-all duration-300">
+        <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-[var(--edge)] bg-[var(--panel)] md:flex md:flex-col transition-all duration-300">
             <!-- Sidebar Header -->
-            <div class="flex h-16 items-center gap-3 border-b border-gray-200 px-6">
+            <div class="flex h-16 items-center justify-between border-b border-[var(--edge)] px-5">
                 <Link :href="route('dashboard')" class="brand flex items-center" aria-label="Rook Dashboard">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span class="text-xl font-bold tracking-tight text-gray-900">rook</span>
+                    <span class="text-xl font-bold tracking-tight text-[var(--text)] font-display">rook</span>
                 </Link>
+                <span class="text-[9px] font-mono uppercase tracking-widest text-[var(--accent)] px-2 py-0.5 rounded border border-[var(--edge-strong)] bg-[var(--green-wash)] flex items-center gap-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-pulse"></span>
+                    Console
+                </span>
             </div>
 
             <!-- Navigation Links -->
-            <nav class="flex-1 space-y-1.5 px-4 py-6 overflow-y-auto">
-                <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Workspace</div>
+            <nav class="flex-1 space-y-1 px-3 py-5 overflow-y-auto">
+                <div class="text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                    <span>01 // Workspace</span>
+                    <span class="h-px flex-1 bg-[var(--edge)]"></span>
+                </div>
                 
                 <Link 
                     :href="route('dashboard')" 
                     :class="[
                         isRouteActive('dashboard') 
-                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                            : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                     ]"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                 >
-                    <span class="material-symbols-rounded text-lg">dashboard</span>
-                    Dashboard
+                    <LayoutDashboard :size="15" :stroke-width="1.8" :class="isRouteActive('dashboard') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                    <span>Dashboard</span>
                 </Link>
 
                 <Link 
                     :href="route('hosting.client.index')" 
                     :class="[
                         route().current('hosting.client.*') 
-                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                            : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                     ]"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                 >
-                    <span class="material-symbols-rounded text-lg">cloud_done</span>
-                    Managed Hosting
+                    <Cloud :size="15" :stroke-width="1.8" :class="route().current('hosting.client.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                    <span>Managed Hosting</span>
+                </Link>
+
+                <Link 
+                    :href="route('self-host.index')" 
+                    :class="[
+                        route().current('self-host.*') 
+                            ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                            : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
+                    ]"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
+                >
+                    <Terminal :size="15" :stroke-width="1.8" :class="route().current('self-host.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                    <span>Nimbus Self-Host</span>
                 </Link>
 
                 <Link 
                     :href="route('store.index')" 
                     :class="[
                         route().current('store.*') 
-                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                            : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                     ]"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                 >
-                    <span class="material-symbols-rounded text-lg">storefront</span>
-                    Store &amp; Packages
+                    <ShoppingBag :size="15" :stroke-width="1.8" :class="route().current('store.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                    <span>Store &amp; Packages</span>
                 </Link>
 
                 <Link 
                     :href="route('subscription')" 
                     :class="[
                         isRouteActive('subscription') 
-                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                            : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                     ]"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                 >
-                    <span class="material-symbols-rounded text-lg">card_membership</span>
-                    My Subscriptions
+                    <CreditCard :size="15" :stroke-width="1.8" :class="isRouteActive('subscription') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                    <span>My Subscriptions</span>
                 </Link>
 
                 <Link 
                     :href="route('invoices.index')" 
                     :class="[
                         route().current('invoices.*') 
-                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                            : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                     ]"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                 >
-                    <span class="material-symbols-rounded text-lg">receipt_long</span>
-                    Invoices
+                    <Receipt :size="15" :stroke-width="1.8" :class="route().current('invoices.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                    <span>Invoices</span>
                 </Link>
 
                 <Link 
                     :href="route('tickets.index')" 
                     :class="[
                         route().current('tickets.*') 
-                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                            ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                            : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                     ]"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                 >
-                    <span class="material-symbols-rounded text-lg">support_agent</span>
-                    Support Tickets
+                    <LifeBuoy :size="15" :stroke-width="1.8" :class="route().current('tickets.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                    <span>Support Tickets</span>
                 </Link>
 
-                <div v-if="$page.props.auth.user.is_admin" class="pt-6">
-                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Administration</div>
+                <div v-if="$page.props.auth.user.is_admin" class="pt-5">
+                    <div class="text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                        <span>02 // Administration</span>
+                        <span class="h-px flex-1 bg-[var(--edge)]"></span>
+                    </div>
                     
                     <Link 
                         :href="route('admin.licenses.index')" 
                         :class="[
                             isRouteActive('admin.licenses.index') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">vpn_key</span>
-                        Licenses
+                        <Key :size="15" :stroke-width="1.8" :class="isRouteActive('admin.licenses.index') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Licenses</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.hosting.index')" 
                         :class="[
                             route().current('admin.hosting.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">dns</span>
-                        Managed Hosting
+                        <Server :size="15" :stroke-width="1.8" :class="route().current('admin.hosting.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Managed Hosting</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.invoices.index')" 
                         :class="[
                             route().current('admin.invoices.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">receipt_long</span>
-                        Invoices
+                        <Receipt :size="15" :stroke-width="1.8" :class="route().current('admin.invoices.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Invoices</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.users.index')" 
                         :class="[
                             isRouteActive('admin.users.index') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">group</span>
-                        Users
+                        <Users :size="15" :stroke-width="1.8" :class="isRouteActive('admin.users.index') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Users</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.settings.index')" 
                         :class="[
                             isRouteActive('admin.settings.index') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">settings</span>
-                        Settings
+                        <Settings :size="15" :stroke-width="1.8" :class="isRouteActive('admin.settings.index') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Settings</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.pages.index')" 
                         :class="[
                             route().current('admin.pages.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">article</span>
-                        Manage Pages
+                        <FileText :size="15" :stroke-width="1.8" :class="route().current('admin.pages.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Manage Pages</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.plans.index')" 
                         :class="[
                             route().current('admin.plans.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">payments</span>
-                        Manage Plans
+                        <Layers :size="15" :stroke-width="1.8" :class="route().current('admin.plans.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Manage Plans</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.testimonials.index')" 
                         :class="[
                             route().current('admin.testimonials.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">reviews</span>
-                        Testimonials
+                        <Quote :size="15" :stroke-width="1.8" :class="route().current('admin.testimonials.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Testimonials</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.feedback.index')" 
                         :class="[
                             route().current('admin.feedback.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">rate_review</span>
-                        Client Feedback
+                        <MessageSquare :size="15" :stroke-width="1.8" :class="route().current('admin.feedback.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Client Feedback</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.tickets.index')" 
                         :class="[
                             route().current('admin.tickets.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">support_agent</span>
-                        Support Tickets
+                        <LifeBuoy :size="15" :stroke-width="1.8" :class="route().current('admin.tickets.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Support Tickets</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.releases.index')" 
                         :class="[
                             isRouteActive('admin.releases.index') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">cloud_upload</span>
-                        Nimbus Releases
+                        <Package :size="15" :stroke-width="1.8" :class="isRouteActive('admin.releases.index') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Nimbus Releases</span>
                     </Link>
 
                     <Link 
                         :href="route('admin.reports.index')" 
                         :class="[
                             isRouteActive('admin.reports.index') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
                     >
-                        <span class="material-symbols-rounded text-lg">bug_report</span>
-                        Bug Reports
+                        <Bug :size="15" :stroke-width="1.8" :class="isRouteActive('admin.reports.index') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Bug Reports</span>
                     </Link>
                 </div>
             </nav>
 
-            <!-- Sidebar Footer / Quick User Card -->
-            <div class="border-t border-gray-200 p-4">
-                <div class="flex items-center gap-3 px-2 py-1.5 rounded-lg bg-slate-50 border border-gray-200">
-                    <div class="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center text-xs font-bold text-white uppercase shadow-sm shadow-emerald-500/10">
-                        {{ $page.props.auth.user.name.substring(0, 2) }}
+            <!-- Sidebar Footer / User Profile Card -->
+            <div class="border-t border-[var(--edge)] p-3 bg-[var(--panel)]">
+                <div class="flex items-center justify-between gap-2 p-2 rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] hover:border-[var(--edge-strong)] transition-all">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="h-8 w-8 rounded-lg bg-[var(--green-wash)] border border-[var(--edge-strong)] flex items-center justify-center text-xs font-mono font-bold text-[var(--accent)] shrink-0">
+                            {{ $page.props.auth.user.name.substring(0, 2).toUpperCase() }}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-xs font-bold text-[var(--text)] truncate font-display">{{ $page.props.auth.user.name }}</div>
+                            <div class="text-[10px] font-mono text-[var(--text-muted)] truncate flex items-center gap-1.5 mt-0.5">
+                                <span class="h-1.5 w-1.5 rounded-full bg-[var(--accent)]"></span>
+                                <span>{{ $page.props.auth.user.is_admin ? 'Admin' : 'Client' }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-xs font-bold text-gray-900 truncate">{{ $page.props.auth.user.name }}</div>
-                        <div class="text-[10px] text-gray-500 truncate">{{ $page.props.auth.user.email }}</div>
-                    </div>
+                    <Link :href="route('logout')" method="post" as="button" class="text-[var(--text-muted)] hover:text-rose-400 p-1.5 rounded-lg hover:bg-[var(--panel)] transition-colors" title="Log Out">
+                        <LogOut :size="14" />
+                    </Link>
                 </div>
             </div>
         </aside>
@@ -325,36 +381,40 @@ const isRouteActive = (routeName) => {
         <!-- Mobile Drawer Menu (Slide-out Sidebar) -->
         <div v-if="showingNavigationDropdown" class="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true">
             <!-- Backdrop -->
-            <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" @click="showingNavigationDropdown = false"></div>
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity" @click="showingNavigationDropdown = false"></div>
 
             <!-- Drawer Container -->
-            <div class="relative flex w-full max-w-[280px] sm:max-w-xs flex-1 flex-col bg-white border-r border-gray-200 pt-4 pb-4 animate-slide-in shadow-2xl z-10">
+            <div class="relative flex w-full max-w-[280px] sm:max-w-xs flex-1 flex-col bg-[var(--panel)] border-r border-[var(--edge)] pt-4 pb-4 animate-slide-in shadow-2xl z-10">
                 <!-- Drawer Header with integrated close button -->
-                <div class="flex shrink-0 items-center justify-between gap-2.5 px-5 pb-4 border-b border-gray-200">
+                <div class="flex shrink-0 items-center justify-between gap-2.5 px-5 pb-4 border-b border-[var(--edge)]">
                     <Link :href="route('dashboard')" @click="showingNavigationDropdown = false" class="brand flex items-center" aria-label="Rook Dashboard">
                         <span class="brand-mark" aria-hidden="true">r</span>
-                        <span class="text-xl font-bold tracking-tight text-gray-900">rook</span>
+                        <span class="text-xl font-bold tracking-tight text-[var(--text)] font-display">rook</span>
                     </Link>
-                    <button @click="showingNavigationDropdown = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-slate-100 transition-colors" aria-label="Close menu">
-                        <span class="material-symbols-rounded text-xl">close</span>
+                    <button @click="showingNavigationDropdown = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--panel-hi)] transition-colors" aria-label="Close menu">
+                        <X :size="18" />
                     </button>
                 </div>
 
                 <!-- Nav list inside Mobile Drawer -->
-                <nav class="mt-4 flex-1 space-y-1.5 px-4 overflow-y-auto">
-                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Workspace</div>
+                <nav class="mt-4 flex-1 space-y-1 px-3 overflow-y-auto">
+                    <div class="text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                        <span>01 // Workspace</span>
+                        <span class="h-px flex-1 bg-[var(--edge)]"></span>
+                    </div>
+
                     <Link 
                         :href="route('dashboard')" 
                         @click="showingNavigationDropdown = false"
                         :class="[
                             isRouteActive('dashboard') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                     >
-                        <span class="material-symbols-rounded text-lg">dashboard</span>
-                        Dashboard
+                        <LayoutDashboard :size="15" :stroke-width="1.8" />
+                        <span>Dashboard</span>
                     </Link>
 
                     <Link 
@@ -362,13 +422,27 @@ const isRouteActive = (routeName) => {
                         @click="showingNavigationDropdown = false"
                         :class="[
                             route().current('hosting.client.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                     >
-                        <span class="material-symbols-rounded text-lg">cloud_done</span>
-                        Managed Hosting
+                        <Cloud :size="15" :stroke-width="1.8" />
+                        <span>Managed Hosting</span>
+                    </Link>
+
+                    <Link 
+                        :href="route('self-host.index')" 
+                        @click="showingNavigationDropdown = false"
+                        :class="[
+                            route().current('self-host.*') 
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
+                        ]"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                    >
+                        <Terminal :size="15" :stroke-width="1.8" />
+                        <span>Nimbus Self-Host</span>
                     </Link>
 
                     <Link 
@@ -376,13 +450,13 @@ const isRouteActive = (routeName) => {
                         @click="showingNavigationDropdown = false"
                         :class="[
                             route().current('store.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                     >
-                        <span class="material-symbols-rounded text-lg">storefront</span>
-                        Store &amp; Packages
+                        <ShoppingBag :size="15" :stroke-width="1.8" />
+                        <span>Store &amp; Packages</span>
                     </Link>
 
                     <Link 
@@ -390,13 +464,13 @@ const isRouteActive = (routeName) => {
                         @click="showingNavigationDropdown = false"
                         :class="[
                             isRouteActive('subscription') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                     >
-                        <span class="material-symbols-rounded text-lg">card_membership</span>
-                        My Subscriptions
+                        <CreditCard :size="15" :stroke-width="1.8" />
+                        <span>My Subscriptions</span>
                     </Link>
 
                     <Link 
@@ -404,13 +478,13 @@ const isRouteActive = (routeName) => {
                         @click="showingNavigationDropdown = false"
                         :class="[
                             route().current('invoices.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                     >
-                        <span class="material-symbols-rounded text-lg">receipt_long</span>
-                        Invoices
+                        <Receipt :size="15" :stroke-width="1.8" />
+                        <span>Invoices</span>
                     </Link>
 
                     <Link 
@@ -418,55 +492,61 @@ const isRouteActive = (routeName) => {
                         @click="showingNavigationDropdown = false"
                         :class="[
                             route().current('tickets.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                         ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                     >
-                        <span class="material-symbols-rounded text-lg">support_agent</span>
-                        Support Tickets
+                        <LifeBuoy :size="15" :stroke-width="1.8" />
+                        <span>Support Tickets</span>
                     </Link>
 
                     <div v-if="$page.props.auth.user.is_admin" class="pt-5">
-                        <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-2">Administration</div>
+                        <div class="text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                            <span>02 // Administration</span>
+                            <span class="h-px flex-1 bg-[var(--edge)]"></span>
+                        </div>
+
                         <Link 
                             :href="route('admin.licenses.index')" 
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 isRouteActive('admin.licenses.index') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">vpn_key</span>
-                            Licenses
+                            <Key :size="15" :stroke-width="1.8" />
+                            <span>Licenses</span>
                         </Link>
+
                         <Link 
                             :href="route('admin.hosting.index')" 
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.hosting.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">dns</span>
-                            Managed Hosting
+                            <Server :size="15" :stroke-width="1.8" />
+                            <span>Managed Hosting</span>
                         </Link>
+
                         <Link 
                             :href="route('admin.invoices.index')" 
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.invoices.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">receipt_long</span>
-                            Invoices
+                            <Receipt :size="15" :stroke-width="1.8" />
+                            <span>Invoices</span>
                         </Link>
 
                         <Link 
@@ -474,26 +554,27 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 isRouteActive('admin.users.index') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">group</span>
-                            Users
+                            <Users :size="15" :stroke-width="1.8" />
+                            <span>Users</span>
                         </Link>
+
                         <Link 
                             :href="route('admin.settings.index')" 
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 isRouteActive('admin.settings.index') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">settings</span>
-                            Settings
+                            <Settings :size="15" :stroke-width="1.8" />
+                            <span>Settings</span>
                         </Link>
 
                         <Link 
@@ -501,13 +582,13 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.pages.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">article</span>
-                            Manage Pages
+                            <FileText :size="15" :stroke-width="1.8" />
+                            <span>Manage Pages</span>
                         </Link>
 
                         <Link 
@@ -515,13 +596,13 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.plans.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">payments</span>
-                            Manage Plans
+                            <Layers :size="15" :stroke-width="1.8" />
+                            <span>Manage Plans</span>
                         </Link>
 
                         <Link 
@@ -529,13 +610,13 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.testimonials.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">reviews</span>
-                            Testimonials
+                            <Quote :size="15" :stroke-width="1.8" />
+                            <span>Testimonials</span>
                         </Link>
 
                         <Link 
@@ -543,13 +624,13 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.feedback.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">rate_review</span>
-                            Client Feedback
+                            <MessageSquare :size="15" :stroke-width="1.8" />
+                            <span>Client Feedback</span>
                         </Link>
 
                         <Link 
@@ -557,13 +638,13 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 route().current('admin.tickets.*') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">support_agent</span>
-                            Support Tickets
+                            <LifeBuoy :size="15" :stroke-width="1.8" />
+                            <span>Support Tickets</span>
                         </Link>
 
                         <Link 
@@ -571,13 +652,13 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 isRouteActive('admin.releases.index') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">cloud_upload</span>
-                            Nimbus Releases
+                            <Package :size="15" :stroke-width="1.8" />
+                            <span>Nimbus Releases</span>
                         </Link>
 
                         <Link 
@@ -585,31 +666,34 @@ const isRouteActive = (routeName) => {
                             @click="showingNavigationDropdown = false"
                             :class="[
                                 isRouteActive('admin.reports.index') 
-                                    ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                    : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
                             ]"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
                         >
-                            <span class="material-symbols-rounded text-lg">bug_report</span>
-                            Bug Reports
+                            <Bug :size="15" :stroke-width="1.8" />
+                            <span>Bug Reports</span>
                         </Link>
                     </div>
                 </nav>
 
                 <!-- Mobile Drawer Footer: User profile & Logout -->
-                <div class="border-t border-gray-200 p-3 mt-auto">
-                    <div class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg bg-slate-50 border border-gray-200">
+                <div class="border-t border-[var(--edge)] p-3 mt-auto bg-[var(--panel)]">
+                    <div class="flex items-center justify-between gap-2 p-2 rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)]">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center text-xs font-bold text-white uppercase shrink-0 shadow-sm shadow-emerald-500/10">
-                                {{ $page.props.auth.user.name.substring(0, 2) }}
+                            <div class="h-8 w-8 rounded-lg bg-[var(--green-wash)] border border-[var(--edge-strong)] flex items-center justify-center text-xs font-mono font-bold text-[var(--accent)] shrink-0">
+                                {{ $page.props.auth.user.name.substring(0, 2).toUpperCase() }}
                             </div>
                             <div class="min-w-0">
-                                <div class="text-xs font-bold text-gray-900 truncate">{{ $page.props.auth.user.name }}</div>
-                                <div class="text-[10px] text-gray-500 truncate">{{ $page.props.auth.user.email }}</div>
+                                <div class="text-xs font-bold text-[var(--text)] truncate font-display">{{ $page.props.auth.user.name }}</div>
+                                <div class="text-[10px] font-mono text-[var(--text-muted)] truncate flex items-center gap-1.5 mt-0.5">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-[var(--accent)]"></span>
+                                    <span>{{ $page.props.auth.user.is_admin ? 'Admin' : 'Client' }}</span>
+                                </div>
                             </div>
                         </div>
-                        <Link :href="route('logout')" method="post" as="button" class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors shrink-0" title="Log Out">
-                            <span class="material-symbols-rounded text-lg">logout</span>
+                        <Link :href="route('logout')" method="post" as="button" class="text-[var(--text-muted)] hover:text-rose-400 p-1.5 rounded-lg hover:bg-[var(--panel)] transition-colors" title="Log Out">
+                            <LogOut :size="14" />
                         </Link>
                     </div>
                 </div>
@@ -618,42 +702,48 @@ const isRouteActive = (routeName) => {
 
         <!-- Desktop Shell Top Header Navbar -->
         <div class="md:pl-64 flex flex-col flex-1 min-h-screen min-w-0">
-            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[var(--edge)] bg-[var(--panel)]/95 backdrop-blur-md px-4 sm:px-6 print:hidden">
+            <header class="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[var(--edge)] bg-[var(--panel)]/90 backdrop-blur-md px-4 sm:px-6 print:hidden">
                 <!-- Left: Hamburger + Page Title / Breadcrumbs -->
                 <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                    <button @click="showingNavigationDropdown = true" class="inline-flex items-center justify-center rounded-lg p-2 text-[var(--text-soft)] hover:bg-[var(--panel-hi)] md:hidden outline-none shrink-0" aria-label="Open navigation menu">
-                        <span class="material-symbols-rounded">menu</span>
+                    <button @click="showingNavigationDropdown = true" class="inline-flex items-center justify-center rounded-lg p-2 text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)] md:hidden outline-none shrink-0 transition-colors" aria-label="Open navigation menu">
+                        <Menu :size="18" />
                     </button>
 
                     <!-- Breadcrumbs (Tablet & Desktop) -->
-                    <nav class="hidden sm:flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] truncate">
-                        <span class="text-[var(--text-muted)] shrink-0">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Admin' : 'App' }}</span>
-                        <span class="material-symbols-rounded text-xs select-none text-[var(--text-muted)] shrink-0">chevron_right</span>
-                        <span class="text-[var(--text)] truncate">{{ pageTitle }}</span>
+                    <nav class="hidden sm:flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-[var(--text-muted)] truncate">
+                        <span class="text-[var(--text-muted)] shrink-0">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Rook // Admin' : 'Rook // Console' }}</span>
+                        <ChevronRight :size="12" class="text-[var(--text-muted)] shrink-0" />
+                        <span class="text-[var(--text)] font-semibold truncate">{{ pageTitle }}</span>
                     </nav>
 
                     <!-- Page Title (Mobile Only) -->
-                    <span class="sm:hidden text-sm font-bold text-[var(--text)] truncate">{{ pageTitle }}</span>
+                    <span class="sm:hidden text-sm font-bold text-[var(--text)] truncate font-display">{{ pageTitle }}</span>
+                </div>
+
+                <!-- Center: Live cluster SLA pill (Desktop) -->
+                <div class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--edge)] bg-[var(--panel-hi)] text-[10px] font-mono text-[var(--text-soft)]">
+                    <span class="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-pulse"></span>
+                    <span>Cluster SRE Active · SLA 99.99%</span>
                 </div>
 
                 <!-- Right: Actions/Dropdown -->
-                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
                     <button
                         type="button"
                         @click="toggleTheme"
-                        class="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--edge)] bg-[var(--panel-hi)] text-[var(--text-soft)] hover:text-[var(--text)] hover:border-[var(--edge-strong)] transition-all outline-none"
+                        class="theme-toggle"
                         :title="`Switch to ${lightTheme ? 'dark' : 'light'} theme`"
-                        aria-label="Toggle theme"
+                        :aria-label="`Switch to ${lightTheme ? 'dark' : 'light'} theme`"
                     >
-                        <Moon v-if="lightTheme" :size="16" aria-hidden="true" />
-                        <Sun v-else :size="16" aria-hidden="true" />
+                        <Moon v-if="lightTheme" :size="15" aria-hidden="true" />
+                        <Sun v-else :size="15" aria-hidden="true" />
                     </button>
 
                     <Dropdown align="right" width="48" content-classes="py-1 bg-[var(--panel)] border border-[var(--edge)] shadow-xl rounded-lg">
                         <template #trigger>
-                            <button type="button" class="flex items-center gap-2.5 rounded-lg bg-[var(--panel-hi)] p-1.5 pl-2 sm:pl-3 border border-[var(--edge)] hover:border-[var(--edge-strong)] transition-all outline-none">
+                            <button type="button" class="flex items-center gap-2.5 rounded-lg bg-[var(--panel-hi)] p-1.5 pl-2.5 sm:pl-3 border border-[var(--edge)] hover:border-[var(--edge-strong)] transition-all outline-none">
                                 <span class="hidden sm:inline text-xs font-semibold text-[var(--text)] truncate max-w-[120px]">{{ $page.props.auth.user.name }}</span>
-                                <div class="h-6 w-6 rounded bg-[var(--accent)] flex items-center justify-center text-[10px] font-bold text-[var(--accent-ink)] uppercase shadow-sm shrink-0">
+                                <div class="h-6 w-6 rounded bg-[var(--accent)] flex items-center justify-center text-[10px] font-mono font-bold text-[var(--accent-ink)] uppercase shadow-sm shrink-0">
                                     {{ $page.props.auth.user.name.substring(0, 2) }}
                                 </div>
                             </button>
@@ -662,14 +752,14 @@ const isRouteActive = (routeName) => {
                         <template #content>
                             <DropdownLink :href="route('profile.edit')" class="rounded-md hover:bg-[var(--panel-hi)] text-[var(--text-soft)] hover:text-[var(--text)]"> 
                                 <span class="flex items-center gap-2 text-xs">
-                                    <span class="material-symbols-rounded text-sm text-[var(--text-muted)]">person</span>
+                                    <User :size="14" class="text-[var(--text-muted)]" />
                                     My Profile 
                                 </span>
                             </DropdownLink>
                             <div class="my-1 border-t border-[var(--edge)]"></div>
-                            <DropdownLink :href="route('logout')" method="post" as="button" class="w-full text-left rounded-md hover:bg-[var(--panel-hi)] text-red-500 hover:text-red-400">
+                            <DropdownLink :href="route('logout')" method="post" as="button" class="w-full text-left rounded-md hover:bg-[var(--panel-hi)] text-rose-400 hover:text-rose-300">
                                 <span class="flex items-center gap-2 text-xs">
-                                    <span class="material-symbols-rounded text-sm text-red-500">logout</span>
+                                    <LogOut :size="14" class="text-rose-400" />
                                     Log Out
                                 </span>
                             </DropdownLink>

@@ -967,8 +967,7 @@ a { color: inherit; }
 }
 
 .rook-dashboard .font-mono.bg-slate-100,
-.rook-dashboard .font-mono.bg-slate-50,
-.rook-dashboard .font-mono {
+.rook-dashboard .font-mono.bg-slate-50 {
   background-color: var(--panel-hi) !important;
   color: var(--text) !important;
   border-color: var(--edge-strong) !important;
