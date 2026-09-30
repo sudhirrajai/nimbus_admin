@@ -38,6 +38,9 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'siteSettings' => fn () => \Illuminate\Support\Facades\Storage::disk('local')->exists('settings.json')
+                ? (json_decode(\Illuminate\Support\Facades\Storage::disk('local')->get('settings.json'), true) ?: [])
+                : [],
         ];
     }
 }

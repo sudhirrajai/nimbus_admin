@@ -817,14 +817,145 @@ a { color: inherit; }
 .rook-dashboard .text-gray-400,
 .rook-dashboard .text-slate-500,
 .rook-dashboard .text-slate-400 {
-  color: var(--text-muted) !important;
+  color: var(--text-soft) !important;
 }
 
+/* Dashboard Table Contrast & Hierarchy */
+.rook-dashboard table {
+  width: 100%;
+  color: var(--text);
+}
+
+.rook-dashboard thead,
+.rook-dashboard thead tr {
+  background-color: var(--panel-hi) !important;
+  border-bottom: 1px solid var(--edge) !important;
+}
+
+.rook-dashboard th,
+.rook-dashboard thead th {
+  color: var(--text-soft) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+
+.rook-dashboard tbody tr {
+  border-bottom: 1px solid var(--edge) !important;
+  transition: background-color 0.15s ease;
+}
+
+.rook-dashboard tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.rook-dashboard[data-theme='light'] tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.rook-dashboard td {
+  color: var(--text);
+}
+
+/* Status Badges & Pills - Emerald / Active / Success */
+.rook-dashboard .bg-emerald-50,
+.rook-dashboard .bg-emerald-100,
+.rook-dashboard .bg-green-50,
+.rook-dashboard .bg-green-100 {
+  background-color: rgba(135, 215, 160, 0.16) !important;
+  border-color: rgba(135, 215, 160, 0.35) !important;
+}
+
+.rook-dashboard .text-emerald-700,
+.rook-dashboard .text-emerald-800,
+.rook-dashboard .text-emerald-600,
+.rook-dashboard .text-emerald-500,
+.rook-dashboard .text-green-700,
+.rook-dashboard .text-green-800,
+.rook-dashboard .text-green-600,
+.rook-dashboard .text-green-500 {
+  color: #87d7a0 !important;
+}
+
+/* Status Badges & Pills - Blue / Sky / Cloud / Hosting */
+.rook-dashboard .bg-blue-50,
+.rook-dashboard .bg-blue-100,
+.rook-dashboard .bg-sky-50,
+.rook-dashboard .bg-sky-100 {
+  background-color: rgba(96, 165, 250, 0.16) !important;
+  border-color: rgba(96, 165, 250, 0.35) !important;
+}
+
+.rook-dashboard .text-blue-700,
+.rook-dashboard .text-blue-800,
+.rook-dashboard .text-blue-600,
+.rook-dashboard .text-blue-500,
+.rook-dashboard .text-sky-700,
+.rook-dashboard .text-sky-800,
+.rook-dashboard .text-sky-600,
+.rook-dashboard .text-sky-500 {
+  color: #93c5fd !important;
+}
+
+/* Status Badges & Pills - Purple / Violet / Admin */
+.rook-dashboard .bg-purple-50,
+.rook-dashboard .bg-purple-100,
+.rook-dashboard .bg-violet-50,
+.rook-dashboard .bg-violet-100 {
+  background-color: rgba(192, 132, 252, 0.18) !important;
+  border-color: rgba(192, 132, 252, 0.4) !important;
+}
+
+.rook-dashboard .text-purple-700,
+.rook-dashboard .text-purple-800,
+.rook-dashboard .text-purple-600,
+.rook-dashboard .text-purple-500 {
+  color: #d8b4fe !important;
+}
+
+/* Status Badges & Pills - Rose / Red / Danger / Inactive */
+.rook-dashboard .bg-rose-50,
+.rook-dashboard .bg-rose-100,
+.rook-dashboard .bg-red-50,
+.rook-dashboard .bg-red-100 {
+  background-color: rgba(248, 113, 113, 0.16) !important;
+  border-color: rgba(248, 113, 113, 0.35) !important;
+}
+
+.rook-dashboard .text-rose-700,
+.rook-dashboard .text-rose-800,
+.rook-dashboard .text-rose-600,
+.rook-dashboard .text-rose-500,
+.rook-dashboard .text-red-700,
+.rook-dashboard .text-red-800,
+.rook-dashboard .text-red-600,
+.rook-dashboard .text-red-500 {
+  color: #fca5a5 !important;
+}
+
+/* Status Badges & Pills - Amber / Yellow / Warning / Pending */
+.rook-dashboard .bg-amber-50,
+.rook-dashboard .bg-amber-100,
+.rook-dashboard .bg-yellow-50,
+.rook-dashboard .bg-yellow-100 {
+  background-color: rgba(251, 191, 36, 0.16) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+}
+
+.rook-dashboard .text-amber-700,
+.rook-dashboard .text-amber-800,
+.rook-dashboard .text-amber-600,
+.rook-dashboard .text-amber-500 {
+  color: #fde047 !important;
+}
+
+/* Neutral Pills & Mono Badges (e.g. CUST-xxx, user role, count) */
 .rook-dashboard .bg-slate-100,
 .rook-dashboard .bg-slate-200 {
   background-color: var(--panel-hi) !important;
   color: var(--text) !important;
-  border-color: var(--edge) !important;
+  border-color: var(--edge-strong) !important;
 }
 
 .rook-dashboard .bg-slate-100:hover,
@@ -834,9 +965,12 @@ a { color: inherit; }
   color: var(--text) !important;
 }
 
-.rook-dashboard .text-emerald-500,
-.rook-dashboard .text-emerald-600 {
-  color: var(--accent) !important;
+.rook-dashboard .font-mono.bg-slate-100,
+.rook-dashboard .font-mono.bg-slate-50,
+.rook-dashboard .font-mono {
+  background-color: var(--panel-hi) !important;
+  color: var(--text) !important;
+  border-color: var(--edge-strong) !important;
 }
 
 .rook-dashboard .bg-emerald-500,
@@ -849,10 +983,6 @@ a { color: inherit; }
   background-color: var(--accent-hover) !important;
 }
 
-.rook-dashboard .bg-emerald-50 {
-  background-color: rgba(135, 215, 160, 0.08) !important;
-}
-
 .rook-dashboard .border-emerald-200,
 .rook-dashboard .border-emerald-100 {
   border-color: var(--edge-strong) !important;
@@ -860,6 +990,50 @@ a { color: inherit; }
 
 .rook-dashboard .border-emerald-500 {
   border-color: var(--accent) !important;
+}
+
+/* Action Icons */
+.rook-dashboard .hover\:text-emerald-600:hover,
+.rook-dashboard .hover\:text-emerald-700:hover {
+  color: var(--accent) !important;
+}
+
+.rook-dashboard .hover\:text-rose-600:hover,
+.rook-dashboard .hover\:text-rose-700:hover {
+  color: #f87171 !important;
+}
+
+.rook-dashboard .hover\:bg-emerald-50:hover {
+  background-color: rgba(135, 215, 160, 0.12) !important;
+}
+
+.rook-dashboard .hover\:bg-rose-50:hover {
+  background-color: rgba(248, 113, 113, 0.12) !important;
+}
+
+/* Light Theme Badge Color Adjustments */
+.rook-dashboard[data-theme='light'] .text-emerald-700,
+.rook-dashboard[data-theme='light'] .text-emerald-800,
+.rook-dashboard[data-theme='light'] .text-emerald-600 {
+  color: #065f46 !important;
+}
+
+.rook-dashboard[data-theme='light'] .text-blue-700,
+.rook-dashboard[data-theme='light'] .text-blue-800,
+.rook-dashboard[data-theme='light'] .text-blue-600 {
+  color: #1e40af !important;
+}
+
+.rook-dashboard[data-theme='light'] .text-purple-700,
+.rook-dashboard[data-theme='light'] .text-purple-800,
+.rook-dashboard[data-theme='light'] .text-purple-600 {
+  color: #6b21a8 !important;
+}
+
+.rook-dashboard[data-theme='light'] .text-rose-700,
+.rook-dashboard[data-theme='light'] .text-rose-800,
+.rook-dashboard[data-theme='light'] .text-rose-600 {
+  color: #9f1239 !important;
 }
 
 .rook-dashboard input,

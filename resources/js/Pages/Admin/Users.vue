@@ -224,21 +224,21 @@ const formatDateTime = (dateStr) => {
             </div>
 
             <!-- Search & Filters Toolbar -->
-            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="bg-[var(--panel)] border border-[var(--edge)] rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="relative flex-1 w-full">
-                    <span class="material-symbols-rounded absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
+                    <span class="material-symbols-rounded absolute left-3 top-2.5 text-[var(--text-soft)] text-lg">search</span>
                     <input 
                         v-model="search"
                         type="text"
                         placeholder="Search by name, email, client code, company..."
-                        class="w-full pl-10 text-xs rounded-lg border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                        class="w-full pl-10 text-xs rounded-lg border-[var(--edge)] bg-[var(--panel-hi)] text-[var(--text)] focus:border-emerald-500 focus:ring-emerald-500"
                     />
                 </div>
 
                 <div class="flex items-center gap-3 w-full sm:w-auto">
                     <select 
                         v-model="statusFilter"
-                        class="text-xs rounded-lg border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 py-2 pl-3 pr-8"
+                        class="text-xs rounded-lg border-[var(--edge)] bg-[var(--panel-hi)] text-[var(--text)] focus:border-emerald-500 focus:ring-emerald-500 py-2 pl-3 pr-8"
                     >
                         <option value="">All Accounts</option>
                         <option value="active">Active Only</option>
@@ -246,41 +246,41 @@ const formatDateTime = (dateStr) => {
                         <option value="admin">Administrators</option>
                     </select>
 
-                    <div class="text-xs text-gray-500 font-medium whitespace-nowrap">
+                    <div class="text-xs text-[var(--text-soft)] font-medium whitespace-nowrap">
                         Showing {{ filteredUsers.length }} of {{ users?.length || 0 }} users
                     </div>
                 </div>
             </div>
 
             <!-- Users Table Container -->
-            <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-[var(--panel)] border border-[var(--edge)] rounded-xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Client Identity</th>
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Role</th>
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Licenses</th>
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Hosting</th>
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Invoices</th>
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Registered</th>
-                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
+                            <tr class="bg-[var(--panel-hi)] border-b border-[var(--edge)] text-[var(--text-soft)]">
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-[var(--text-soft)]">Client Identity</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center text-[var(--text-soft)]">Status</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center text-[var(--text-soft)]">Role</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center text-[var(--text-soft)]">Licenses</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center text-[var(--text-soft)]">Hosting</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center text-[var(--text-soft)]">Invoices</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-[var(--text-soft)]">Registered</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right text-[var(--text-soft)]">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr v-for="user in filteredUsers" :key="user.uuid || user.id" class="hover:bg-slate-50/50 transition-colors">
+                        <tbody class="divide-y divide-[var(--edge)]">
+                            <tr v-for="user in filteredUsers" :key="user.uuid || user.id" class="hover:bg-[var(--panel-hi)]/40 transition-colors">
                                 <!-- Client Identity (No raw DB ID visible) -->
                                 <td class="px-6 py-4.5">
                                     <div class="flex items-center gap-2">
-                                        <div class="text-sm font-bold text-gray-900">{{ user.name }}</div>
-                                        <span class="inline-flex font-mono text-[10px] font-bold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-gray-200">
+                                        <div class="text-sm font-bold text-[var(--text)]">{{ user.name }}</div>
+                                        <span class="inline-flex font-mono text-[10px] font-bold bg-[var(--panel-hi)] text-[var(--text)] px-2 py-0.5 rounded border border-[var(--edge-strong)] shadow-xs">
                                             {{ user.customer_code || ('CUST-' + (user.uuid ? user.uuid.substring(0, 8).toUpperCase() : '001')) }}
                                         </span>
                                     </div>
-                                    <div class="text-xs text-gray-500 mt-0.5">{{ user.email }}</div>
-                                    <div v-if="user.company_name || user.phone || user.city" class="text-[11px] text-gray-400 mt-0.5 flex items-center gap-2">
-                                        <span v-if="user.company_name" class="font-medium text-gray-600">{{ user.company_name }}</span>
+                                    <div class="text-xs text-[var(--text-soft)] mt-0.5">{{ user.email }}</div>
+                                    <div v-if="user.company_name || user.phone || user.city" class="text-[11px] text-[var(--text-muted)] mt-0.5 flex items-center gap-2">
+                                        <span v-if="user.company_name" class="font-medium text-[var(--text-soft)]">{{ user.company_name }}</span>
                                         <span v-if="user.company_name && (user.phone || user.city)">•</span>
                                         <span v-if="user.phone">{{ user.phone }}</span>
                                         <span v-if="user.phone && user.city">•</span>
@@ -296,8 +296,8 @@ const formatDateTime = (dateStr) => {
                                         :title="user.is_active ? 'Click to deactivate user' : 'Click to activate user'"
                                         :class="[
                                             user.is_active 
-                                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' 
-                                                : 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
+                                                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25' 
+                                                : 'bg-rose-500/15 border-rose-500/30 text-rose-400 hover:bg-rose-500/25',
                                             user.id === $page.props.auth.user.id ? 'opacity-60 cursor-not-allowed' : ''
                                         ]"
                                         class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-xs transition-all"
@@ -316,8 +316,8 @@ const formatDateTime = (dateStr) => {
                                         :disabled="user.id === $page.props.auth.user.id"
                                         :class="[
                                             user.is_admin 
-                                                ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' 
-                                                : 'bg-slate-50 border-gray-200 text-gray-500 hover:bg-slate-100 hover:text-gray-700',
+                                                ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 hover:bg-purple-500/30' 
+                                                : 'bg-[var(--panel-hi)] border-[var(--edge-strong)] text-[var(--text-soft)] hover:text-[var(--text)]',
                                             user.id === $page.props.auth.user.id ? 'opacity-60 cursor-not-allowed' : ''
                                         ]"
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-xs transition-all"
@@ -328,28 +328,28 @@ const formatDateTime = (dateStr) => {
                                 </td>
 
                                 <!-- Licenses Count -->
-                                <td class="px-6 py-4.5 text-center font-semibold text-gray-900 text-xs">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                                <td class="px-6 py-4.5 text-center font-semibold text-xs">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--panel-hi)] text-[var(--text)] border border-[var(--edge)]">
                                         {{ user.licenses_count ?? 0 }}
                                     </span>
                                 </td>
 
                                 <!-- Hosting Accounts Count -->
-                                <td class="px-6 py-4.5 text-center font-semibold text-gray-900 text-xs">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                                <td class="px-6 py-4.5 text-center font-semibold text-xs">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
                                         {{ user.hosting_accounts_count ?? 0 }}
                                     </span>
                                 </td>
 
                                 <!-- Invoices Count -->
-                                <td class="px-6 py-4.5 text-center font-semibold text-gray-900 text-xs">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                                <td class="px-6 py-4.5 text-center font-semibold text-xs">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                                         {{ user.invoices_count ?? 0 }}
                                     </span>
                                 </td>
 
                                 <!-- Registered Date -->
-                                <td class="px-6 py-4.5 text-xs text-gray-500 whitespace-nowrap">
+                                <td class="px-6 py-4.5 text-xs text-[var(--text-soft)] whitespace-nowrap">
                                     {{ formatDateTime(user.created_at) }}
                                 </td>
 
@@ -358,7 +358,7 @@ const formatDateTime = (dateStr) => {
                                     <!-- Edit User Button -->
                                     <button 
                                         @click="openEditModal(user)"
-                                        class="p-1.5 rounded-lg text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                                        class="p-1.5 rounded-lg text-[var(--text-soft)] hover:text-[var(--accent)] hover:bg-[var(--panel-hi)] transition-colors"
                                         title="Edit User Details & Password"
                                     >
                                         <span class="material-symbols-rounded text-base">edit</span>
@@ -370,8 +370,8 @@ const formatDateTime = (dateStr) => {
                                         :disabled="user.id === $page.props.auth.user.id"
                                         :class="[
                                             user.id === $page.props.auth.user.id 
-                                                ? 'text-gray-300 cursor-not-allowed' 
-                                                : 'text-gray-400 hover:text-rose-600 hover:bg-rose-50'
+                                                ? 'text-gray-600 cursor-not-allowed' 
+                                                : 'text-[var(--text-soft)] hover:text-rose-400 hover:bg-rose-500/10'
                                         ]"
                                         class="p-1.5 rounded-lg transition-colors"
                                         title="Delete User"
@@ -382,7 +382,7 @@ const formatDateTime = (dateStr) => {
                             </tr>
 
                             <tr v-if="filteredUsers.length === 0">
-                                <td colspan="8" class="px-6 py-12 text-center text-xs text-gray-400">
+                                <td colspan="8" class="px-6 py-12 text-center text-xs text-[var(--text-soft)]">
                                     No users found matching current filters.
                                 </td>
                             </tr>

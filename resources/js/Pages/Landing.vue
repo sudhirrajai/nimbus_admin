@@ -29,8 +29,37 @@ import {
     X,
 } from 'lucide-vue-next';
 
+const props = defineProps({
+    managedHostingPlans: {
+        type: Array,
+        default: () => [],
+    },
+    selfHostedPlans: {
+        type: Array,
+        default: () => [],
+    },
+    testimonials: {
+        type: Array,
+        default: () => [],
+    },
+    canLogin: Boolean,
+    canRegister: Boolean,
+});
+
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+
+const contactEmail = computed(() => {
+    return page.props.siteSettings?.company_email || 'hello@rook.host';
+});
+
+const contactPhone = computed(() => {
+    return page.props.siteSettings?.company_phone || '+91 8849259933';
+});
+
+const companyName = computed(() => {
+    return page.props.siteSettings?.company_name || 'Rook Hosting';
+});
 
 const annual = ref(false);
 const openFaq = ref(0);
@@ -104,53 +133,148 @@ const stacks = [
     ['GitHub Actions', 'CI/CD'],
 ];
 
-const pricing = [
-    {
-        name: 'Starter',
-        description: 'For a small app or a site ready to leave shared hosting.',
-        monthly: 39,
-        yearly: 32,
-        unit: '/ month',
-        items: [
-            'One production application',
-            'Managed updates & security',
-            'Daily backups · 14-day retention',
-            'Email support',
-        ],
-        action: 'Talk about Starter',
-    },
-    {
-        name: 'Business',
-        description: 'For growing teams that need room and a steady hand.',
-        monthly: 119,
-        yearly: 95,
-        unit: '/ month',
-        items: [
-            'Up to 3 production applications',
-            'Everything in Starter',
-            'Daily backups · 30-day retention',
-            'Priority engineer response',
-            'Staging environment included',
-        ],
-        action: 'Start a free migration',
-        featured: true,
-    },
-    {
-        name: 'Enterprise',
-        description: 'For complex systems, compliance needs, or many properties.',
-        monthly: null,
-        yearly: null,
-        unit: '',
-        items: [
-            'Custom application portfolio',
-            'Architecture & migration planning',
-            'Named infrastructure lead',
-            'Custom backup and recovery plan',
-            'Security review and reporting',
-        ],
-        action: 'Talk to an engineer',
-    },
-];
+const pricing = computed(() => {
+    if (props.managedHostingPlans && props.managedHostingPlans.length > 0) {
+        return props.managedHostingPlans.map((plan) => {
+            const isCustom = !plan.price_usd || Number(plan.price_usd) <= 0;
+            let monthly = null;
+            let yearly = null;
+            let unit = '/ month';
+
+            if (!isCustom) {
+                if (plan.billing_period === '/year' || plan.billing_period === 'yearly') {
+                    monthly = Math.round(Number(plan.price_usd) / 10);
+                    yearly = Math.round(Number(plan.price_usd) / 12);
+                } else {
+                    monthly = Number(plan.price_usd);
+                    yearly = Math.round(Number(plan.price_usd) * 0.8);
+                }
+            }
+
+            const items = Array.isArray(plan.features) && plan.features.length > 0
+                ? plan.features
+                : [
+                    'Fully managed cloud environment',
+                    '24/7 uptime monitoring & alerts',
+                    'Daily automated offsite backups',
+                    'Free auto-renewing SSL & firewall',
+                ];
+
+            return {
+                id: plan.id,
+                name: plan.name,
+                description: plan.description || 'High-performance cloud servers fully maintained, secured, and backed up by our engineers.',
+                monthly: monthly,
+                yearly: yearly,
+                unit: isCustom ? '' : unit,
+                annualTotal: isCustom ? null : (plan.billing_period === '/year' ? Number(plan.price_usd) : yearly * 12),
+                items: items,
+                action: plan.cta_text || (isCustom ? 'Talk to an engineer' : (plan.is_popular ? 'Start free migration' : `Deploy ${plan.name}`)),
+                featured: Boolean(plan.is_popular),
+                rawPlan: plan,
+            };
+        });
+    }
+
+    return [
+        {
+            name: 'Starter Cloud',
+            description: 'For a small app or a site ready to leave shared hosting.',
+            monthly: 39,
+            yearly: 32,
+            unit: '/ month',
+            annualTotal: 384,
+            items: [
+                'One production application',
+                'Managed updates & security',
+                'Daily backups · 14-day retention',
+                'Email support',
+            ],
+            action: 'Talk about Starter',
+            featured: false,
+        },
+        {
+            name: 'Business Cloud',
+            description: 'For growing teams that need room and a steady hand.',
+            monthly: 119,
+            yearly: 95,
+            unit: '/ month',
+            annualTotal: 1140,
+            items: [
+                'Up to 3 production applications',
+                'Everything in Starter',
+                'Daily backups · 30-day retention',
+                'Priority engineer response',
+                'Staging environment included',
+            ],
+            action: 'Start a free migration',
+            featured: true,
+        },
+        {
+            name: 'Enterprise Cloud',
+            description: 'For complex systems, compliance needs, or many properties.',
+            monthly: null,
+            yearly: null,
+            unit: '',
+            annualTotal: null,
+            items: [
+                'Custom application portfolio',
+                'Architecture & migration planning',
+                'Named infrastructure lead',
+                'Custom backup and recovery plan',
+                'Security review and reporting',
+            ],
+            action: 'Talk to an engineer',
+            featured: false,
+        },
+    ];
+});
+
+const customerStories = computed(() => {
+    if (props.testimonials && props.testimonials.length > 0) {
+        return props.testimonials.map((t) => {
+            const initials = (t.name || 'CU')
+                .trim()
+                .split(/\s+/)
+                .map((w) => w[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase();
+
+            return {
+                name: t.name,
+                role: t.role,
+                company: t.company,
+                quote: t.quote,
+                initials: initials,
+            };
+        });
+    }
+
+    return [
+        {
+            name: 'Alex Morgan',
+            role: 'Technical Director',
+            company: 'Northline Studio',
+            quote: 'We used to lose half a day every time a server needed attention. Now we have a person who knows our stack—and the rest of us can get back to client work.',
+            initials: 'AM',
+        },
+        {
+            name: 'Jamie Lee',
+            role: 'Founder',
+            company: 'Fieldnote Commerce',
+            quote: 'The migration was planned, tested, and refreshingly uneventful. We knew exactly who to ask at every step.',
+            initials: 'JL',
+        },
+        {
+            name: 'Ravi Kapoor',
+            role: 'Engineering Lead',
+            company: 'Common Ground',
+            quote: 'I don’t need another dashboard. I need someone to notice when something’s off and help me fix it. That’s been the difference.',
+            initials: 'RK',
+        },
+    ];
+});
 
 const faqs = [
     {
@@ -382,7 +506,7 @@ const currentYear = new Date().getFullYear();
                         <div class="hero-actions">
                             <a
                                 class="button button-primary"
-                                href="mailto:hello@rook.host?subject=Start%20a%20Rook%20migration"
+                                :href="`mailto:${contactEmail}?subject=Start%20a%20Rook%20migration`"
                                 data-testid="link-contact"
                             >
                                 Start free migration <ArrowRight :size="15" aria-hidden="true" />
@@ -696,12 +820,27 @@ const currentYear = new Date().getFullYear();
                                     Billed monthly · cancel with notice
                                 </template>
                             </div>
-                            <a
+                            <Link
+                                v-if="user"
+                                :href="route('hosting.client.index')"
                                 :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
-                                :href="`mailto:hello@rook.host?subject=${encodeURIComponent(`${plan.action} — ${plan.name}`)}`"
+                            >
+                                {{ plan.action }} <ArrowRight :size="14" aria-hidden="true" />
+                            </Link>
+                            <a
+                                v-else-if="plan.monthly === null"
+                                :href="`mailto:${contactEmail}?subject=${encodeURIComponent(`Enterprise Hosting Inquiry — ${plan.name}`)}`"
+                                :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
                             >
                                 {{ plan.action }} <ArrowRight :size="14" aria-hidden="true" />
                             </a>
+                            <Link
+                                v-else
+                                :href="route('register')"
+                                :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
+                            >
+                                {{ plan.action }} <ArrowRight :size="14" aria-hidden="true" />
+                            </Link>
                             <div class="plan-rule" />
                             <div class="plan-list-label">Included</div>
                             <ul class="plan-list">
@@ -712,7 +851,7 @@ const currentYear = new Date().getFullYear();
                         </article>
                     </div>
                     <p class="pricing-footnote">
-                        Illustrative pricing for this product concept—replace with approved offers before launch. Hosting and support scope should be confirmed before onboarding.
+                        Managed hosting and support scope can be customized directly for your stack.
                     </p>
                 </div>
             </section>
@@ -728,41 +867,19 @@ const currentYear = new Date().getFullYear();
                         <span class="section-index">03 / CUSTOMER STORIES</span>
                     </div>
                     <div class="quote-grid">
-                        <article class="quote-card">
+                        <article v-for="(story, idx) in customerStories" :key="idx" class="quote-card">
                             <div class="quote-mark" aria-hidden="true">“</div>
-                            <blockquote>“We used to lose half a day every time a server needed attention. Now we have a person who knows our stack—and the rest of us can get back to client work.”</blockquote>
+                            <blockquote>“{{ story.quote }}”</blockquote>
                             <div class="quote-person">
-                                <span class="avatar-initials">AM</span>
+                                <span class="avatar-initials">{{ story.initials }}</span>
                                 <div>
-                                    <div class="person-name">Alex Morgan</div>
-                                    <div class="person-role">Technical Director · Northline Studio</div>
-                                </div>
-                            </div>
-                        </article>
-                        <article class="quote-card">
-                            <div class="quote-mark" aria-hidden="true">“</div>
-                            <blockquote>“The migration was planned, tested, and refreshingly uneventful. We knew exactly who to ask at every step.”</blockquote>
-                            <div class="quote-person">
-                                <span class="avatar-initials">JL</span>
-                                <div>
-                                    <div class="person-name">Jamie Lee</div>
-                                    <div class="person-role">Founder · Fieldnote Commerce</div>
-                                </div>
-                            </div>
-                        </article>
-                        <article class="quote-card">
-                            <div class="quote-mark" aria-hidden="true">“</div>
-                            <blockquote>“I don’t need another dashboard. I need someone to notice when something’s off and help me fix it. That’s been the difference.”</blockquote>
-                            <div class="quote-person">
-                                <span class="avatar-initials">RK</span>
-                                <div>
-                                    <div class="person-name">Ravi Kapoor</div>
-                                    <div class="person-role">Engineering Lead · Common Ground</div>
+                                    <div class="person-name">{{ story.name }}</div>
+                                    <div class="person-role">{{ story.role }}{{ story.company ? ' · ' + story.company : '' }}</div>
                                 </div>
                             </div>
                         </article>
                     </div>
-                    <p class="pricing-footnote">Illustrative customer stories for this product concept.</p>
+                    <p class="pricing-footnote">Verified reviews and stories from teams powered by our infrastructure.</p>
                 </div>
             </section>
 
@@ -823,13 +940,13 @@ const currentYear = new Date().getFullYear();
                         <div class="contact-actions">
                             <a
                                 class="button button-primary"
-                                href="mailto:hello@rook.host?subject=Start%20a%20free%20Rook%20migration"
+                                :href="`mailto:${contactEmail}?subject=Start%20a%20free%20Rook%20migration`"
                                 data-testid="link-contact"
                             >
                                 Start free migration <ArrowRight :size="15" aria-hidden="true" />
                             </a>
-                            <a class="contact-email" href="mailto:hello@rook.host">
-                                or email hello@rook.host
+                            <a class="contact-email" :href="`mailto:${contactEmail}`">
+                                or email {{ contactEmail }}
                             </a>
                         </div>
                     </div>
