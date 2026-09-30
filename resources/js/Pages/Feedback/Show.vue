@@ -73,7 +73,7 @@ const getRatingLabel = computed(() => {
             <div class="text-center mb-8 sm:mb-10">
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold uppercase tracking-wider mb-4 shadow-2xs">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Nimbus by VMCore
+                    Rook Hosting
                 </div>
                 <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
                     {{ form?.title || 'Client Feedback' }}

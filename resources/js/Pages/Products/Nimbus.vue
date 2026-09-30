@@ -619,7 +619,7 @@ const currentYear = new Date().getFullYear();
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <span>© {{ currentYear }} Nimbus by VMCore. All rights reserved.</span>
+                    <span>© {{ currentYear }} Rook Hosting. All rights reserved.</span>
                     <a class="footer-status" :href="`${route('home')}#status`">All Systems Operational</a>
                     <div class="footer-socials">
                         <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub">

@@ -11,17 +11,15 @@ const mobileMenuOpen = ref(false);
 </script>
 
 <template>
-    <Head :title="page.title + ' — Nimbus by VMCore'" />
+    <Head :title="page.title + ' — Rook Hosting'" />
 
     <div class="page-layout">
         <!-- Header / Navbar -->
         <header class="page-navbar">
             <div class="page-navbar__inner">
-                <Link href="/" class="page-navbar__brand">
-                    <div class="page-navbar__logo-box">
-                        <img src="/favicon.png?v=2" alt="Nimbus" class="page-navbar__logo-img" />
-                    </div>
-                    <span class="page-navbar__brand-text">Nimbus <span class="page-navbar__brand-sub">by VMCore</span></span>
+                <Link href="/" class="brand" aria-label="Rook">
+                    <span class="brand-mark" aria-hidden="true">r</span>
+                    <span>ook</span>
                 </Link>
                 <div class="page-navbar__actions">
                     <Link href="/" class="btn btn--outline btn--sm">Back to Home</Link>
@@ -68,7 +66,7 @@ const mobileMenuOpen = ref(false);
         <!-- Footer -->
         <footer class="page-footer">
             <div class="page-container text-center">
-                <p>© 2026 Nimbus by VMCore. All rights reserved.</p>
+                <p>© {{ new Date().getFullYear() }} Rook Hosting by VMCore. All rights reserved.</p>
             </div>
         </footer>
     </div>

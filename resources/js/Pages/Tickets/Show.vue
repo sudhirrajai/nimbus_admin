@@ -169,7 +169,7 @@ const priorityClasses = {
                                             v-if="msg.user?.is_admin"
                                             class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"
                                         >
-                                            Nimbus Engineer
+                                            Rook Engineer
                                         </span>
                                     </div>
                                     <div class="text-[11px] text-gray-400">

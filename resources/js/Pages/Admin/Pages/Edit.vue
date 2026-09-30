@@ -17,7 +17,7 @@ const submit = () => {
 </script>
 
 <template>
-    <Head :title="'Edit Page: ' + page.title + ' — Nimbus by VMCore'" />
+    <Head :title="'Edit Page: ' + page.title + ' — Rook'" />
 
     <AuthenticatedLayout>
         <template #header>

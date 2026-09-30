@@ -79,7 +79,7 @@ class FeedbackFormSeeder extends Seeder
             'collect_company' => true,
             'collect_role' => true,
             'success_title' => 'Thank you for your valuable feedback!',
-            'success_message' => 'Your review has been received by our core engineering team. We appreciate your partnership with Nimbus by VMCore.',
+            'success_message' => 'Your review has been received by our core engineering team. We appreciate your partnership with Rook Hosting.',
         ]);
     }
 }

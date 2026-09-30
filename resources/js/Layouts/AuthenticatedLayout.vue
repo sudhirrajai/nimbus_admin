@@ -59,11 +59,9 @@ const isRouteActive = (routeName) => {
         <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-gray-200 bg-white md:flex md:flex-col transition-all duration-300">
             <!-- Sidebar Header -->
             <div class="flex h-16 items-center gap-3 border-b border-gray-200 px-6">
-                <Link :href="route('dashboard')" class="flex items-center gap-2.5 group">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2 shadow-lg shadow-emerald-500/10 transition-transform group-hover:scale-105">
-                        <ApplicationLogo class="h-5 w-5 fill-white" />
-                    </div>
-                    <span class="text-base font-bold tracking-tight text-gray-900">Nimbus <span class="text-xs font-semibold text-gray-500">by VMCore</span></span>
+                <Link :href="route('dashboard')" class="brand flex items-center" aria-label="Rook Dashboard">
+                    <span class="brand-mark" aria-hidden="true">r</span>
+                    <span class="text-xl font-bold tracking-tight text-gray-900">ook</span>
                 </Link>
             </div>
 
@@ -333,11 +331,9 @@ const isRouteActive = (routeName) => {
             <div class="relative flex w-full max-w-[280px] sm:max-w-xs flex-1 flex-col bg-white border-r border-gray-200 pt-4 pb-4 animate-slide-in shadow-2xl z-10">
                 <!-- Drawer Header with integrated close button -->
                 <div class="flex shrink-0 items-center justify-between gap-2.5 px-5 pb-4 border-b border-gray-200">
-                    <Link :href="route('dashboard')" @click="showingNavigationDropdown = false" class="flex items-center gap-2.5">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 p-2">
-                            <ApplicationLogo class="h-5 w-5 fill-white" />
-                        </div>
-                        <span class="text-base font-bold tracking-tight text-gray-900">Nimbus <span class="text-xs font-semibold text-gray-500">by VMCore</span></span>
+                    <Link :href="route('dashboard')" @click="showingNavigationDropdown = false" class="brand flex items-center" aria-label="Rook Dashboard">
+                        <span class="brand-mark" aria-hidden="true">r</span>
+                        <span class="text-xl font-bold tracking-tight text-gray-900">ook</span>
                     </Link>
                     <button @click="showingNavigationDropdown = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-slate-100 transition-colors" aria-label="Close menu">
                         <span class="material-symbols-rounded text-xl">close</span>
@@ -699,7 +695,7 @@ const isRouteActive = (routeName) => {
             <!-- Footer -->
             <footer class="border-t border-[var(--edge)] py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-[var(--panel)] print:hidden min-w-0">
                 <div class="mx-auto max-w-7xl text-center text-xs text-[var(--text-muted)]">
-                    &copy; {{ new Date().getFullYear() }} Nimbus by VMCore. All rights reserved.
+                    &copy; {{ new Date().getFullYear() }} Rook Hosting by VMCore. All rights reserved.
                 </div>
             </footer>
         </div>

@@ -10,7 +10,7 @@
 </p>
 
 <p style="font-size: 14px; color: #334155; margin: 0 0 24px 0;">
-    Welcome to <strong>Nimbus by VMCore</strong>! Please verify your email address to activate your account and securely deploy cloud servers or manage your self-hosted licenses.
+    Welcome to <strong>Rook Hosting</strong>! Please verify your email address to activate your account and securely deploy cloud servers or manage your products.
 </p>
 
 <div class="button-wrapper">
@@ -20,7 +20,7 @@
 </div>
 
 <p style="font-size: 12px; color: #64748b; margin: 24px 0 0 0; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-    <strong>Security Notice:</strong> This verification link will expire in 60 minutes. If you did not create an account on Nimbus, please ignore this email or contact support.
+    <strong>Security Notice:</strong> This verification link will expire in 60 minutes. If you did not create an account on Rook, please ignore this email or contact support.
 </p>
 
 <p style="font-size: 11px; color: #94a3b8; word-break: break-all; margin-top: 12px;">

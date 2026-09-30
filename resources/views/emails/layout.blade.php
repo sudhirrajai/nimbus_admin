@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ $subject ?? 'Nimbus by VMCore' }}</title>
+    <title>{{ $subject ?? 'Rook Hosting' }}</title>
     <style>
         body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
@@ -37,8 +37,8 @@
                         <!-- Brand Header -->
                         <tr>
                             <td class="header">
-                                <div class="header-title">Nimbus <span style="font-weight: 500; opacity: 0.9;">by VMCore</span></div>
-                                <div class="header-sub">Cloud Server Infrastructure &amp; Licensing</div>
+                                <div class="header-title">Rook <span style="font-weight: 500; opacity: 0.9;">Hosting</span></div>
+                                <div class="header-sub">Managed Cloud Infrastructure &amp; Products</div>
                             </td>
                         </tr>
 
@@ -54,10 +54,10 @@
                             <td class="footer">
                                 <p style="margin: 0 0 8px 0;">
                                     Questions or need assistance? Reach out to us at 
-                                    <a href="mailto:{{ $supportEmail ?? 'support@vmcore.in' }}">{{ $supportEmail ?? 'support@vmcore.in' }}</a>
+                                    <a href="mailto:{{ $supportEmail ?? 'support@rook.host' }}">{{ $supportEmail ?? 'support@rook.host' }}</a>
                                 </p>
                                 <p style="margin: 0; font-size: 11px; color: #94a3b8;">
-                                    &copy; {{ date('Y') }} Nimbus by VMCore. All rights reserved.<br/>
+                                    &copy; {{ date('Y') }} Rook Hosting by VMCore. All rights reserved.<br/>
                                     Automated cloud infrastructure notification.
                                 </p>
                             </td>

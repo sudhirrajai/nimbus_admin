@@ -47,7 +47,7 @@ const formatDate = (dateStr) => {
                         Managed Cloud Hosting
                     </h2>
                     <p class="text-xs text-gray-500 mt-1">
-                        High-performance cloud servers fully maintained, secured, and backed up by VMCORE engineers.
+                        High-performance cloud servers fully maintained, secured, and backed up by Rook engineers.
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -258,7 +258,7 @@ const formatDate = (dateStr) => {
                             <span class="material-symbols-rounded text-emerald-600">cloud_upload</span>
                             Request Managed Cloud Hosting
                         </h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Let our engineers set up and configure high-performance Nimbus hosting.</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Let our engineers set up and configure high-performance Rook hosting.</p>
                     </div>
                     <button @click="showRequestModal = false" class="text-gray-400 hover:text-gray-600">
                         <span class="material-symbols-rounded">close</span>

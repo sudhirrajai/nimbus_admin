@@ -26,7 +26,7 @@ class InvoiceNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         $statusText = $this->invoice->status === 'paid' ? 'Payment Receipt' : 'Invoice';
-        $subject = "{$statusText} #{$this->invoice->invoice_number} - Nimbus by VMCore";
+        $subject = "{$statusText} #{$this->invoice->invoice_number} - Rook Hosting";
 
         return (new MailMessage)
             ->subject($subject)

@@ -136,7 +136,7 @@ const numberToWords = (num) => {
                                 {{ invoice.status }}
                             </span>
                         </div>
-                        <p class="text-[11px] text-gray-500 mt-0.5">Nimbus by VMCore Official Invoice</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5">Rook Hosting Official Invoice</p>
                     </div>
                 </div>
 
@@ -173,15 +173,11 @@ const numberToWords = (num) => {
                     <!-- Left: Brand Logo & Tagline -->
                     <div class="space-y-1.5">
                         <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 p-2 shadow-xs text-white">
-                                <ApplicationLogo class="h-6 w-6 fill-white" />
+                            <div class="brand flex items-center" aria-label="Rook">
+                                <span class="brand-mark" aria-hidden="true">r</span>
+                                <span class="text-2xl font-black tracking-tight text-gray-950 font-sans">ook</span>
                             </div>
-                            <div>
-                                <span class="text-2xl font-black tracking-tight text-gray-950 font-sans block leading-none">
-                                    Nimbus <span class="text-emerald-600 font-bold">by VMCore</span>
-                                </span>
-                                <span class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase block mt-1">Cloud Server Infrastructure</span>
-                            </div>
+                            <span class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase block ml-1">Managed Cloud &amp; Products</span>
                         </div>
                         <p class="text-xs text-gray-500 font-medium pl-0.5">
                             {{ company?.tagline || 'Your Hosting, Our Responsibility.' }}
@@ -190,7 +186,7 @@ const numberToWords = (num) => {
 
                     <!-- Right: Dynamic Owner Company Details -->
                     <div class="text-left sm:text-right text-xs text-gray-700 leading-relaxed space-y-1">
-                        <div class="font-black text-gray-950 text-sm">{{ company?.name || 'Nimbus by VMCore' }}</div>
+                        <div class="font-black text-gray-950 text-sm">{{ company?.name || 'Rook Hosting' }}</div>
                         <div v-if="company?.address_line1">{{ company.address_line1 }}</div>
                         <div v-if="company?.address_line2">{{ company.address_line2 }}</div>
                         <div v-if="company?.phone" class="font-medium text-gray-800">Phone: {{ company.phone }}</div>
@@ -353,12 +349,12 @@ const numberToWords = (num) => {
                 <!-- 6. CLEAN MINIMAL FOOTER -->
                 <div class="mt-14 pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3">
                     <div class="space-y-0.5 text-center sm:text-left">
-                        <div class="font-semibold text-gray-700">Thank you for choosing Nimbus by VMCore!</div>
-                        <div class="text-[11px] text-gray-400">For support, contact {{ company?.support_email || 'support@vmcore.in' }}</div>
+                        <div class="font-semibold text-gray-700">Thank you for choosing Rook Hosting!</div>
+                        <div class="text-[11px] text-gray-400">For support, contact {{ company?.support_email || 'support@rook.host' }}</div>
                     </div>
                     <div class="text-center sm:text-right text-[11px] text-gray-400 space-y-0.5">
                         <div>PDF Generated on {{ formatOrdinalDate(new Date()) }}</div>
-                        <div>Nimbus by VMCore &bull; Computer Generated Invoice</div>
+                        <div>Rook Hosting &bull; Computer Generated Invoice</div>
                     </div>
                 </div>
 

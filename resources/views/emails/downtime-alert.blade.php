@@ -11,7 +11,7 @@
         Website Service Interruption
     </h1>
     <p style="margin: 0; font-size: 14px; color: #64748b;">
-        Nimbus Automated Uptime Monitor detected that client domain <strong style="color: #0f172a; font-family: monospace;">{{ $domain }}</strong> is currently unreachable or returned a non-200 status code.
+        Rook Automated Uptime Monitor detected that client domain <strong style="color: #0f172a; font-family: monospace;">{{ $domain }}</strong> is currently unreachable or returned a non-200 status code.
     </p>
 </div>
 
@@ -76,7 +76,7 @@
 <!-- CTA Button -->
 <div class="button-wrapper" style="text-align: center; margin: 32px 0 16px 0;">
     <a href="{{ $adminUrl }}" class="btn-primary" style="background-color: #0f172a; color: #ffffff !important; border-radius: 8px; padding: 12px 28px; text-decoration: none; font-weight: 700; font-size: 13px; display: inline-block;">
-        Open Nimbus Hosting Console
+        Open Rook Hosting Console
     </a>
 </div>
 @endsection

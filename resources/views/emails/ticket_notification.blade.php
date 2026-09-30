@@ -1,4 +1,4 @@
-@extends('emails.layout', ['subject' => $subject ?? 'Support Ticket Update - Nimbus by VMCore'])
+@extends('emails.layout', ['subject' => $subject ?? 'Support Ticket Update - Rook Hosting'])
 
 @section('content')
     <div style="margin-bottom: 20px;">
@@ -21,7 +21,7 @@
     @if(!empty($latestMessage))
         <div style="margin: 20px 0; padding: 18px 20px; background-color: #f8fafc; border-left: 4px solid #10b981; border-radius: 6px; font-size: 14px; color: #1e293b; line-height: 1.6;">
             <div style="font-weight: 700; font-size: 12px; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">
-                {{ $senderName ?? 'Nimbus Support Team' }} wrote:
+                {{ $senderName ?? 'Rook Support Team' }} wrote:
             </div>
             {!! nl2br(e($latestMessage)) !!}
         </div>

@@ -77,7 +77,7 @@ const buySelfHostPlan = async (plan) => {
             key: data.key_id,
             amount: data.amount,
             currency: "INR",
-            name: "Nimbus by VMCore",
+            name: "Rook Hosting",
             description: `${plan.name} License Purchase`,
             order_id: data.order_id,
             handler: function (response) {
@@ -216,7 +216,7 @@ const getFeatures = (plan) => {
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-rounded text-emerald-600 text-2xl">support_agent</span>
                         <div>
-                            <div class="text-sm font-bold text-gray-900">Zero Maintenance &bull; Fully Managed by Nimbus Engineers</div>
+                            <div class="text-sm font-bold text-gray-900">Zero Maintenance &bull; Fully Managed by Rook Engineers</div>
                             <div class="text-xs text-gray-600 mt-0.5">High-speed NVMe nodes, 24/7 security monitoring, automated backups, and 99.9% uptime SLA included.</div>
                         </div>
                     </div>
@@ -387,7 +387,7 @@ const getFeatures = (plan) => {
                             <span class="material-symbols-rounded text-emerald-600">cloud_upload</span>
                             Request {{ selectedPlanForHosting?.name || 'Managed Cloud Hosting' }}
                         </h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Let our engineers set up and configure high-performance Nimbus hosting.</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Let our engineers set up and configure high-performance Rook hosting.</p>
                     </div>
                     <button @click="showHostingModal = false" class="text-gray-400 hover:text-gray-600">
                         <span class="material-symbols-rounded">close</span>

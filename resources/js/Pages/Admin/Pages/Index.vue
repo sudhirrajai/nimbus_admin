@@ -18,7 +18,7 @@ const formatDate = (dateStr) => {
 </script>
 
 <template>
-    <Head title="Static Pages Management — Nimbus by VMCore" />
+    <Head title="Static Pages Management — Rook" />
 
     <AuthenticatedLayout>
         <template #header>
