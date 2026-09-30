@@ -8,6 +8,7 @@ import {
     ArrowRight,
     ArrowUpRight,
     Check,
+    ChevronDown,
     CircleHelp,
     Clock3,
     Cloud,
@@ -15,6 +16,7 @@ import {
     Database,
     Github,
     HardDrive,
+    Layers,
     Mail,
     Menu,
     Moon,
@@ -22,6 +24,7 @@ import {
     Server,
     ShieldCheck,
     Sun,
+    Terminal,
     Workflow,
     X,
 } from 'lucide-vue-next';
@@ -34,6 +37,8 @@ const openFaq = ref(0);
 const lightTheme = ref(false);
 const menuOpen = ref(false);
 const motionReady = ref(false);
+const productsOpen = ref(false);
+const productsDropdownRef = ref(null);
 
 const features = [
     {
@@ -203,11 +208,22 @@ onMounted(() => {
 
     revealTargets.forEach((target) => revealObserver.observe(target));
     motionReady.value = true;
+
+    const handleOutsideClick = (e) => {
+        if (productsDropdownRef.value && !productsDropdownRef.value.contains(e.target)) {
+            productsOpen.value = false;
+        }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    window._cleanupProductsDropdown = () => document.removeEventListener('click', handleOutsideClick);
 });
 
 onUnmounted(() => {
     if (revealObserver) {
         revealObserver.disconnect();
+    }
+    if (window._cleanupProductsDropdown) {
+        window._cleanupProductsDropdown();
     }
 });
 
@@ -218,6 +234,7 @@ const toggleTheme = () => {
 
 const closeMenu = () => {
     menuOpen.value = false;
+    productsOpen.value = false;
 };
 
 const toggleFaq = (index) => {
@@ -244,6 +261,57 @@ const currentYear = new Date().getFullYear();
                 </a>
 
                 <nav :class="['nav-links', { 'is-open': menuOpen }]" aria-label="Main navigation">
+                    <!-- Products Dropdown -->
+                    <div class="products-dropdown-container" ref="productsDropdownRef">
+                        <button
+                            type="button"
+                            @click.stop="productsOpen = !productsOpen"
+                            class="products-dropdown-trigger"
+                            :aria-expanded="productsOpen"
+                        >
+                            <span>Products</span>
+                            <ChevronDown :size="13" :class="['dropdown-arrow', { 'is-rotated': productsOpen }]" aria-hidden="true" />
+                        </button>
+                        
+                        <div v-show="productsOpen" class="products-dropdown-menu">
+                            <a href="#features" @click="closeMenu" class="dropdown-item">
+                                <div class="dropdown-item-icon">
+                                    <Cloud :size="16" />
+                                </div>
+                                <div class="dropdown-item-text">
+                                    <div class="dropdown-item-title">
+                                        Managed Cloud Hosting
+                                        <span class="dropdown-badge">Flagship</span>
+                                    </div>
+                                    <p class="dropdown-item-desc">Enterprise managed servers, SRE care &amp; 99.99% uptime.</p>
+                                </div>
+                            </a>
+
+                            <Link :href="route('products.nimbus')" @click="closeMenu" class="dropdown-item">
+                                <div class="dropdown-item-icon nimbus-icon">
+                                    <Terminal :size="16" />
+                                </div>
+                                <div class="dropdown-item-text">
+                                    <div class="dropdown-item-title">
+                                        Nimbus Control Panel
+                                        <span class="dropdown-badge nimbus-badge">Software</span>
+                                    </div>
+                                    <p class="dropdown-item-desc">Self-hosted Linux server management &amp; Docker.</p>
+                                </div>
+                            </Link>
+
+                            <a href="#stack" @click="closeMenu" class="dropdown-item">
+                                <div class="dropdown-item-icon">
+                                    <Layers :size="16" />
+                                </div>
+                                <div class="dropdown-item-text">
+                                    <div class="dropdown-item-title">App Stacks &amp; Runtimes</div>
+                                    <p class="dropdown-item-desc">Laravel, WordPress, Node.js, Docker &amp; databases.</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                     <a href="#features" @click="closeMenu" data-testid="link-features">Features</a>
                     <a href="#pricing" @click="closeMenu" data-testid="link-pricing">Pricing</a>
                     <a href="#stack" @click="closeMenu" data-testid="link-stack">Stack</a>

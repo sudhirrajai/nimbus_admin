@@ -32,6 +32,19 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/products/nimbus', function () {
+    $selfHostedPlans = \App\Models\Plan::where('is_active', true)
+        ->selfHosted()
+        ->orderBy('price_usd')
+        ->get();
+
+    return Inertia::render('Products/Nimbus', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'plans' => $selfHostedPlans,
+    ]);
+})->name('products.nimbus');
+
 use App\Http\Controllers\UserLicenseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminLicenseController;
