@@ -53,14 +53,14 @@ const formatDate = (dateStr) => {
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <button 
                         @click="showRequestModal = true"
-                        class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                        class="button button-primary button-small inline-flex items-center gap-2 cursor-pointer"
                     >
                         <span class="material-symbols-rounded text-sm">add_circle</span>
                         Request New Instance
                     </button>
                     <Link 
                         :href="route('store.index') + '?tab=managed_hosting'" 
-                        class="bg-slate-100 hover:bg-slate-200 text-gray-800 border border-gray-200 px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm flex items-center gap-2"
+                        class="button button-outline button-small inline-flex items-center gap-2"
                     >
                         <span class="material-symbols-rounded text-sm">shopping_cart</span>
                         View Cloud Packages
@@ -196,13 +196,13 @@ const formatDate = (dateStr) => {
                 <div class="mt-4 flex items-center justify-center gap-3">
                     <button 
                         @click="showRequestModal = true"
-                        class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wide transition-all shadow-sm"
+                        class="button button-primary button-small inline-flex items-center gap-2"
                     >
                         Request Cloud Instance
                     </button>
                     <Link 
                         :href="route('store.index') + '?tab=managed_hosting'" 
-                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-gray-800 border border-gray-200 rounded-lg text-xs font-semibold uppercase tracking-wide transition-all"
+                        class="button button-outline button-small inline-flex items-center gap-2"
                     >
                         Browse Packages
                     </Link>

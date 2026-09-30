@@ -1,11 +1,8 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ArrowRight, Lock, Mail } from 'lucide-vue-next';
 
 defineProps({
     canResetPassword: {
@@ -31,72 +28,102 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="Sign In — Rook Hosting" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
+        <div class="mb-6 text-center">
+            <h2 class="text-2xl font-bold font-display tracking-tight text-[var(--text)]">
+                Welcome back
+            </h2>
+            <p class="text-xs text-[var(--text-muted)] mt-1">
+                Enter your credentials to access your hosting workspace
+            </p>
+        </div>
+
+        <div v-if="status" class="mb-4 p-3 rounded-lg bg-[var(--green-wash)] border border-[var(--edge)] text-xs font-medium text-[var(--accent)]">
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit" class="space-y-6">
+        <form @submit.prevent="submit" class="space-y-4">
             <div>
-                <InputLabel for="email" value="Email Address" class="text-gray-750 mb-1.5 ml-1" />
+                <label for="email" class="block text-xs font-semibold text-[var(--text)] mb-1.5">
+                    Email Address
+                </label>
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    v-model="form.email"
-                    placeholder="name@company.com"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
+                <div class="relative">
+                    <input
+                        id="email"
+                        type="email"
+                        v-model="form.email"
+                        placeholder="name@company.com"
+                        required
+                        autofocus
+                        autocomplete="username"
+                        class="w-full rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] px-3.5 py-2.5 text-sm text-[var(--text)] placeholder-[var(--text-muted)] shadow-xs transition-all focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+                    />
+                </div>
 
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.email" />
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-1.5 ml-1">
-                    <InputLabel for="password" value="Password" class="text-gray-750" />
+                <div class="flex items-center justify-between mb-1.5">
+                    <label for="password" class="block text-xs font-semibold text-[var(--text)]">
+                        Password
+                    </label>
                     <Link
                         v-if="canResetPassword"
                         :href="route('password.request')"
-                        class="text-xs font-medium text-gray-500 hover:text-emerald-500 transition-colors"
+                        class="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
                     >
-                        Forgot?
+                        Forgot password?
                     </Link>
                 </div>
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    v-model="form.password"
-                    placeholder="••••••••"
-                    required
-                    autocomplete="current-password"
-                />
+                <div class="relative">
+                    <input
+                        id="password"
+                        type="password"
+                        v-model="form.password"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password"
+                        class="w-full rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] px-3.5 py-2.5 text-sm text-[var(--text)] placeholder-[var(--text-muted)] shadow-xs transition-all focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+                    />
+                </div>
 
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.password" />
             </div>
 
-            <div class="flex items-center">
-                <Checkbox name="remember" v-model:checked="form.remember" class="border-gray-300 bg-white text-emerald-600 focus:ring-emerald-500/20" />
-                <span class="ms-2 text-sm text-gray-400">Keep me logged in</span>
+            <div class="flex items-center justify-between pt-1">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                        type="checkbox"
+                        v-model="form.remember"
+                        class="h-4 w-4 rounded border-[var(--edge)] bg-[var(--panel-hi)] text-[var(--accent)] focus:ring-[var(--accent)]/20"
+                    />
+                    <span class="text-xs text-[var(--text-soft)]">Remember this device</span>
+                </label>
             </div>
 
             <div class="pt-2">
-                <PrimaryButton
-                    :class="{ 'opacity-50 cursor-not-allowed': form.processing }"
+                <button
+                    type="submit"
+                    class="button button-primary w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-sm"
+                    :class="{ 'opacity-60 cursor-not-allowed': form.processing }"
                     :disabled="form.processing"
                 >
-                    <span v-if="form.processing">Signing in...</span>
-                    <span v-else>Sign In</span>
-                </PrimaryButton>
+                    <span v-if="form.processing">Authenticating...</span>
+                    <template v-else>
+                        <span>Sign In</span>
+                        <ArrowRight :size="15" />
+                    </template>
+                </button>
             </div>
 
-            <p class="text-center text-sm text-gray-400">
-                Don't have an account? 
-                <Link :href="route('register')" class="font-semibold text-emerald-500 hover:text-emerald-600 transition-colors underline">
-                    Create one for free
+            <p class="text-center text-xs text-[var(--text-muted)] pt-3">
+                Don't have an account yet? 
+                <Link :href="route('register')" class="font-semibold text-[var(--accent)] hover:underline ml-1">
+                    Create account
                 </Link>
             </p>
         </form>

@@ -793,18 +793,45 @@ a { color: inherit; }
   border-color: var(--edge) !important;
 }
 
-.rook-dashboard .text-gray-900 {
+.rook-dashboard .text-gray-950,
+.rook-dashboard .text-gray-900,
+.rook-dashboard .text-gray-850,
+.rook-dashboard .text-gray-800,
+.rook-dashboard .text-gray-750,
+.rook-dashboard .text-slate-900,
+.rook-dashboard .text-slate-850,
+.rook-dashboard .text-slate-800 {
   color: var(--text) !important;
 }
 
 .rook-dashboard .text-gray-700,
-.rook-dashboard .text-gray-600 {
+.rook-dashboard .text-gray-650,
+.rook-dashboard .text-gray-600,
+.rook-dashboard .text-slate-700,
+.rook-dashboard .text-slate-600 {
   color: var(--text-soft) !important;
 }
 
+.rook-dashboard .text-gray-550,
 .rook-dashboard .text-gray-500,
-.rook-dashboard .text-gray-400 {
+.rook-dashboard .text-gray-400,
+.rook-dashboard .text-slate-500,
+.rook-dashboard .text-slate-400 {
   color: var(--text-muted) !important;
+}
+
+.rook-dashboard .bg-slate-100,
+.rook-dashboard .bg-slate-200 {
+  background-color: var(--panel-hi) !important;
+  color: var(--text) !important;
+  border-color: var(--edge) !important;
+}
+
+.rook-dashboard .bg-slate-100:hover,
+.rook-dashboard .bg-slate-200:hover,
+.rook-dashboard .hover\:bg-slate-200:hover {
+  background-color: var(--edge-strong) !important;
+  color: var(--text) !important;
 }
 
 .rook-dashboard .text-emerald-500,

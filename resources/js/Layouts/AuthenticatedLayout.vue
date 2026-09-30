@@ -85,19 +85,6 @@ const isRouteActive = (routeName) => {
                 </Link>
 
                 <Link 
-                    :href="route('self-host.index')" 
-                    :class="[
-                        route().current('self-host.*') 
-                            ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                            : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
-                    ]"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
-                >
-                    <span class="material-symbols-rounded text-lg">terminal</span>
-                    Nimbus Self-Host
-                </Link>
-
-                <Link 
                     :href="route('hosting.client.index')" 
                     :class="[
                         route().current('hosting.client.*') 
@@ -372,20 +359,6 @@ const isRouteActive = (routeName) => {
                     >
                         <span class="material-symbols-rounded text-lg">dashboard</span>
                         Dashboard
-                    </Link>
-
-                    <Link 
-                        :href="route('self-host.index')" 
-                        @click="showingNavigationDropdown = false"
-                        :class="[
-                            route().current('self-host.*') 
-                                ? 'bg-slate-50 text-emerald-600 font-semibold border-l-2 border-emerald-500' 
-                                : 'text-gray-500 hover:bg-slate-50 hover:text-gray-900'
-                        ]"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all mt-1"
-                    >
-                        <span class="material-symbols-rounded text-lg">terminal</span>
-                        Nimbus Self-Host
                     </Link>
 
                     <Link 

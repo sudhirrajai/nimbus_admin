@@ -1,10 +1,8 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ArrowRight } from 'lucide-vue-next';
 
 const form = useForm({
     name: '',
@@ -22,91 +20,110 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head title="Create Account — Rook Hosting" />
 
-        <form @submit.prevent="submit" class="space-y-5">
+        <div class="mb-6 text-center">
+            <h2 class="text-2xl font-bold font-display tracking-tight text-[var(--text)]">
+                Create your account
+            </h2>
+            <p class="text-xs text-[var(--text-muted)] mt-1">
+                Get started with managed cloud hosting and server software
+            </p>
+        </div>
+
+        <form @submit.prevent="submit" class="space-y-4">
             <div>
-                <InputLabel for="name" value="Full Name" class="text-gray-750 mb-1.5 ml-1" />
+                <label for="name" class="block text-xs font-semibold text-[var(--text)] mb-1.5">
+                    Full Name
+                </label>
 
-                <TextInput
+                <input
                     id="name"
                     type="text"
                     v-model="form.name"
-                    placeholder="John Doe"
+                    placeholder="Alex Morgan"
                     required
                     autofocus
                     autocomplete="name"
+                    class="w-full rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] px-3.5 py-2.5 text-sm text-[var(--text)] placeholder-[var(--text-muted)] shadow-xs transition-all focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
                 />
 
-                <InputError class="mt-2" :message="form.errors.name" />
+                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.name" />
             </div>
 
             <div>
-                <InputLabel for="email" value="Email Address" class="text-gray-750 mb-1.5 ml-1" />
+                <label for="email" class="block text-xs font-semibold text-[var(--text)] mb-1.5">
+                    Work Email
+                </label>
 
-                <TextInput
+                <input
                     id="email"
                     type="email"
                     v-model="form.email"
                     placeholder="name@company.com"
                     required
                     autocomplete="username"
+                    class="w-full rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] px-3.5 py-2.5 text-sm text-[var(--text)] placeholder-[var(--text-muted)] shadow-xs transition-all focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
                 />
 
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.email" />
             </div>
 
             <div>
-                <InputLabel for="password" value="Password" class="text-gray-750 mb-1.5 ml-1" />
+                <label for="password" class="block text-xs font-semibold text-[var(--text)] mb-1.5">
+                    Password
+                </label>
 
-                <TextInput
+                <input
                     id="password"
                     type="password"
                     v-model="form.password"
-                    placeholder="••••••••"
+                    placeholder="At least 8 characters"
                     required
                     autocomplete="new-password"
+                    class="w-full rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] px-3.5 py-2.5 text-sm text-[var(--text)] placeholder-[var(--text-muted)] shadow-xs transition-all focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
                 />
 
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.password" />
             </div>
 
             <div>
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                    class="text-gray-750 mb-1.5 ml-1"
-                />
+                <label for="password_confirmation" class="block text-xs font-semibold text-[var(--text)] mb-1.5">
+                    Confirm Password
+                </label>
 
-                <TextInput
+                <input
                     id="password_confirmation"
                     type="password"
                     v-model="form.password_confirmation"
-                    placeholder="••••••••"
+                    placeholder="Repeat password"
                     required
                     autocomplete="new-password"
+                    class="w-full rounded-xl border border-[var(--edge)] bg-[var(--panel-hi)] px-3.5 py-2.5 text-sm text-[var(--text)] placeholder-[var(--text-muted)] shadow-xs transition-all focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
                 />
 
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
+                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="pt-4">
-                <PrimaryButton
-                    :class="{ 'opacity-50 cursor-not-allowed': form.processing }"
+            <div class="pt-2">
+                <button
+                    type="submit"
+                    class="button button-primary w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-sm"
+                    :class="{ 'opacity-60 cursor-not-allowed': form.processing }"
                     :disabled="form.processing"
                 >
                     <span v-if="form.processing">Creating account...</span>
-                    <span v-else>Create Account</span>
-                </PrimaryButton>
+                    <template v-else>
+                        <span>Create Account</span>
+                        <ArrowRight :size="15" />
+                    </template>
+                </button>
             </div>
 
-            <p class="text-center text-sm text-gray-400">
+            <p class="text-center text-xs text-[var(--text-muted)] pt-3">
                 Already have an account? 
-                <Link :href="route('login')" class="font-semibold text-emerald-500 hover:text-emerald-600 transition-colors underline">
-                    Sign in here
+                <Link :href="route('login')" class="font-semibold text-[var(--accent)] hover:underline ml-1">
+                    Sign in
                 </Link>
             </p>
         </form>
