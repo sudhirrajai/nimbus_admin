@@ -28,102 +28,87 @@ const submit = () => {
 
 <template>
     <GuestLayout
-        kicker="— WELCOME BACK"
-        title="Sign in to your account"
-        subtitle="Access your Roook workspace and keep your infrastructure close."
+        kicker="Good to have you back"
+        title="Sign in to Roook"
+        subtitle="Pick up where you left off with your hosting team."
     >
         <Head title="Sign In — Roook Hosting" />
 
-        <div v-if="status" class="mb-5 p-3 rounded-xl bg-[#0e251a] border border-[#1e4630] text-xs font-medium text-[#34d399]">
+        <div v-if="status" class="auth-notice" role="status">
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit" class="space-y-4">
-            <div>
-                <label for="email" class="block text-xs font-semibold text-[#c8d6ce] mb-1.5">
-                    Work email
-                </label>
-
+        <form class="auth-form" @submit.prevent="submit">
+            <div class="auth-field">
+                <label for="auth-email">Work email</label>
                 <input
-                    id="email"
+                    id="auth-email"
+                    name="email"
                     type="email"
                     v-model="form.email"
+                    autocomplete="email"
                     placeholder="you@yourcompany.com"
                     required
                     autofocus
-                    autocomplete="username"
-                    class="w-full rounded-xl border border-[#1b2b22] bg-[#0c130f] px-4 py-3 text-sm text-white placeholder-[#3f5247] shadow-inner transition-colors focus:border-[#34d399] focus:outline-none focus:ring-1 focus:ring-[#34d399]"
                 />
-
-                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.email" />
+                <InputError class="mt-1 text-xs text-red-400" :message="form.errors.email" />
             </div>
 
-            <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label for="password" class="block text-xs font-semibold text-[#c8d6ce]">
-                        Password
-                    </label>
+            <div class="auth-field">
+                <div class="auth-label-line">
+                    <label for="auth-password">Password</label>
                     <Link
                         v-if="canResetPassword"
                         :href="route('password.request')"
-                        class="text-xs text-[#7e9287] hover:text-[#7fe0a6] transition-colors"
+                        class="auth-label-note hover:text-[var(--accent)] transition-colors"
                     >
                         Forgot password?
                     </Link>
                 </div>
-
                 <input
-                    id="password"
+                    id="auth-password"
+                    name="password"
                     type="password"
                     v-model="form.password"
-                    placeholder="At least 8 characters"
-                    required
                     autocomplete="current-password"
-                    class="w-full rounded-xl border border-[#1b2b22] bg-[#0c130f] px-4 py-3 text-sm text-white placeholder-[#3f5247] shadow-inner transition-colors focus:border-[#34d399] focus:outline-none focus:ring-1 focus:ring-[#34d399]"
+                    placeholder="Enter your password"
+                    required
                 />
-
-                <InputError class="mt-1.5 text-xs text-red-400" :message="form.errors.password" />
+                <InputError class="mt-1 text-xs text-red-400" :message="form.errors.password" />
             </div>
 
-            <div class="flex items-center justify-between pt-0.5">
-                <label class="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                        type="checkbox"
-                        v-model="form.remember"
-                        class="h-4 w-4 rounded border-[#1b2b22] bg-[#0c130f] text-[#34d399] focus:ring-[#34d399]/20 focus:ring-offset-0"
-                    />
-                    <span class="text-xs text-[#7e9287]">Remember this device</span>
-                </label>
+            <div class="flex items-center gap-2 pt-1 select-none">
+                <input
+                    id="auth-remember"
+                    type="checkbox"
+                    v-model="form.remember"
+                    class="rounded border-[var(--edge-strong)] bg-[var(--panel)] text-[var(--accent)] focus:ring-[var(--accent)] cursor-pointer"
+                />
+                <label for="auth-remember" class="text-xs text-[var(--text-soft)] cursor-pointer">Remember this device</label>
             </div>
 
-            <div class="pt-2">
-                <button
-                    type="submit"
-                    class="w-full py-3.5 px-4 rounded-xl bg-[#7fe0a6] hover:bg-[#95f3bd] text-[#06180e] font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-150 shadow-sm active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-                    :disabled="form.processing"
-                >
-                    <span v-if="form.processing">Signing in...</span>
-                    <template v-else>
-                        <span>Sign in</span>
-                        <ArrowRight :size="15" />
-                    </template>
-                </button>
-            </div>
-
-            <div class="text-center pt-3 space-y-2">
-                <p class="text-xs text-[#7e9287]">
-                    Don't have a Roook account? 
-                    <Link :href="route('register')" class="font-semibold text-[#7fe0a6] hover:underline ml-1">
-                        Create account
-                    </Link>
-                </p>
-                <p class="text-xs text-[#52665b]">
-                    Need a hand? 
-                    <a href="mailto:support@roook.host" class="font-medium text-[#7fe0a6] hover:underline ml-1">
-                        Talk to an engineer
-                    </a>
-                </p>
-            </div>
+            <button
+                class="button button-primary auth-submit cursor-pointer"
+                type="submit"
+                :disabled="form.processing"
+            >
+                <span v-if="form.processing">Signing in...</span>
+                <template v-else>
+                    <span>Sign in</span>
+                    <ArrowRight :size="15" aria-hidden="true" />
+                </template>
+            </button>
         </form>
+
+        <div class="auth-switch">
+            New to Roook?
+            <Link :href="route('register')" class="ml-1">
+                Create an account
+            </Link>
+        </div>
+
+        <div class="auth-support">
+            Need a hand? <a href="mailto:support@roook.host?subject=Roook%20account%20help">Talk to an engineer</a>
+        </div>
     </GuestLayout>
 </template>
