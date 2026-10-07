@@ -43,17 +43,17 @@ class InvoiceController extends Controller
         }
 
         $company = [
-            'name' => $settings['company_name'] ?? 'Rook Hosting',
-            'brand' => $settings['site_name'] ?? 'Rook Hosting',
+            'name' => $settings['company_name'] ?? 'Roook Hosting',
+            'brand' => $settings['site_name'] ?? 'Roook Hosting',
             'tagline' => 'Your Hosting, Our Responsibility.',
             'address_line1' => $settings['company_address_line1'] ?? '#104, Tech Park Boulevard',
             'address_line2' => $settings['company_address_line2'] ?? 'Bangalore - 560038, Karnataka, India',
             'email' => $settings['company_email'] ?? 'billing@vmcore.in',
-            'support_email' => $settings['company_email'] ?? 'support@rook.host',
+            'support_email' => $settings['company_email'] ?? 'support@roook.host',
             'phone' => $settings['company_phone'] ?? '+91 80 4567 8900',
-            'website' => $settings['company_website'] ?? 'https://rook.host',
+            'website' => $settings['company_website'] ?? 'https://roook.host',
             'bank_name' => $settings['bank_name'] ?? 'HDFC Bank Ltd.',
-            'bank_account_name' => $settings['bank_account_name'] ?? ($settings['company_name'] ?? 'Rook Hosting'),
+            'bank_account_name' => $settings['bank_account_name'] ?? ($settings['company_name'] ?? 'Roook Hosting'),
             'bank_account' => $settings['bank_account'] ?? '50200088991122',
             'bank_ifsc' => $settings['bank_ifsc'] ?? 'HDFC0001234',
             'bank_branch' => $settings['bank_branch'] ?? 'Indiranagar Branch, Bangalore',

@@ -69,7 +69,7 @@ const copyToClipboard = async (text, id) => {
 </script>
 
 <template>
-    <Head title="Dashboard - Rook" />
+    <Head title="Dashboard - Roook" />
 
     <AuthenticatedLayout>
         <template #header>

@@ -11,15 +11,15 @@ const mobileMenuOpen = ref(false);
 </script>
 
 <template>
-    <Head :title="page.title + ' — Rook Hosting'" />
+    <Head :title="page.title + ' — Roook Hosting'" />
 
     <div class="page-layout">
         <!-- Header / Navbar -->
         <header class="page-navbar">
             <div class="page-navbar__inner">
-                <Link href="/" class="brand" aria-label="Rook">
+                <Link href="/" class="brand" aria-label="Roook">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span>rook</span>
+                    <span>roook</span>
                 </Link>
                 <div class="page-navbar__actions">
                     <Link href="/" class="btn btn--outline btn--sm">Back to Home</Link>
@@ -66,7 +66,7 @@ const mobileMenuOpen = ref(false);
         <!-- Footer -->
         <footer class="page-footer">
             <div class="page-container text-center">
-                <p>© {{ new Date().getFullYear() }} Rook Hosting by VMCore. All rights reserved.</p>
+                <p>© {{ new Date().getFullYear() }} Roook Hosting by VMCore. All rights reserved.</p>
             </div>
         </footer>
     </div>

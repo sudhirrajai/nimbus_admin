@@ -1,4 +1,4 @@
-@extends('emails.layout', ['subject' => $subject ?? 'Thank you for your feedback - Rook Hosting'])
+@extends('emails.layout', ['subject' => $subject ?? 'Thank you for your feedback - Roook Hosting'])
 
 @section('content')
     <h2 style="margin: 0 0 16px; font-size: 20px; font-weight: 700; color: #0f172a;">
@@ -6,7 +6,7 @@
     </h2>
 
     <p style="margin: 0 0 16px; font-size: 15px; color: #334155; line-height: 1.6;">
-        Thank you for taking the time to review your experience with <strong>{{ $form->title }}</strong>! Your input is genuinely appreciated and helps our engineering team continuously refine Rook cloud hosting, panel features, and infrastructure performance.
+        Thank you for taking the time to review your experience with <strong>{{ $form->title }}</strong>! Your input is genuinely appreciated and helps our engineering team continuously refine Roook cloud hosting, panel features, and infrastructure performance.
     </p>
 
     <p style="margin: 0 0 20px; font-size: 14px; color: #64748b;">
@@ -117,7 +117,7 @@
 
     <div class="button-wrapper" style="text-align: center; margin: 28px 0;">
         <a href="{{ url('/dashboard') }}" class="btn-primary" style="background-color: #10B981; color: #ffffff !important; padding: 13px 30px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-block; font-size: 13px;">
-            Go to Rook Dashboard &rarr;
+            Go to Roook Dashboard &rarr;
         </a>
     </div>
 @endsection

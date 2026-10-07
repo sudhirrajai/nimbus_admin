@@ -19,8 +19,8 @@
 
 <p style="font-size: 14px; color: #334155; margin: 0 0 24px 0;">
     {{ $invoice->status === 'paid' 
-        ? 'Thank you for your payment. Here is your official payment receipt for your Rook services.' 
-        : 'A new invoice has been generated for your Rook services. Please find the billing details below.' }}
+        ? 'Thank you for your payment. Here is your official payment receipt for your Roook services.' 
+        : 'A new invoice has been generated for your Roook services. Please find the billing details below.' }}
 </p>
 
 <!-- Invoice Breakdown Table -->

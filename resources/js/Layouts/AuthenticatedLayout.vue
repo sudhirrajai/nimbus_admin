@@ -84,9 +84,9 @@ const isRouteActive = (routeName) => {
         <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-[var(--edge)] bg-[var(--panel)] md:flex md:flex-col transition-all duration-300">
             <!-- Sidebar Header -->
             <div class="flex h-16 items-center justify-between border-b border-[var(--edge)] px-5">
-                <Link :href="route('dashboard')" class="brand flex items-center" aria-label="Rook Dashboard">
+                <Link :href="route('dashboard')" class="brand flex items-center" aria-label="Roook Dashboard">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span class="text-xl font-bold tracking-tight text-[var(--text)] font-display">rook</span>
+                    <span class="text-xl font-bold tracking-tight text-[var(--text)] font-display">roook</span>
                 </Link>
                 <span class="text-[9px] font-mono uppercase tracking-widest text-[var(--accent)] px-2 py-0.5 rounded border border-[var(--edge-strong)] bg-[var(--green-wash)] flex items-center gap-1.5">
                     <span class="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-pulse"></span>
@@ -290,6 +290,19 @@ const isRouteActive = (routeName) => {
                     </Link>
 
                     <Link 
+                        :href="route('admin.nimbus.index')" 
+                        :class="[
+                            route().current('admin.nimbus.*') 
+                                ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
+                        ]"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all group hover:translate-x-0.5"
+                    >
+                        <Terminal :size="15" :stroke-width="1.8" :class="route().current('admin.nimbus.*') ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors'" />
+                        <span>Nimbus Product</span>
+                    </Link>
+
+                    <Link 
                         :href="route('admin.testimonials.index')" 
                         :class="[
                             route().current('admin.testimonials.*') 
@@ -387,9 +400,9 @@ const isRouteActive = (routeName) => {
             <div class="relative flex w-full max-w-[280px] sm:max-w-xs flex-1 flex-col bg-[var(--panel)] border-r border-[var(--edge)] pt-4 pb-4 animate-slide-in shadow-2xl z-10">
                 <!-- Drawer Header with integrated close button -->
                 <div class="flex shrink-0 items-center justify-between gap-2.5 px-5 pb-4 border-b border-[var(--edge)]">
-                    <Link :href="route('dashboard')" @click="showingNavigationDropdown = false" class="brand flex items-center" aria-label="Rook Dashboard">
+                    <Link :href="route('dashboard')" @click="showingNavigationDropdown = false" class="brand flex items-center" aria-label="Roook Dashboard">
                         <span class="brand-mark" aria-hidden="true">r</span>
-                        <span class="text-xl font-bold tracking-tight text-[var(--text)] font-display">rook</span>
+                        <span class="text-xl font-bold tracking-tight text-[var(--text)] font-display">roook</span>
                     </Link>
                     <button @click="showingNavigationDropdown = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--panel-hi)] transition-colors" aria-label="Close menu">
                         <X :size="18" />
@@ -606,6 +619,20 @@ const isRouteActive = (routeName) => {
                         </Link>
 
                         <Link 
+                            :href="route('admin.nimbus.index')" 
+                            @click="showingNavigationDropdown = false"
+                            :class="[
+                                route().current('admin.nimbus.*') 
+                                    ? 'bg-[var(--green-wash)] text-[var(--accent)] font-semibold border border-[var(--edge-strong)]/60 shadow-xs' 
+                                    : 'text-[var(--text-soft)] hover:bg-[var(--panel-hi)] hover:text-[var(--text)]'
+                            ]"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                        >
+                            <Terminal :size="15" :stroke-width="1.8" />
+                            <span>Nimbus Product</span>
+                        </Link>
+
+                        <Link 
                             :href="route('admin.testimonials.index')" 
                             @click="showingNavigationDropdown = false"
                             :class="[
@@ -711,7 +738,7 @@ const isRouteActive = (routeName) => {
 
                     <!-- Breadcrumbs (Tablet & Desktop) -->
                     <nav class="hidden sm:flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-[var(--text-muted)] truncate">
-                        <span class="text-[var(--text-muted)] shrink-0">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Rook // Admin' : 'Rook // Console' }}</span>
+                        <span class="text-[var(--text-muted)] shrink-0">{{ $page.props.auth.user.is_admin && route().current('admin.*') ? 'Roook // Admin' : 'Roook // Console' }}</span>
                         <ChevronRight :size="12" class="text-[var(--text-muted)] shrink-0" />
                         <span class="text-[var(--text)] font-semibold truncate">{{ pageTitle }}</span>
                     </nav>
@@ -785,7 +812,7 @@ const isRouteActive = (routeName) => {
             <!-- Footer -->
             <footer class="border-t border-[var(--edge)] py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-[var(--panel)] print:hidden min-w-0">
                 <div class="mx-auto max-w-7xl text-center text-xs text-[var(--text-muted)]">
-                    &copy; {{ new Date().getFullYear() }} Rook Hosting by VMCore. All rights reserved.
+                    &copy; {{ new Date().getFullYear() }} Roook Hosting by VMCore. All rights reserved.
                 </div>
             </footer>
         </div>

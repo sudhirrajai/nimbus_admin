@@ -65,6 +65,7 @@ const openCreateModal = (defaultType = 'managed_hosting') => {
         createForm.renewal_price_inr = 499;
         createForm.price_usd = 19;
         createForm.renewal_price_usd = 19;
+        createForm.billing_period = '/year';
         createForm.max_domains = 10;
         createForm.cta_text = 'Buy License';
         featuresInput.value = "Self-Hosted on Your Server\n10 Domains Limit\nSSL Automation\nGit Auto-Deploy\nCommunity Support";
@@ -406,6 +407,11 @@ const deletePlan = (plan) => {
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Billing Period Display</label>
+                                <div class="flex items-center gap-1.5 mb-1.5">
+                                    <button type="button" @click="createForm.billing_period = '/year'" :class="createForm.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/year (Yearly)</button>
+                                    <button type="button" @click="createForm.billing_period = '/month'" :class="createForm.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/month (Monthly)</button>
+                                    <button type="button" @click="createForm.billing_period = 'forever'" :class="createForm.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">forever</button>
+                                </div>
                                 <input 
                                     v-model="createForm.billing_period" 
                                     type="text" 

@@ -30,7 +30,7 @@ class FeedbackInvitationNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        $subject = "We'd love your feedback: " . $this->form->title . " - Rook Hosting";
+        $subject = "We'd love your feedback: " . $this->form->title . " - Roook Hosting";
 
         return (new MailMessage)
             ->subject($subject)

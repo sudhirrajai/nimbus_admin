@@ -14,14 +14,14 @@ const form = useForm({
     license_expiry_days: props.settings.license_expiry_days,
     razorpay_enabled: props.settings.razorpay_enabled,
     razorpay_mode: props.settings.razorpay_mode,
-    company_name: props.settings.company_name || 'Rook Hosting',
+    company_name: props.settings.company_name || 'Roook Hosting',
     company_address_line1: props.settings.company_address_line1 || '#104, Tech Park Boulevard',
     company_address_line2: props.settings.company_address_line2 || 'Bangalore - 560038, Karnataka, India',
     company_email: props.settings.company_email || 'billing@vmcore.in',
     company_phone: props.settings.company_phone || '+91 80 4567 8900',
-    company_website: props.settings.company_website || 'https://rook.host',
+    company_website: props.settings.company_website || 'https://roook.host',
     bank_name: props.settings.bank_name || 'HDFC Bank Ltd.',
-    bank_account_name: props.settings.bank_account_name || 'Rook Hosting',
+    bank_account_name: props.settings.bank_account_name || 'Roook Hosting',
     bank_account: props.settings.bank_account || '50200088991122',
     bank_ifsc: props.settings.bank_ifsc || 'HDFC0001234',
     bank_branch: props.settings.bank_branch || 'Indiranagar Branch, Bangalore',
@@ -203,7 +203,7 @@ const submit = () => {
                                 type="text"
                                 v-model="form.company_name"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="Rook Hosting"
+                                placeholder="Roook Hosting"
                             />
                         </div>
 
@@ -236,7 +236,7 @@ const submit = () => {
                                 type="text"
                                 v-model="form.company_website"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="https://rook.host"
+                                placeholder="https://roook.host"
                             />
                         </div>
 
@@ -273,7 +273,7 @@ const submit = () => {
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Account Name</label>
-                                <input type="text" v-model="form.bank_account_name" class="w-full text-xs rounded-lg border-gray-200" placeholder="Rook Hosting" />
+                                <input type="text" v-model="form.bank_account_name" class="w-full text-xs rounded-lg border-gray-200" placeholder="Roook Hosting" />
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Account Number</label>

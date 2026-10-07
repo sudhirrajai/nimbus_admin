@@ -28,7 +28,7 @@ class FeedbackSubmissionThankYouNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        $subject = "Thank you for your feedback: " . $this->form->title . " - Rook Hosting";
+        $subject = "Thank you for your feedback: " . $this->form->title . " - Roook Hosting";
 
         return (new MailMessage)
             ->subject($subject)

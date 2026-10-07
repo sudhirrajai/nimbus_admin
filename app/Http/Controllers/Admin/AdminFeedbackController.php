@@ -207,7 +207,7 @@ class AdminFeedbackController extends Controller
                         [
                             'parts' => [
                                 [
-                                    'text' => "You are an expert UX and customer satisfaction feedback architect for a cloud hosting and server management platform (Rook Hosting, offering managed cloud hosting and the Nimbus server management panel).\n" .
+                                    'text' => "You are an expert UX and customer satisfaction feedback architect for a cloud hosting and server management platform (Roook Hosting, offering managed cloud hosting and the Nimbus server management panel).\n" .
                                               "Generate 4 to 6 customer feedback questions based on this prompt: \"{$prompt}\" (Category: {$category}).\n" .
                                               "Include a mix of star rating, text, textarea, and single choice if appropriate.\n" .
                                               "Respond ONLY with a valid JSON array of objects with keys: id (string, e.g. q_1), label (string), type ('rating'|'text'|'textarea'|'select'|'radio'), required (boolean), placeholder (string or null), options (array of strings if type is select or radio). Do not output markdown code fences or other text."

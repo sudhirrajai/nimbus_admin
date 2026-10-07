@@ -158,6 +158,11 @@ const submit = () => {
                         <!-- Billing Period -->
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Billing Period</label>
+                            <div class="flex items-center gap-1.5 mb-2">
+                                <button type="button" @click="form.billing_period = '/year'" :class="form.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/year (Yearly)</button>
+                                <button type="button" @click="form.billing_period = '/month'" :class="form.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/month (Monthly)</button>
+                                <button type="button" @click="form.billing_period = 'forever'" :class="form.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">forever</button>
+                            </div>
                             <input 
                                 type="text" 
                                 v-model="form.billing_period" 

@@ -18,7 +18,7 @@ const formatDate = (dateStr) => {
 </script>
 
 <template>
-    <Head title="Static Pages Management — Rook" />
+    <Head title="Static Pages Management — Roook" />
 
     <AuthenticatedLayout>
         <template #header>

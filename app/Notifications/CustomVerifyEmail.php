@@ -23,7 +23,7 @@ class CustomVerifyEmail extends Notification
         $verificationUrl = $this->verificationUrl($notifiable);
 
         return (new MailMessage)
-            ->subject('Verify Your Email Address - Rook Hosting')
+            ->subject('Verify Your Email Address - Roook Hosting')
             ->view('emails.verify-email', [
                 'user' => $notifiable,
                 'verificationUrl' => $verificationUrl,

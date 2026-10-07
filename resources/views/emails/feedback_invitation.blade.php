@@ -1,4 +1,4 @@
-@extends('emails.layout', ['subject' => $subject ?? 'We value your feedback - Rook Hosting'])
+@extends('emails.layout', ['subject' => $subject ?? 'We value your feedback - Roook Hosting'])
 
 @section('content')
     <h2 style="margin: 0 0 16px; font-size: 20px; font-weight: 700; color: #0f172a;">

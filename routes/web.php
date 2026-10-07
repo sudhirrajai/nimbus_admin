@@ -38,10 +38,22 @@ Route::get('/products/nimbus', function () {
         ->orderBy('price_usd')
         ->get();
 
+    $features = \App\Models\NimbusFeature::where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->get();
+
+    $faqs = \App\Models\NimbusFaq::where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->get();
+
     return Inertia::render('Products/Nimbus', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'plans' => $selfHostedPlans,
+        'features' => $features,
+        'faqs' => $faqs,
     ]);
 })->name('products.nimbus');
 
@@ -207,6 +219,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/tickets/{ticket}/status', [\App\Http\Controllers\Admin\AdminTicketController::class, 'updateStatus'])->name('tickets.update-status');
     Route::patch('/tickets/{ticket}/priority', [\App\Http\Controllers\Admin\AdminTicketController::class, 'updatePriority'])->name('tickets.update-priority');
     Route::delete('/tickets/{ticket}', [\App\Http\Controllers\Admin\AdminTicketController::class, 'destroy'])->name('tickets.destroy');
+
+    // Nimbus Architecture & FAQ Management (Admin)
+    Route::get('/nimbus', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'index'])->name('nimbus.index');
+    Route::post('/nimbus/features', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'storeFeature'])->name('nimbus.features.store');
+    Route::put('/nimbus/features/{feature}', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'updateFeature'])->name('nimbus.features.update');
+    Route::delete('/nimbus/features/{feature}', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'destroyFeature'])->name('nimbus.features.destroy');
+    Route::post('/nimbus/features/{feature}/toggle-active', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'toggleActiveFeature'])->name('nimbus.features.toggle-active');
+
+    Route::post('/nimbus/faqs', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'storeFaq'])->name('nimbus.faqs.store');
+    Route::put('/nimbus/faqs/{faq}', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'updateFaq'])->name('nimbus.faqs.update');
+    Route::delete('/nimbus/faqs/{faq}', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'destroyFaq'])->name('nimbus.faqs.destroy');
+    Route::post('/nimbus/faqs/{faq}/toggle-active', [\App\Http\Controllers\Admin\AdminNimbusController::class, 'toggleActiveFaq'])->name('nimbus.faqs.toggle-active');
 });
 
 // Public Client Feedback Routes

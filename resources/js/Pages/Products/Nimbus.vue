@@ -39,6 +39,14 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    features: {
+        type: Array,
+        default: () => [],
+    },
+    faqs: {
+        type: Array,
+        default: () => [],
+    },
     canLogin: Boolean,
     canRegister: Boolean,
 });
@@ -54,6 +62,7 @@ const motionReady = ref(false);
 const openFaq = ref(0);
 const copiedInstall = ref(false);
 const selectedCurrency = ref('USD');
+const billingCycle = ref('yearly');
 
 const installCommand = 'curl -fsSL https://nimbus-host.vmcore.in/install.sh | bash';
 
@@ -69,46 +78,72 @@ const copyInstall = async () => {
     }
 };
 
-const nimbusFeatures = [
+// Built-in icon mapping
+const iconMap = {
+    cpu: Cpu,
+    terminal: Terminal,
+    shield: ShieldCheck,
+    zap: Zap,
+    database: Database,
+    workflow: Workflow,
+    server: Server,
+    cloud: Cloud,
+    lock: Lock,
+    code: Code2,
+    'hard-drive': HardDrive,
+    activity: Activity,
+    layers: Layers,
+    mail: Mail,
+    check: Check,
+};
+
+const getFeatureIcon = (iconName) => {
+    if (!iconName) return Cpu;
+    return iconMap[iconName] || Cpu;
+};
+
+// Fallback initial features in case database features haven't loaded yet
+const fallbackFeatures = [
     {
-        icon: Cpu,
+        icon: 'cpu',
         tag: 'PERFORMANCE',
         title: 'Lightweight Core (<25MB RAM)',
         copy: 'Unlike legacy control panels that consume gigabytes of system memory, Nimbus runs lean with near-zero daemon overhead.',
     },
     {
-        icon: Terminal,
+        icon: 'terminal',
         tag: 'CONTAINERS',
         title: 'Docker & Compose Native',
         copy: 'Deploy and manage containerized applications, multi-service Docker Compose files, and automated volume mounts with 1 click.',
     },
     {
-        icon: ShieldCheck,
+        icon: 'shield',
         tag: 'SECURITY',
         title: 'Automated SSL & Firewalls',
         copy: 'Automatic Let’s Encrypt certificate issuance and renewal, managed UFW port rules, and integrated fail2ban intrusion prevention.',
     },
     {
-        icon: Zap,
+        icon: 'zap',
         tag: 'WEB SERVER',
         title: 'Nginx, HTTP/3 & Brotli',
         copy: 'Pre-tuned Nginx reverse proxy configuration supporting HTTP/3, Brotli/Gzip compression, WebSockets, and custom upstream rules.',
     },
     {
-        icon: Database,
+        icon: 'database',
         tag: 'DATABASES',
         title: 'MySQL, Postgres & Redis',
         copy: 'One-click database provisioning, user privilege boundaries, automated local snapshots, and scheduled off-site S3 uploads.',
     },
     {
-        icon: Workflow,
+        icon: 'workflow',
         tag: 'CI/CD',
         title: 'Git Push-to-Deploy',
         copy: 'Connect GitHub, GitLab, or Bitbucket webhooks for zero-downtime automated deployment on every push to your production branch.',
     },
 ];
 
-const nimbusFaqs = [
+// Fallback initial FAQs
+const fallbackFaqs = [
     {
         question: 'What Linux distributions are supported?',
         answer: 'Nimbus is officially tested and optimized for clean installations of Ubuntu 20.04, 22.04, and 24.04 LTS, as well as Debian 11 (Bullseye) and Debian 12 (Bookworm).',
@@ -130,6 +165,56 @@ const nimbusFaqs = [
         answer: 'Backups can be stored locally on your server or automatically streamed to external S3-compatible cloud storage (AWS S3, Cloudflare R2, Backblaze B2, or MinIO).',
     },
 ];
+
+const activeFeatures = computed(() => {
+    return props.features && props.features.length > 0 ? props.features : fallbackFeatures;
+});
+
+const activeFaqs = computed(() => {
+    return props.faqs && props.faqs.length > 0 ? props.faqs : fallbackFaqs;
+});
+
+// Dynamic billing plans logic
+const hasYearlyPlans = computed(() => {
+    return (props.plans || []).some(
+        (p) => p.billing_period === '/year' || p.billing_period === 'yearly' || p.billing_period === '/yr'
+    );
+});
+
+const hasMonthlyPlans = computed(() => {
+    return (props.plans || []).some(
+        (p) => p.billing_period === '/month' || p.billing_period === 'monthly' || p.billing_period === '/mo'
+    );
+});
+
+const showBillingToggle = computed(() => {
+    return hasYearlyPlans.value && hasMonthlyPlans.value;
+});
+
+const displayedPlans = computed(() => {
+    const list = props.plans || [];
+    if (!list.length) return [];
+
+    if (showBillingToggle.value) {
+        return list.filter((p) => {
+            if (p.slug === 'free' || p.price_inr === 0 || p.billing_period === 'forever') return true;
+            if (billingCycle.value === 'yearly') {
+                return p.billing_period === '/year' || p.billing_period === 'yearly' || p.billing_period === '/yr';
+            }
+            return p.billing_period === '/month' || p.billing_period === 'monthly' || p.billing_period === '/mo';
+        });
+    }
+
+    return list;
+});
+
+const formatBillingPeriod = (period) => {
+    if (!period) return '/ year';
+    if (period === '/year' || period === 'yearly' || period === '/yr') return '/ year';
+    if (period === '/month' || period === 'monthly' || period === '/mo') return '/ month';
+    if (period === 'forever') return '/ forever';
+    return period.startsWith('/') ? period : `/ ${period}`;
+};
 
 let revealObserver = null;
 
@@ -208,7 +293,7 @@ const handlePlanAction = async (plan) => {
         return;
     }
 
-    // Direct to store with self-hosted tab or initiate checkout
+    // Direct to store with self-hosted tab
     router.visit(route('store.index', { tab: 'self_hosted' }));
 };
 
@@ -226,9 +311,9 @@ const currentYear = new Date().getFullYear();
         <!-- Sticky Site Header -->
         <header class="site-header">
             <div class="shell header-inner">
-                <Link :href="route('home')" class="brand" aria-label="Home">
+                <Link :href="route('home')" class="brand" aria-label="Roook Home">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span>rook</span>
+                    <span>roook</span>
                 </Link>
 
                 <nav :class="['nav-links', { 'is-open': menuOpen }]" aria-label="Main navigation">
@@ -313,7 +398,7 @@ const currentYear = new Date().getFullYear();
                         <Sun v-else :size="15" aria-hidden="true" />
                     </button>
 
-                    <a class="button button-primary button-small" href="#pricing">
+                    <a class="button button-primary button-small hidden sm:inline-flex" href="#pricing">
                         Get License <ArrowUpRight :size="13" aria-hidden="true" />
                     </a>
 
@@ -374,14 +459,14 @@ const currentYear = new Date().getFullYear();
                                         <span class="line-prompt">#</span> Run on a clean Ubuntu or Debian server:
                                     </span>
                                 </p>
-                                <div class="p-3 my-2 rounded-lg bg-[var(--surface-deep)] border border-[var(--edge)] flex items-center justify-between gap-3">
-                                    <code class="text-xs font-mono text-[var(--green-bright)] overflow-x-auto whitespace-nowrap">
+                                <div class="p-2.5 sm:p-3 my-2 rounded-lg bg-[var(--surface-deep)] border border-[var(--edge)] flex items-center justify-between gap-2 sm:gap-3 min-w-0 max-w-full">
+                                    <code class="text-[11px] sm:text-xs font-mono text-[var(--green-bright)] overflow-x-auto whitespace-nowrap min-w-0 flex-1 py-1">
                                         curl -fsSL https://nimbus-host.vmcore.in/install.sh | bash
                                     </code>
                                     <button
                                         type="button"
                                         @click="copyInstall"
-                                        class="px-2.5 py-1.5 rounded-md text-[11px] font-mono font-medium border border-[var(--edge)] bg-[var(--panel)] hover:bg-[var(--panel-hi)] text-[var(--text)] transition-colors flex items-center gap-1.5 shrink-0"
+                                        class="px-2 sm:px-2.5 py-1.5 rounded-md text-[11px] font-mono font-medium border border-[var(--edge)] bg-[var(--panel)] hover:bg-[var(--panel-hi)] text-[var(--text)] transition-colors flex items-center gap-1.5 shrink-0"
                                     >
                                         <Check v-if="copiedInstall" :size="13" class="text-[var(--accent)]" />
                                         <Copy v-else :size="13" />
@@ -417,7 +502,7 @@ const currentYear = new Date().getFullYear();
                 </div>
             </section>
 
-            <!-- Architecture & Features Section -->
+            <!-- Dynamic Architecture & Features Section (01 / ARCHITECTURE) -->
             <section class="section" id="features" aria-labelledby="features-title" data-reveal>
                 <div class="shell">
                     <div class="section-top">
@@ -433,15 +518,15 @@ const currentYear = new Date().getFullYear();
 
                     <div class="feature-grid">
                         <article
-                            v-for="(feature, index) in nimbusFeatures"
-                            :key="feature.title"
+                            v-for="(feature, index) in activeFeatures"
+                            :key="feature.id || feature.title"
                             class="feature-card"
                         >
                             <span class="feature-index">{{ String(index + 1).padStart(2, '0') }}</span>
                             <div class="feature-icon">
-                                <component :is="feature.icon" :size="17" :stroke-width="1.7" aria-hidden="true" />
+                                <component :is="getFeatureIcon(feature.icon)" :size="17" :stroke-width="1.7" aria-hidden="true" />
                             </div>
-                            <span class="feature-tag">{{ feature.tag }}</span>
+                            <span class="feature-tag">{{ feature.tag || 'FEATURE' }}</span>
                             <h3>{{ feature.title }}</h3>
                             <p>{{ feature.copy }}</p>
                         </article>
@@ -460,37 +545,62 @@ const currentYear = new Date().getFullYear();
                                 Start with our free Community license or upgrade for multi-server orchestration, automated off-site S3 backups, and priority updates.
                             </p>
                         </div>
-                        <div class="billing-control" role="group" aria-label="Currency selection">
-                            <button
-                                type="button"
-                                @click="selectedCurrency = 'USD'"
-                                :aria-pressed="selectedCurrency === 'USD'"
-                            >
-                                USD ($)
-                            </button>
-                            <button
-                                type="button"
-                                @click="selectedCurrency = 'INR'"
-                                :aria-pressed="selectedCurrency === 'INR'"
-                            >
-                                INR (₹)
-                            </button>
+                        <div class="billing-control flex-wrap gap-2" role="group" aria-label="Billing selection">
+                            <!-- Interval Toggle (when both monthly and yearly plans exist) -->
+                            <div v-if="showBillingToggle" class="inline-flex rounded-lg border border-[var(--edge)] p-0.5 bg-[var(--surface-deep)]">
+                                <button
+                                    type="button"
+                                    @click="billingCycle = 'monthly'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': billingCycle === 'monthly' }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                >
+                                    Monthly
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="billingCycle = 'yearly'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': billingCycle === 'yearly' }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                >
+                                    Yearly
+                                </button>
+                            </div>
+
+                            <!-- Currency Selector -->
+                            <div class="inline-flex rounded-lg border border-[var(--edge)] p-0.5 bg-[var(--surface-deep)]">
+                                <button
+                                    type="button"
+                                    @click="selectedCurrency = 'USD'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': selectedCurrency === 'USD' }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                >
+                                    USD ($)
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="selectedCurrency = 'INR'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': selectedCurrency === 'INR' }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                >
+                                    INR (₹)
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="pricing-grid">
                         <article
-                            v-for="plan in plans"
+                            v-for="plan in displayedPlans"
                             :key="plan.id"
-                            :class="['price-card', { featured: plan.slug === 'pro' }]"
+                            :class="['price-card', { featured: plan.is_popular || plan.slug === 'pro' }]"
                         >
-                            <span v-if="plan.slug === 'pro'" class="popular-label">Most popular</span>
+                            <span v-if="plan.is_popular || plan.slug === 'pro'" class="popular-label">Most popular</span>
                             <div class="plan-name">{{ plan.name }} License</div>
                             <p class="plan-note">
-                                {{ plan.slug === 'free' ? 'For personal projects, dev machines, and single server setups.' : plan.slug === 'pro' ? 'For production apps, agencies, and teams running client servers.' : 'For enterprise infrastructure, fleets, and mission-critical clusters.' }}
+                                {{ plan.description || (plan.slug === 'free' ? 'For personal projects, dev machines, and single server setups.' : plan.slug === 'pro' ? 'For production apps, agencies, and teams running client servers.' : 'For enterprise infrastructure, fleets, and mission-critical clusters.') }}
                             </p>
                             <div class="plan-price">
-                                <template v-if="plan.price_inr === 0">
+                                <template v-if="plan.price_inr === 0 || plan.slug === 'free'">
                                     <span class="price-amount">Free</span>
                                     <span class="price-unit">/ forever</span>
                                 </template>
@@ -498,50 +608,57 @@ const currentYear = new Date().getFullYear();
                                     <span class="price-amount">
                                         {{ selectedCurrency === 'INR' ? `₹${plan.price_inr}` : `$${plan.price_usd}` }}
                                     </span>
-                                    <span class="price-unit">/ month</span>
+                                    <span class="price-unit">{{ formatBillingPeriod(plan.billing_period) }}</span>
                                 </template>
                             </div>
                             <div class="billing-caption">
-                                {{ plan.price_inr === 0 ? 'No credit card required' : 'Cancel anytime · Instant license key activation' }}
+                                {{ (plan.price_inr === 0 || plan.slug === 'free') ? 'No credit card required' : 'Cancel anytime · Instant license key activation' }}
                             </div>
 
                             <button
                                 type="button"
                                 @click="handlePlanAction(plan)"
-                                :class="['button', plan.slug === 'pro' ? 'button-primary' : 'button-outline', 'plan-cta', 'w-full']"
+                                :class="['button', (plan.is_popular || plan.slug === 'pro') ? 'button-primary' : 'button-outline', 'plan-cta', 'w-full']"
                             >
-                                <span>{{ plan.slug === 'free' ? 'Get Free License' : `Buy ${plan.name} License` }}</span>
+                                <span>{{ (plan.slug === 'free' || plan.price_inr === 0) ? 'Get Free License' : (plan.cta_text || `Buy ${plan.name} License`) }}</span>
                                 <ArrowRight :size="14" aria-hidden="true" />
                             </button>
 
                             <div class="plan-rule" />
                             <div class="plan-list-label">Included Capabilities</div>
                             <ul class="plan-list">
-                                <li><Check :size="14" aria-hidden="true" />{{ plan.slug === 'free' ? '1 Active Server Node' : plan.slug === 'pro' ? 'Up to 5 Server Nodes' : 'Unlimited Server Nodes' }}</li>
-                                <li><Check :size="14" aria-hidden="true" />Unlimited domains &amp; web applications</li>
-                                <li><Check :size="14" aria-hidden="true" />Docker &amp; Compose container orchestration</li>
-                                <li><Check :size="14" aria-hidden="true" />Automated Let’s Encrypt SSL &amp; Nginx tuning</li>
-                                <li><Check :size="14" aria-hidden="true" />{{ plan.slug === 'free' ? 'Community Forum Support' : 'Priority Security Updates &amp; Offsite Backups' }}</li>
-                                <li v-if="plan.slug === 'enterprise'"><Check :size="14" aria-hidden="true" />Custom white-label branding &amp; Lead Engineer support</li>
+                                <template v-if="Array.isArray(plan.features) && plan.features.length > 0">
+                                    <li v-for="(feat, fIdx) in plan.features" :key="fIdx">
+                                        <Check :size="14" aria-hidden="true" />{{ feat }}
+                                    </li>
+                                </template>
+                                <template v-else>
+                                    <li><Check :size="14" aria-hidden="true" />{{ plan.slug === 'free' ? '1 Active Server Node' : plan.slug === 'pro' ? 'Up to 5 Server Nodes' : 'Unlimited Server Nodes' }}</li>
+                                    <li><Check :size="14" aria-hidden="true" />Unlimited domains &amp; web applications</li>
+                                    <li><Check :size="14" aria-hidden="true" />Docker &amp; Compose container orchestration</li>
+                                    <li><Check :size="14" aria-hidden="true" />Automated Let’s Encrypt SSL &amp; Nginx tuning</li>
+                                    <li><Check :size="14" aria-hidden="true" />{{ plan.slug === 'free' ? 'Community Forum Support' : 'Priority Security Updates &amp; Offsite Backups' }}</li>
+                                    <li v-if="plan.slug === 'enterprise'"><Check :size="14" aria-hidden="true" />Custom white-label branding &amp; Lead Engineer support</li>
+                                </template>
                             </ul>
                         </article>
                     </div>
 
                     <!-- Looking for full Managed Care Banner -->
-                    <div class="mt-12 p-6 rounded-xl border border-[var(--edge)] bg-[var(--panel)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="mt-12 p-5 sm:p-6 rounded-xl border border-[var(--edge)] bg-[var(--panel)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                         <div>
                             <div class="text-xs font-bold font-mono uppercase tracking-wider text-[var(--accent)]">Don't want to manage Linux servers yourself?</div>
                             <h3 class="text-base font-bold text-[var(--text)] mt-1">Explore our fully Managed Cloud Hosting</h3>
                             <p class="text-xs text-[var(--text-soft)] mt-0.5">Let our infrastructure team handle server provisioning, security, updates, and 24/7 monitoring for you.</p>
                         </div>
-                        <Link :href="route('home')" class="button button-outline button-small whitespace-nowrap">
+                        <Link :href="route('home')" class="button button-outline button-small w-full sm:w-auto text-center justify-center whitespace-nowrap">
                             View Managed Hosting Plans <ArrowRight :size="13" />
                         </Link>
                     </div>
                 </div>
             </section>
 
-            <!-- FAQ Section -->
+            <!-- Dynamic FAQ Section -->
             <section class="section" id="faq" aria-labelledby="faq-title" data-reveal>
                 <div class="shell faq-layout">
                     <div class="faq-aside">
@@ -554,8 +671,8 @@ const currentYear = new Date().getFullYear();
                     </div>
                     <div class="faq-list">
                         <article
-                            v-for="(faq, index) in nimbusFaqs"
-                            :key="faq.question"
+                            v-for="(faq, index) in activeFaqs"
+                            :key="faq.id || faq.question"
                             class="faq-item"
                         >
                             <h3 style="margin: 0;">
@@ -585,7 +702,7 @@ const currentYear = new Date().getFullYear();
                     <div class="footer-brand-col">
                         <Link :href="route('home')" class="brand">
                             <span class="brand-mark" aria-hidden="true">r</span>
-                            <span>rook</span>
+                            <span>roook</span>
                         </Link>
                         <p class="footer-brand-copy">
                             Managed Cloud Hosting &amp; Developer Infrastructure by VMCore. High-performance software and 24/7 reliability care.
@@ -619,7 +736,7 @@ const currentYear = new Date().getFullYear();
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <span>© {{ currentYear }} Rook Hosting. All rights reserved.</span>
+                    <span>© {{ currentYear }} Roook Hosting. All rights reserved.</span>
                     <a class="footer-status" :href="`${route('home')}#status`">All Systems Operational</a>
                     <div class="footer-socials">
                         <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub">

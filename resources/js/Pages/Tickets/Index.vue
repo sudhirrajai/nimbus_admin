@@ -70,7 +70,7 @@ const priorityClasses = {
 </script>
 
 <template>
-    <Head title="Support Tickets - Rook" />
+    <Head title="Support Tickets - Roook" />
 
     <AuthenticatedLayout>
         <div class="space-y-6">
@@ -83,7 +83,7 @@ const priorityClasses = {
                         Support Tickets
                     </h1>
                     <p class="text-sm text-gray-500 mt-1">
-                        Submit technical questions, server incident reports, or billing requests directly to Rook engineers.
+                        Submit technical questions, server incident reports, or billing requests directly to Roook engineers.
                     </p>
                 </div>
                 <div>

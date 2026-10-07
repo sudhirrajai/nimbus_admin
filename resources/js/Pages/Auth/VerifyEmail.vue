@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ArrowRight } from 'lucide-vue-next';
 
 const props = defineProps({
     status: {
@@ -22,40 +22,44 @@ const verificationLinkSent = computed(
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Email Verification" />
-
-        <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your
-            email address by clicking on the link we just emailed to you? If you
-            didn't receive the email, we will gladly send you another.
-        </div>
+    <GuestLayout
+        kicker="— STEP 2 OF 2"
+        title="Verify your email"
+        subtitle="We've sent a verification link to your email address. Please click it to activate your Roook workspace."
+    >
+        <Head title="Verify Email — Roook Hosting" />
 
         <div
-            class="mb-4 text-sm font-medium text-emerald-600"
+            class="mb-5 p-3 rounded-xl bg-[#0e251a] border border-[#1e4630] text-xs font-medium text-[#34d399]"
             v-if="verificationLinkSent"
         >
-            A new verification link has been sent to the email address you
-            provided during registration.
+            A new verification link has been sent to your email address.
         </div>
 
-        <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between gap-4">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
+        <form @submit.prevent="submit" class="space-y-4">
+            <div>
+                <button
+                    type="submit"
+                    class="w-full py-3.5 px-4 rounded-xl bg-[#7fe0a6] hover:bg-[#95f3bd] text-[#06180e] font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-150 shadow-sm active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                     :disabled="form.processing"
-                    class="!w-auto"
                 >
-                    Resend Verification Email
-                </PrimaryButton>
+                    <span v-if="form.processing">Resending email...</span>
+                    <template v-else>
+                        <span>Resend Verification Email</span>
+                        <ArrowRight :size="15" />
+                    </template>
+                </button>
+            </div>
 
+            <div class="text-center pt-3">
                 <Link
                     :href="route('logout')"
                     method="post"
                     as="button"
-                    class="rounded-md text-sm text-gray-500 underline hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shrink-0 whitespace-nowrap"
-                    >Log Out</Link
+                    class="text-xs text-[#7e9287] hover:text-white transition-colors cursor-pointer"
                 >
+                    Log Out
+                </Link>
             </div>
         </form>
     </GuestLayout>

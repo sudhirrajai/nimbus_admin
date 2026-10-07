@@ -78,7 +78,7 @@ const formatDate = (dateStr) => {
                                     {{ formatDate(inv.created_at) }}
                                 </td>
                                 <td class="px-6 py-4.5">
-                                    <div class="text-xs font-bold text-gray-900">{{ inv.plan_name || 'Rook Service' }}</div>
+                                    <div class="text-xs font-bold text-gray-900">{{ inv.plan_name || 'Roook Service' }}</div>
                                     <div class="text-[11px] text-gray-500 line-clamp-1">{{ inv.description }}</div>
                                 </td>
                                 <td class="px-6 py-4.5 text-center">

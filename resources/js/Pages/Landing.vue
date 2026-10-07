@@ -50,7 +50,7 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
 const contactEmail = computed(() => {
-    return page.props.siteSettings?.company_email || 'hello@rook.host';
+    return page.props.siteSettings?.company_email || 'hello@roook.host';
 });
 
 const contactPhone = computed(() => {
@@ -58,7 +58,7 @@ const contactPhone = computed(() => {
 });
 
 const companyName = computed(() => {
-    return page.props.siteSettings?.company_name || 'Rook Hosting';
+    return page.props.siteSettings?.company_name || 'Roook Hosting';
 });
 
 const annual = ref(false);
@@ -278,12 +278,12 @@ const customerStories = computed(() => {
 
 const faqs = [
     {
-        question: 'Will moving to Rook cause downtime?',
+        question: 'Will moving to Roook cause downtime?',
         answer: 'We plan the move around your application and its traffic patterns. Most migrations are staged, tested, and switched over during a low-traffic window; we agree on the cutover plan with you before anything changes. The exact downtime risk depends on your stack and DNS setup.',
     },
     {
         question: 'How do backups and restores work?',
-        answer: 'Backups run automatically on a daily schedule, with retention based on your plan. If you need a restore, contact your Rook engineer and we’ll confirm the recovery point and walk through the restore before applying it. We’ll document what is covered during onboarding.',
+        answer: 'Backups run automatically on a daily schedule, with retention based on your plan. If you need a restore, contact your Roook engineer and we’ll confirm the recovery point and walk through the restore before applying it. We’ll document what is covered during onboarding.',
     },
     {
         question: 'How quickly will someone respond?',
@@ -298,8 +298,8 @@ const faqs = [
         answer: 'Your code and data stay yours. If you decide to leave, we’ll provide an export and a reasonable handover plan. Plan terms, notice periods, and any migration assistance are agreed up front—there’s no lock-in hidden in the infrastructure.',
     },
     {
-        question: 'What does Rook do about security?',
-        answer: 'Rook handles routine operating-system updates, access controls, firewall configuration, and certificate maintenance as part of managed hosting. Security is shared work: your application code, credentials, and third-party services still matter. We’ll be explicit about the boundary during setup.',
+        question: 'What does Roook do about security?',
+        answer: 'Roook handles routine operating-system updates, access controls, firewall configuration, and certificate maintenance as part of managed hosting. Security is shared work: your application code, credentials, and third-party services still matter. We’ll be explicit about the boundary during setup.',
     },
 ];
 
@@ -369,7 +369,7 @@ const currentYear = new Date().getFullYear();
 </script>
 
 <template>
-    <Head title="Rook Hosting — Managed Cloud Hosting" />
+    <Head title="Roook Hosting — Managed Cloud Hosting" />
 
     <div
         class="rook-site"
@@ -379,9 +379,9 @@ const currentYear = new Date().getFullYear();
         <!-- Sticky Site Header -->
         <header class="site-header">
             <div class="shell header-inner">
-                <a class="brand" href="#top" aria-label="Rook home" data-testid="link-home">
+                <a class="brand" href="#top" aria-label="Roook home" data-testid="link-home">
                     <span class="brand-mark" aria-hidden="true">r</span>
-                    <span>rook</span>
+                    <span>roook</span>
                 </a>
 
                 <nav :class="['nav-links', { 'is-open': menuOpen }]" aria-label="Main navigation">
@@ -506,7 +506,7 @@ const currentYear = new Date().getFullYear();
                         <div class="hero-actions">
                             <a
                                 class="button button-primary"
-                                :href="`mailto:${contactEmail}?subject=Start%20a%20Rook%20migration`"
+                                :href="`mailto:${contactEmail}?subject=Start%20a%20Roook%20migration`"
                                 data-testid="link-contact"
                             >
                                 Start free migration <ArrowRight :size="15" aria-hidden="true" />
@@ -520,7 +520,7 @@ const currentYear = new Date().getFullYear();
                         </div>
                     </div>
 
-                    <div class="terminal-wrap" aria-label="Illustration of a Rook migration in progress">
+                    <div class="terminal-wrap" aria-label="Illustration of a Roook migration in progress">
                         <div class="terminal">
                             <div class="terminal-bar">
                                 <div class="terminal-dots" aria-hidden="true"><i /><i /><i /></div>
@@ -531,7 +531,7 @@ const currentYear = new Date().getFullYear();
                                 <p class="terminal-line">
                                     <span class="line-index">01</span>
                                     <span class="terminal-command">
-                                        <span class="line-prompt">&gt;</span> rook migrate --from app-prod-01
+                                        <span class="line-prompt">&gt;</span> roook migrate --from app-prod-01
                                     </span>
                                 </p>
                                 <p class="terminal-line">
@@ -566,7 +566,7 @@ const currentYear = new Date().getFullYear();
                                 </p>
                                 <div class="terminal-divider" />
                                 <div class="terminal-footer">
-                                    <span>rook / ops / migration-042</span>
+                                    <span>roook / ops / migration-042</span>
                                     <strong>Engineer guided</strong>
                                 </div>
                             </div>
@@ -576,7 +576,7 @@ const currentYear = new Date().getFullYear();
             </section>
 
             <!-- Trust Metrics Strip -->
-            <section class="trust-strip" aria-label="Illustrative Rook service metrics">
+            <section class="trust-strip" aria-label="Illustrative Roook service metrics">
                 <div class="shell trust-layout">
                     <div class="trust-intro">Illustrative sample metrics<br />for this product concept.</div>
                     <div class="trust-item">
@@ -602,7 +602,7 @@ const currentYear = new Date().getFullYear();
             </section>
 
             <!-- Logo Cloud -->
-            <div class="shell logo-cloud" aria-label="Example teams Rook is built to support">
+            <div class="shell logo-cloud" aria-label="Example teams Roook is built to support">
                 <span class="logo-cloud-label">Made for teams like</span>
                 <span class="logo-word">northstar</span>
                 <span class="logo-word">Fieldnote</span>
@@ -619,7 +619,7 @@ const currentYear = new Date().getFullYear();
                             <div class="eyebrow">The whole stack, looked after</div>
                             <h2 class="section-heading" id="features-title">Your infrastructure shouldn’t be a second job.</h2>
                             <p class="section-intro">
-                                Rook brings the everyday operational work into one steady relationship—so your team can stay focused on the product.
+                                Roook brings the everyday operational work into one steady relationship—so your team can stay focused on the product.
                             </p>
                         </div>
                         <span class="section-index">01 / WHAT WE HANDLE</span>
@@ -890,7 +890,7 @@ const currentYear = new Date().getFullYear();
                         <div class="eyebrow">Good questions, clear answers</div>
                         <h2 class="section-heading" id="faq-title">Before we touch a thing.</h2>
                         <p class="section-intro">We’ll walk through the specifics of your stack before making a plan. Here’s how the basics work.</p>
-                        <a class="faq-contact" href="mailto:hello@rook.host?subject=Question%20for%20Rook">
+                        <a class="faq-contact" :href="`mailto:${contactEmail}?subject=Question%20for%20Roook`">
                             <Mail :size="14" aria-hidden="true" /> Ask an engineer
                         </a>
                     </div>
@@ -940,7 +940,7 @@ const currentYear = new Date().getFullYear();
                         <div class="contact-actions">
                             <a
                                 class="button button-primary"
-                                :href="`mailto:${contactEmail}?subject=Start%20a%20free%20Rook%20migration`"
+                                :href="`mailto:${contactEmail}?subject=Start%20a%20free%20Roook%20migration`"
                                 data-testid="link-contact"
                             >
                                 Start free migration <ArrowRight :size="15" aria-hidden="true" />
@@ -959,9 +959,9 @@ const currentYear = new Date().getFullYear();
             <div class="shell">
                 <div class="footer-top">
                     <div class="footer-brand-col">
-                        <a class="brand" href="#top" aria-label="Rook home">
+                        <a class="brand" href="#top" aria-label="Roook home">
                             <span class="brand-mark" aria-hidden="true">r</span>
-                            <span>rook</span>
+                            <span>roook</span>
                         </a>
                         <p class="footer-brand-copy">
                             We handle the servers. You ship the code. Managed hosting with a human on the other end.
@@ -979,9 +979,9 @@ const currentYear = new Date().getFullYear();
                     <div class="footer-group">
                         <h3>Get help</h3>
                         <div class="footer-links">
-                            <a href="mailto:hello@rook.host?subject=Existing%20customer%20support">Client access / login help</a>
+                            <a :href="`mailto:${contactEmail}?subject=Existing%20customer%20support`">Client access / login help</a>
                             <a href="#status">Service status</a>
-                            <a href="mailto:hello@rook.host">Contact an engineer</a>
+                            <a :href="`mailto:${contactEmail}`">Contact an engineer</a>
                         </div>
                     </div>
                     <div class="footer-group">
@@ -993,23 +993,23 @@ const currentYear = new Date().getFullYear();
                             <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">
                                 LinkedIn <ArrowUpRight :size="11" aria-hidden="true" />
                             </a>
-                            <a href="mailto:hello@rook.host">
+                            <a :href="`mailto:${contactEmail}`">
                                 Email <ArrowUpRight :size="11" aria-hidden="true" />
                             </a>
                         </div>
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <span>© {{ currentYear }} Rook Hosting. Made for the people who build.</span>
+                    <span>© {{ currentYear }} Roook Hosting. Made for the people who build.</span>
                     <a class="footer-status" href="#status">Sample status view</a>
                     <div class="footer-socials">
-                        <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="Rook on GitHub">
+                        <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="Roook on GitHub">
                             <Github :size="15" aria-hidden="true" />
                         </a>
-                        <a href="mailto:hello@rook.host" aria-label="Email Rook">
+                        <a :href="`mailto:${contactEmail}`" aria-label="Email Roook">
                             <Mail :size="15" aria-hidden="true" />
                         </a>
-                        <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="Rook on LinkedIn">
+                        <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="Roook on LinkedIn">
                             <ArrowUpRight :size="15" aria-hidden="true" />
                         </a>
                     </div>
