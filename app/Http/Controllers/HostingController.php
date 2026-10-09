@@ -101,4 +101,21 @@ class HostingController extends Controller
 
         return redirect()->away($redirectUrl);
     }
+
+    /**
+     * Display order confirmation and pending provisioning status.
+     */
+    public function orderConfirmation(HostingAccount $account)
+    {
+        if (auth()->check() && $account->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        $account->load(['invoices' => fn($q) => $q->latest(), 'server']);
+
+        return Inertia::render('Hosting/OrderConfirmation', [
+            'account' => $account,
+            'latestInvoice' => $account->invoices->first(),
+        ]);
+    }
 }

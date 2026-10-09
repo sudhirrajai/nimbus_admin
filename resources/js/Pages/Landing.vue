@@ -820,15 +820,8 @@ const currentYear = new Date().getFullYear();
                                     Billed monthly · cancel with notice
                                 </template>
                             </div>
-                            <Link
-                                v-if="user"
-                                :href="route('hosting.client.index')"
-                                :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
-                            >
-                                {{ plan.action }} <ArrowRight :size="14" aria-hidden="true" />
-                            </Link>
                             <a
-                                v-else-if="plan.monthly === null"
+                                v-if="plan.monthly === null"
                                 :href="`mailto:${contactEmail}?subject=${encodeURIComponent(`Enterprise Hosting Inquiry — ${plan.name}`)}`"
                                 :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
                             >
@@ -836,10 +829,11 @@ const currentYear = new Date().getFullYear();
                             </a>
                             <Link
                                 v-else
-                                :href="route('register')"
+                                :href="route('checkout', { plan: plan.rawPlan?.slug || plan.name.toLowerCase().replace(' cloud', ''), billing: annual ? 'yearly' : 'monthly' })"
                                 :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
                             >
-                                {{ plan.action }} <ArrowRight :size="14" aria-hidden="true" />
+                                <span>{{ plan.action }}</span>
+                                <ArrowRight :size="14" aria-hidden="true" />
                             </Link>
                             <div class="plan-rule" />
                             <div class="plan-list-label">Included</div>

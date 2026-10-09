@@ -317,10 +317,9 @@ const getFeatures = (plan) => {
                         </div>
 
                         <div>
-                            <button 
-                                type="button"
-                                @click="openHostingRequest(plan)"
-                                class="w-full text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm cursor-pointer"
+                            <Link 
+                                :href="route('checkout', { plan: plan.slug, billing: 'yearly' })"
+                                class="w-full text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm cursor-pointer text-center block"
                                 :class="[
                                     plan.is_popular 
                                         ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/10' 
@@ -328,7 +327,7 @@ const getFeatures = (plan) => {
                                 ]"
                             >
                                 {{ plan.cta_text || 'Deploy ' + plan.name }}
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

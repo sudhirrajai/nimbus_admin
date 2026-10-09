@@ -130,19 +130,34 @@ const formatDate = (dateStr) => {
                             <span 
                                 :class="{
                                     'bg-emerald-50 text-emerald-700 border-emerald-200': account.status === 'active',
+                                    'bg-amber-50 text-amber-800 border-amber-300 ring-1 ring-amber-400/30': account.status === 'pending',
                                     'bg-amber-50 text-amber-700 border-amber-200': account.status === 'suspended',
                                     'bg-red-50 text-red-700 border-red-200': account.status === 'terminated'
                                 }"
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border shadow-2xs"
                             >
-                                {{ account.status }}
+                                <span v-if="account.status === 'pending'" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                {{ account.status === 'pending' ? 'Pending Provisioning (Max 2 hrs)' : account.status }}
                             </span>
+                        </div>
+
+                        <!-- Pending Provisioning Notice -->
+                        <div v-if="account.status === 'pending'" class="mt-4 p-4 rounded-xl border border-amber-200 bg-amber-50/70 text-xs text-amber-900 space-y-2">
+                            <div class="flex items-center gap-2 font-bold text-amber-800">
+                                <span class="material-symbols-rounded text-base animate-spin text-amber-600">hourglass_top</span>
+                                Account Verification &amp; Server Provisioning in Progress
+                            </div>
+                            <p class="text-[11px] text-amber-800/90 leading-relaxed">
+                                Your payment has been confirmed via Razorpay. Our infrastructure engineers are actively configuring your isolated server container, Let's Encrypt SSL, and Nginx vhosts. Target setup time is strictly <strong>under 2 hours</strong>. Your live credentials and login access will activate immediately upon verification.
+                            </p>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                             <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Node IP / Host</div>
-                                <div class="text-xs text-gray-900 font-mono font-bold truncate">{{ account.server?.ip_address || 'Dedicated VPS' }}</div>
+                                <div class="text-xs text-gray-900 font-mono font-bold truncate">
+                                    {{ account.status === 'pending' ? 'Assigning Node (< 2 hrs)...' : (account.server?.ip_address || 'Dedicated VPS') }}
+                                </div>
                             </div>
                             <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Renewal Due Date</div>
@@ -150,7 +165,11 @@ const formatDate = (dateStr) => {
                             </div>
                             <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Live Website Health</div>
-                                <div v-if="account.uptime_status === 'up'" class="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                                <div v-if="account.status === 'pending'" class="flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                    <span>Server Provisioning Queue</span>
+                                </div>
+                                <div v-else-if="account.uptime_status === 'up'" class="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                     <span>200 OK</span>
                                     <span v-if="account.uptime_response_time_ms" class="text-[11px] font-mono text-gray-400 font-normal">({{ account.uptime_response_time_ms }}ms)</span>
@@ -170,9 +189,17 @@ const formatDate = (dateStr) => {
                     <!-- 1-Click Login to Nimbus Action -->
                     <div class="pt-5 mt-5 border-t border-gray-200 flex items-center justify-between gap-3">
                         <div class="text-xs text-gray-500">
-                            Single sign-on access to your website's control panel.
+                            {{ account.status === 'pending' ? 'Access credentials will be delivered within 2 hours.' : "Single sign-on access to your website's control panel." }}
                         </div>
+                        <span 
+                            v-if="account.status === 'pending'"
+                            class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase shrink-0"
+                        >
+                            <span class="material-symbols-rounded text-sm animate-spin text-amber-600">schedule</span>
+                            Provisioning (&lt; 2 hrs)
+                        </span>
                         <a 
+                            v-else
                             :href="route('hosting.accounts.client-sso', account.id)"
                             target="_blank"
                             class="inline-flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all shadow-sm shrink-0"

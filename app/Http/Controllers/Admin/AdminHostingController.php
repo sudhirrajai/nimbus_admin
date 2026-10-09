@@ -109,10 +109,10 @@ class AdminHostingController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'hosting_server_id' => 'required|exists:hosting_servers,id',
+            'hosting_server_id' => 'nullable|exists:hosting_servers,id',
             'domain' => 'required|string|max:255',
             'plan_name' => 'required|string|max:255',
-            'status' => 'required|in:active,suspended,terminated',
+            'status' => 'required|in:pending,active,suspended,terminated',
             'notes' => 'nullable|string|max:1000',
             'billing_cycle' => 'nullable|string|in:monthly,quarterly,semi_annual,yearly,biennial,triennial',
             'starts_at' => 'nullable|date',
@@ -213,10 +213,10 @@ class AdminHostingController extends Controller
     public function updateAccount(Request $request, HostingAccount $account)
     {
         $validated = $request->validate([
-            'hosting_server_id' => 'required|exists:hosting_servers,id',
+            'hosting_server_id' => 'nullable|exists:hosting_servers,id',
             'domain' => 'required|string|max:255',
             'plan_name' => 'required|string|max:255',
-            'status' => 'required|in:active,suspended,terminated',
+            'status' => 'required|in:pending,active,suspended,terminated',
             'billing_cycle' => 'nullable|string|in:monthly,quarterly,semi_annual,yearly,biennial,triennial',
             'starts_at' => 'nullable|date',
             'initial_price' => 'nullable|numeric|min:0',

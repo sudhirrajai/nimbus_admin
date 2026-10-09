@@ -57,6 +57,12 @@ Route::get('/products/nimbus', function () {
     ]);
 })->name('products.nimbus');
 
+// Direct Checkout & Managed Hosting Payment
+Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
+Route::post('/payment/initiate-hosting', [\App\Http\Controllers\PaymentController::class, 'initiateHostingPayment'])->name('payment.initiate-hosting');
+Route::post('/payment/verify-hosting', [\App\Http\Controllers\PaymentController::class, 'verifyHostingPayment'])->name('payment.verify-hosting');
+Route::get('/hosting/order-confirmation/{account}', [\App\Http\Controllers\HostingController::class, 'orderConfirmation'])->name('hosting.order-confirmation');
+
 use App\Http\Controllers\UserLicenseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminLicenseController;

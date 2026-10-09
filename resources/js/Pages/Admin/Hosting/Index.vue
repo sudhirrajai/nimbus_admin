@@ -498,6 +498,14 @@ const formatTimeAgo = (dateStr) => {
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <span 
+                                            v-if="account.status === 'pending'"
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-300 ring-1 ring-amber-400/30"
+                                        >
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                            Pending (&lt; 2h)
+                                        </span>
+                                        <span 
+                                            v-else
                                             :class="{
                                                 'bg-emerald-50 text-emerald-700 border-emerald-200': account.status === 'active',
                                                 'bg-amber-50 text-amber-700 border-amber-200': account.status === 'suspended',
@@ -511,6 +519,16 @@ const formatTimeAgo = (dateStr) => {
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <button 
+                                                v-if="account.status === 'pending'"
+                                                @click="openEditAccountModal(account)"
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded shadow-sm transition-colors cursor-pointer"
+                                                title="Assign server node and verify client account"
+                                            >
+                                                <span class="material-symbols-rounded text-sm">tune</span>
+                                                Verify &amp; Provision
+                                            </button>
+                                            <button 
+                                                v-else
                                                 @click="checkAccountUptime(account)"
                                                 :disabled="pingingAccountId === account.id"
                                                 class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 text-xs font-semibold rounded border border-gray-200 transition-colors shadow-2xs disabled:opacity-50 cursor-pointer"
@@ -775,6 +793,16 @@ const formatTimeAgo = (dateStr) => {
                     {{ editingAccount ? 'Edit Client Hosting Account & Renewal' : 'Assign Client Hosting Account' }}
                 </h3>
                 <form @submit.prevent="submitAccountForm" class="space-y-4">
+                    <div v-if="editingAccount && editingAccount.status === 'pending'" class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+                        <div class="font-bold flex items-center gap-1.5 text-amber-900">
+                            <span class="material-symbols-rounded text-sm">schedule</span>
+                            Client Paid Online · Pending Server Provisioning (Max 2 Hours)
+                        </div>
+                        <p class="text-[11px] text-amber-800/90">
+                            Assign a server node below, confirm the domain, and change status to <strong>Active</strong> to complete provisioning.
+                        </p>
+                    </div>
+
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Select Client User</label>
                         <select v-model="accountForm.user_id" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" :disabled="!!editingAccount" required>
@@ -785,7 +813,8 @@ const formatTimeAgo = (dateStr) => {
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Target Nimbus Node</label>
-                        <select v-model="accountForm.hosting_server_id" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5" required>
+                        <select v-model="accountForm.hosting_server_id" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5">
+                            <option value="">-- Unassigned (Pending Node Allocation) --</option>
                             <option v-for="server in servers" :key="server.id" :value="server.id">
                                 {{ server.name }} ({{ server.ip_address }})
                             </option>
@@ -817,7 +846,8 @@ const formatTimeAgo = (dateStr) => {
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Account Status</label>
                             <select v-model="accountForm.status" class="w-full bg-white border border-gray-200 rounded-lg text-sm p-2.5">
-                                <option value="active">Active</option>
+                                <option value="pending">Pending Verification (&lt; 2 hrs)</option>
+                                <option value="active">Active (Verified &amp; Provisioned)</option>
                                 <option value="suspended">Suspended</option>
                                 <option value="terminated">Terminated</option>
                             </select>
