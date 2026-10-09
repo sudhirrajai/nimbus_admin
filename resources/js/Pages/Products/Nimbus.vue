@@ -177,13 +177,13 @@ const activeFaqs = computed(() => {
 // Dynamic billing plans logic
 const hasYearlyPlans = computed(() => {
     return (props.plans || []).some(
-        (p) => p.billing_period === '/year' || p.billing_period === 'yearly' || p.billing_period === '/yr'
+        (p) => (Number(p.price_usd) > 0 || Number(p.price_inr) > 0) || p.billing_period === '/year' || p.billing_period === 'yearly' || p.billing_period === '/yr'
     );
 });
 
 const hasMonthlyPlans = computed(() => {
     return (props.plans || []).some(
-        (p) => p.billing_period === '/month' || p.billing_period === 'monthly' || p.billing_period === '/mo'
+        (p) => (Number(p.monthly_price_usd) > 0 || Number(p.monthly_price_inr) > 0) || p.billing_period === '/month' || p.billing_period === 'monthly' || p.billing_period === '/mo'
     );
 });
 
@@ -191,17 +191,27 @@ const showBillingToggle = computed(() => {
     return hasYearlyPlans.value && hasMonthlyPlans.value;
 });
 
+const isPlanFree = (plan) => {
+    if (!plan) return false;
+    if (plan.slug === 'free' || plan.billing_period === 'forever') return true;
+    const yearlyFree = Number(plan.price_inr) === 0 && Number(plan.price_usd) === 0;
+    const monthlyFree = !plan.monthly_price_inr && !plan.monthly_price_usd;
+    return yearlyFree && monthlyFree;
+};
+
 const displayedPlans = computed(() => {
     const list = props.plans || [];
     if (!list.length) return [];
 
     if (showBillingToggle.value) {
         return list.filter((p) => {
-            if (p.slug === 'free' || p.price_inr === 0 || p.billing_period === 'forever') return true;
-            if (billingCycle.value === 'yearly') {
-                return p.billing_period === '/year' || p.billing_period === 'yearly' || p.billing_period === '/yr';
+            if (isPlanFree(p)) return true;
+            if (billingCycle.value === 'monthly') {
+                return (Number(p.monthly_price_usd) > 0 || Number(p.monthly_price_inr) > 0) ||
+                    p.billing_period === '/month' || p.billing_period === 'monthly' || p.billing_period === '/mo';
             }
-            return p.billing_period === '/month' || p.billing_period === 'monthly' || p.billing_period === '/mo';
+            return (Number(p.price_usd) > 0 || Number(p.price_inr) > 0) ||
+                p.billing_period === '/year' || p.billing_period === 'yearly' || p.billing_period === '/yr';
         });
     }
 
@@ -214,6 +224,30 @@ const formatBillingPeriod = (period) => {
     if (period === '/month' || period === 'monthly' || period === '/mo') return '/ month';
     if (period === 'forever') return '/ forever';
     return period.startsWith('/') ? period : `/ ${period}`;
+};
+
+const getPlanPrice = (plan) => {
+    if (billingCycle.value === 'monthly') {
+        if (selectedCurrency.value === 'INR') {
+            return (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') ? plan.monthly_price_inr : plan.price_inr;
+        }
+        return (plan.monthly_price_usd != null && plan.monthly_price_usd !== '') ? plan.monthly_price_usd : plan.price_usd;
+    } else {
+        if (selectedCurrency.value === 'INR') {
+            return plan.price_inr;
+        }
+        return plan.price_usd;
+    }
+};
+
+const getPlanBillingPeriod = (plan) => {
+    if (isPlanFree(plan) || plan.billing_period === 'forever') return '/ forever';
+    if (billingCycle.value === 'monthly') {
+        if ((Number(plan.monthly_price_usd) > 0 || Number(plan.monthly_price_inr) > 0) || plan.billing_period === '/month' || plan.billing_period === 'monthly' || plan.billing_period === '/mo') {
+            return '/ month';
+        }
+    }
+    return formatBillingPeriod(plan.billing_period);
 };
 
 let revealObserver = null;
@@ -288,13 +322,13 @@ const handlePlanAction = async (plan) => {
         return;
     }
 
-    if (plan.slug === 'free' || plan.price_inr === 0) {
+    if (isPlanFree(plan)) {
         router.post(route('licenses.free'));
         return;
     }
 
-    // Direct to store with self-hosted tab
-    router.visit(route('store.index', { tab: 'self_hosted' }));
+    // Direct to store with self-hosted tab and selected cycle
+    router.visit(route('store.index', { tab: 'self_hosted', cycle: billingCycle.value }));
 };
 
 const currentYear = new Date().getFullYear();
@@ -600,19 +634,19 @@ const currentYear = new Date().getFullYear();
                                 {{ plan.description || (plan.slug === 'free' ? 'For personal projects, dev machines, and single server setups.' : plan.slug === 'pro' ? 'For production apps, agencies, and teams running client servers.' : 'For enterprise infrastructure, fleets, and mission-critical clusters.') }}
                             </p>
                             <div class="plan-price">
-                                <template v-if="plan.price_inr === 0 || plan.slug === 'free'">
+                                <template v-if="isPlanFree(plan)">
                                     <span class="price-amount">Free</span>
                                     <span class="price-unit">/ forever</span>
                                 </template>
                                 <template v-else>
                                     <span class="price-amount">
-                                        {{ selectedCurrency === 'INR' ? `₹${plan.price_inr}` : `$${plan.price_usd}` }}
+                                        {{ selectedCurrency === 'INR' ? `₹${getPlanPrice(plan)}` : `$${getPlanPrice(plan)}` }}
                                     </span>
-                                    <span class="price-unit">{{ formatBillingPeriod(plan.billing_period) }}</span>
+                                    <span class="price-unit">{{ getPlanBillingPeriod(plan) }}</span>
                                 </template>
                             </div>
                             <div class="billing-caption">
-                                {{ (plan.price_inr === 0 || plan.slug === 'free') ? 'No credit card required' : 'Cancel anytime · Instant license key activation' }}
+                                {{ isPlanFree(plan) ? 'No credit card required' : 'Cancel anytime · Instant license key activation' }}
                             </div>
 
                             <button
@@ -620,7 +654,7 @@ const currentYear = new Date().getFullYear();
                                 @click="handlePlanAction(plan)"
                                 :class="['button', (plan.is_popular || plan.slug === 'pro') ? 'button-primary' : 'button-outline', 'plan-cta', 'w-full']"
                             >
-                                <span>{{ (plan.slug === 'free' || plan.price_inr === 0) ? 'Get Free License' : (plan.cta_text || `Buy ${plan.name} License`) }}</span>
+                                <span>{{ isPlanFree(plan) ? 'Get Free License' : (plan.cta_text || `Buy ${plan.name} License`) }}</span>
                                 <ArrowRight :size="14" aria-hidden="true" />
                             </button>
 

@@ -34,9 +34,13 @@ const createForm = useForm({
     type: 'managed_hosting',
     slug: '',
     price_inr: 3800,
+    monthly_price_inr: null,
     renewal_price_inr: 4790,
+    renewal_monthly_price_inr: null,
     price_usd: 49,
+    monthly_price_usd: null,
     renewal_price_usd: 59,
+    renewal_monthly_price_usd: null,
     billing_period: '/year',
     max_domains: 5,
     features: [],
@@ -53,18 +57,26 @@ const openCreateModal = (defaultType = 'managed_hosting') => {
     if (defaultType === 'managed_hosting') {
         createForm.name = 'Cloud VPS Plan';
         createForm.price_inr = 3800;
+        createForm.monthly_price_inr = null;
         createForm.renewal_price_inr = 4790;
+        createForm.renewal_monthly_price_inr = null;
         createForm.price_usd = 49;
+        createForm.monthly_price_usd = null;
         createForm.renewal_price_usd = 59;
+        createForm.renewal_monthly_price_usd = null;
         createForm.max_domains = 5;
         createForm.cta_text = 'Deploy Cloud';
         featuresInput.value = "1 vCPU & 2GB RAM Cloud Node\n30GB NVMe High-Speed Storage\nFully Managed by VMCORE Team\nFree Auto-Renewing SSL\nAutomated Daily Backups";
     } else {
         createForm.name = 'Nimbus License';
         createForm.price_inr = 499;
+        createForm.monthly_price_inr = 49;
         createForm.renewal_price_inr = 499;
+        createForm.renewal_monthly_price_inr = 49;
         createForm.price_usd = 19;
+        createForm.monthly_price_usd = 2;
         createForm.renewal_price_usd = 19;
+        createForm.renewal_monthly_price_usd = 2;
         createForm.billing_period = '/year';
         createForm.max_domains = 10;
         createForm.cta_text = 'Buy License';
@@ -230,17 +242,23 @@ const deletePlan = (plan) => {
                                     <div class="font-bold text-gray-900 text-sm">
                                         {{ formatPrice(plan.price_inr, 'INR') }}<span class="text-[11px] text-gray-400 font-sans font-normal">{{ plan.billing_period }}</span>
                                     </div>
-                                    <div class="text-[11px] text-emerald-700 font-medium mt-0.5">
+                                    <div v-if="plan.monthly_price_inr" class="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                                        Monthly: {{ formatPrice(plan.monthly_price_inr, 'INR') }}/mo
+                                    </div>
+                                    <div class="text-[10px] text-gray-500 font-medium mt-0.5">
                                         Renews: {{ formatPrice(plan.renewal_price_inr || plan.price_inr, 'INR') }}
                                     </div>
                                 </td>
 
                                 <!-- USD Price and Renewal Rate -->
                                 <td class="px-6 py-4.5 text-xs font-mono">
-                                    <div class="font-semibold text-gray-800">
+                                    <div class="font-semibold text-gray-800 text-sm">
                                         {{ formatPrice(plan.price_usd, 'USD') }}<span class="text-[11px] text-gray-400 font-sans font-normal">{{ plan.billing_period }}</span>
                                     </div>
-                                    <div class="text-[11px] text-gray-500 mt-0.5">
+                                    <div v-if="plan.monthly_price_usd" class="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                                        Monthly: {{ formatPrice(plan.monthly_price_usd, 'USD') }}/mo
+                                    </div>
+                                    <div class="text-[10px] text-gray-500 mt-0.5">
                                         Renews: {{ formatPrice(plan.renewal_price_usd || plan.price_usd, 'USD') }}
                                     </div>
                                 </td>
@@ -352,15 +370,35 @@ const deletePlan = (plan) => {
                         />
                     </div>
 
-                    <!-- Pricing Grids -->
+                    <!-- Billing Period Display Preset -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-700 mb-1">Billing Period Display Preset</label>
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <button type="button" @click="createForm.billing_period = '/year'" :class="createForm.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/year (Yearly)</button>
+                            <button type="button" @click="createForm.billing_period = '/month'" :class="createForm.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/month (Monthly)</button>
+                            <button type="button" @click="createForm.billing_period = 'forever'" :class="createForm.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">forever</button>
+                        </div>
+                        <input 
+                            v-model="createForm.billing_period" 
+                            type="text" 
+                            placeholder="/year or /month"
+                            required
+                            class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500" 
+                        />
+                    </div>
+
+                    <!-- YEARLY PRICING SECTION -->
                     <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 space-y-3">
-                        <div class="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                            <span class="material-symbols-rounded text-emerald-600 text-sm">payments</span>
-                            Pricing &amp; Renewal Rates
+                        <div class="text-xs font-bold text-gray-900 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <span class="material-symbols-rounded text-emerald-600 text-sm">calendar_month</span>
+                                Yearly / Annual Pricing
+                            </span>
+                            <span class="text-[10px] text-gray-500 font-normal">Primary Annual Rate</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Initial Price (INR ₹)</label>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Price (INR ₹)</label>
                                 <input 
                                     v-model="createForm.price_inr" 
                                     type="number" 
@@ -371,7 +409,7 @@ const deletePlan = (plan) => {
                                 />
                             </div>
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Next Renewal Price (INR ₹)</label>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Renewal (INR ₹)</label>
                                 <input 
                                     v-model="createForm.renewal_price_inr" 
                                     type="number" 
@@ -383,7 +421,7 @@ const deletePlan = (plan) => {
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Initial Price (USD $)</label>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Price (USD $)</label>
                                 <input 
                                     v-model="createForm.price_usd" 
                                     type="number" 
@@ -394,7 +432,7 @@ const deletePlan = (plan) => {
                                 />
                             </div>
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Next Renewal Price (USD $)</label>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Renewal (USD $)</label>
                                 <input 
                                     v-model="createForm.renewal_price_usd" 
                                     type="number" 
@@ -404,33 +442,75 @@ const deletePlan = (plan) => {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <!-- MONTHLY PRICING SECTION -->
+                    <div class="bg-emerald-50/40 border border-emerald-200/80 rounded-xl p-4 space-y-3">
+                        <div class="text-xs font-bold text-gray-900 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <span class="material-symbols-rounded text-emerald-600 text-sm">schedule</span>
+                                Monthly Pricing (Optional)
+                            </span>
+                            <span class="text-[10px] text-emerald-700 font-medium">Billed Monthly</span>
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Billing Period Display</label>
-                                <div class="flex items-center gap-1.5 mb-1.5">
-                                    <button type="button" @click="createForm.billing_period = '/year'" :class="createForm.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/year (Yearly)</button>
-                                    <button type="button" @click="createForm.billing_period = '/month'" :class="createForm.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/month (Monthly)</button>
-                                    <button type="button" @click="createForm.billing_period = 'forever'" :class="createForm.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">forever</button>
-                                </div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Monthly Price (INR ₹)</label>
                                 <input 
-                                    v-model="createForm.billing_period" 
-                                    type="text" 
-                                    placeholder="/year or /month"
-                                    required
-                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500" 
+                                    v-model="createForm.monthly_price_inr" 
+                                    type="number" 
+                                    step="1"
+                                    min="0"
+                                    placeholder="e.g. 49"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
                             </div>
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Max Domains Allowed</label>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Monthly Renewal (INR ₹)</label>
                                 <input 
-                                    v-model="createForm.max_domains" 
+                                    v-model="createForm.renewal_monthly_price_inr" 
                                     type="number" 
-                                    min="1"
-                                    required
+                                    step="1"
+                                    min="0"
+                                    placeholder="e.g. 49"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
                             </div>
                         </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Monthly Price (USD $)</label>
+                                <input 
+                                    v-model="createForm.monthly_price_usd" 
+                                    type="number" 
+                                    step="1"
+                                    min="0"
+                                    placeholder="e.g. 2"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
+                                />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Monthly Renewal (USD $)</label>
+                                <input 
+                                    v-model="createForm.renewal_monthly_price_usd" 
+                                    type="number" 
+                                    step="1"
+                                    min="0"
+                                    placeholder="e.g. 2"
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 mb-1">Max Domains Allowed</label>
+                        <input 
+                            v-model="createForm.max_domains" 
+                            type="number" 
+                            min="1" 
+                            required 
+                            class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
+                        />
                     </div>
 
                     <!-- Features text list -->

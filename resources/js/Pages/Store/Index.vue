@@ -11,6 +11,7 @@ const props = defineProps({
 
 const activeTab = ref('managed_hosting'); // 'managed_hosting' or 'self_hosted'
 const selectedCurrency = ref('INR');
+const billingCycle = ref('yearly');
 const showHostingModal = ref(false);
 const selectedPlanForHosting = ref(null);
 
@@ -22,10 +23,13 @@ const hostingForm = useForm({
 });
 
 onMounted(() => {
-    // Check URL parameters for tab
+    // Check URL parameters for tab and cycle
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === 'self_hosted') {
         activeTab.value = 'self_hosted';
+    }
+    if (params.get('cycle') === 'monthly' || params.get('cycle') === 'yearly') {
+        billingCycle.value = params.get('cycle');
     }
 
     // Auto-detect timezone currency
@@ -70,7 +74,10 @@ const buySelfHostPlan = async (plan) => {
     }
 
     try {
-        const response = await axios.post(route('payment.initiate'), { plan: plan.slug });
+        const response = await axios.post(route('payment.initiate'), {
+            plan: plan.slug,
+            billing_cycle: billingCycle.value,
+        });
         const data = response.data;
 
         const options = {
@@ -78,7 +85,7 @@ const buySelfHostPlan = async (plan) => {
             amount: data.amount,
             currency: "INR",
             name: "Roook Hosting",
-            description: `${plan.name} License Purchase`,
+            description: `${plan.name} License Purchase (${billingCycle.value === 'monthly' ? 'Monthly' : 'Yearly'})`,
             order_id: data.order_id,
             handler: function (response) {
                 const form = document.createElement('form');
@@ -120,6 +127,54 @@ const buySelfHostPlan = async (plan) => {
         alert('Failed to initiate payment gateway. Please check Razorpay keys in settings.');
         console.error(error);
     }
+};
+
+const getSelfHostPrice = (plan) => {
+    if (billingCycle.value === 'monthly') {
+        if (selectedCurrency.value === 'INR') {
+            const price = (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') ? plan.monthly_price_inr : plan.price_inr;
+            return price === 0 ? '₹0' : '₹' + Number(price).toLocaleString('en-IN');
+        } else {
+            const price = (plan.monthly_price_usd != null && plan.monthly_price_usd !== '') ? plan.monthly_price_usd : plan.price_usd;
+            return price === 0 ? '$0' : '$' + price;
+        }
+    } else {
+        if (selectedCurrency.value === 'INR') {
+            return plan.price_inr === 0 ? '₹0' : '₹' + Number(plan.price_inr).toLocaleString('en-IN');
+        } else {
+            return plan.price_usd === 0 ? '$0' : '$' + plan.price_usd;
+        }
+    }
+};
+
+const getSelfHostPeriod = (plan) => {
+    if (plan.slug === 'free' || plan.price_inr === 0) return '/ forever';
+    if (billingCycle.value === 'monthly') return '/ month';
+    return plan.billing_period || '/ year';
+};
+
+const getSelfHostChargeINR = (plan) => {
+    if (billingCycle.value === 'monthly') {
+        return (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') ? plan.monthly_price_inr : plan.price_inr;
+    }
+    return plan.price_inr;
+};
+
+const getSelfHostRenewal = (plan) => {
+    if (billingCycle.value === 'monthly') {
+        if (plan.renewal_monthly_price_inr || plan.renewal_monthly_price_usd) {
+            return selectedCurrency.value === 'INR' 
+                ? 'Renews at: ₹' + Number(plan.renewal_monthly_price_inr || plan.monthly_price_inr).toLocaleString('en-IN') + ' / month'
+                : 'Renews at: $' + (plan.renewal_monthly_price_usd || plan.monthly_price_usd) + ' / month';
+        }
+    } else {
+        if (plan.renewal_price_inr && plan.renewal_price_inr !== plan.price_inr) {
+            return selectedCurrency.value === 'INR'
+                ? 'Renews at: ₹' + Number(plan.renewal_price_inr).toLocaleString('en-IN') + ' ' + (plan.billing_period || '/ year')
+                : 'Renews at: $' + plan.renewal_price_usd + ' ' + (plan.billing_period || '/ year');
+        }
+    }
+    return null;
 };
 
 const getFeatures = (plan) => {
@@ -281,7 +336,7 @@ const getFeatures = (plan) => {
 
             <!-- TAB 2: SELF-HOSTED NIMBUS LICENSES -->
             <div v-if="activeTab === 'self_hosted'" class="space-y-6 animate-fade-in">
-                <!-- Info Banner -->
+                <!-- Info Banner with Billing Cycle Toggle -->
                 <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-rounded text-emerald-600 text-2xl">terminal</span>
@@ -289,6 +344,26 @@ const getFeatures = (plan) => {
                             <div class="text-sm font-bold text-gray-900">Bring Your Own Server &bull; 100% Data Sovereignty</div>
                             <div class="text-xs text-gray-600 mt-0.5">Run a single curl command on any Ubuntu/Debian server and unlock an elite server management panel.</div>
                         </div>
+                    </div>
+
+                    <!-- Billing Cycle Selector -->
+                    <div class="flex items-center bg-white p-1 rounded-lg border border-emerald-200 shadow-xs shrink-0">
+                        <button 
+                            type="button"
+                            @click="billingCycle = 'monthly'"
+                            :class="billingCycle === 'monthly' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="px-3 py-1 text-xs rounded transition-all cursor-pointer"
+                        >
+                            Monthly
+                        </button>
+                        <button 
+                            type="button"
+                            @click="billingCycle = 'yearly'"
+                            :class="billingCycle === 'yearly' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="px-3 py-1 text-xs rounded transition-all cursor-pointer"
+                        >
+                            Yearly
+                        </button>
                     </div>
                 </div>
 
@@ -314,12 +389,12 @@ const getFeatures = (plan) => {
                             <div class="space-y-1">
                                 <div class="flex items-baseline gap-1">
                                     <span class="text-3xl font-bold text-gray-900">
-                                        {{ selectedCurrency === 'INR' ? (plan.price_inr === 0 ? '₹0' : '₹' + Number(plan.price_inr).toLocaleString('en-IN')) : (plan.price_usd === 0 ? '$0' : '$' + plan.price_usd) }}
+                                        {{ getSelfHostPrice(plan) }}
                                     </span>
-                                    <span class="text-xs text-gray-400">{{ plan.billing_period }}</span>
+                                    <span class="text-xs text-gray-400">{{ getSelfHostPeriod(plan) }}</span>
                                 </div>
-                                <div v-if="plan.renewal_price_inr && plan.renewal_price_inr !== plan.price_inr" class="text-xs text-gray-500 font-mono">
-                                    Renews at: {{ selectedCurrency === 'INR' ? '₹' + Number(plan.renewal_price_inr).toLocaleString('en-IN') : '$' + plan.renewal_price_usd }} {{ plan.billing_period }}
+                                <div v-if="getSelfHostRenewal(plan)" class="text-xs text-gray-500 font-mono">
+                                    {{ getSelfHostRenewal(plan) }}
                                 </div>
                             </div>
 
@@ -345,7 +420,7 @@ const getFeatures = (plan) => {
                                 {{ plan.cta_text || (plan.price_inr > 0 ? 'Buy ' + plan.name + ' Now' : 'Claim Free License') }}
                             </button>
                             <div v-if="selectedCurrency === 'USD' && plan.price_inr > 0" class="text-[10px] text-gray-400 text-center mt-2">
-                                Processed as ₹{{ plan.price_inr }} via Razorpay
+                                Processed as ₹{{ getSelfHostChargeINR(plan) }} via Razorpay
                             </div>
                         </div>
                     </div>

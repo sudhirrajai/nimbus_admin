@@ -14,9 +14,13 @@ const form = useForm({
     name: props.plan.name,
     type: props.plan.type || 'self_hosted',
     price_inr: props.plan.price_inr,
+    monthly_price_inr: props.plan.monthly_price_inr ?? null,
     renewal_price_inr: props.plan.renewal_price_inr ?? props.plan.price_inr,
+    renewal_monthly_price_inr: props.plan.renewal_monthly_price_inr ?? null,
     price_usd: props.plan.price_usd,
+    monthly_price_usd: props.plan.monthly_price_usd ?? null,
     renewal_price_usd: props.plan.renewal_price_usd ?? props.plan.price_usd,
+    renewal_monthly_price_usd: props.plan.renewal_monthly_price_usd ?? null,
     billing_period: props.plan.billing_period,
     max_domains: props.plan.max_domains,
     features: props.plan.features || [],
@@ -128,76 +132,142 @@ const submit = () => {
                         <div v-if="form.errors.description" class="text-xs text-red-600 mt-1">{{ form.errors.description }}</div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                        <!-- Price INR -->
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Initial Price (INR)</label>
-                            <input 
-                                type="number" 
-                                v-model="form.price_inr" 
-                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
-                                required
-                                min="0"
-                            />
-                            <div v-if="form.errors.price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.price_inr }}</div>
+                    <!-- Billing Period Preset -->
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Billing Period Display Preset</label>
+                        <div class="flex items-center gap-1.5 mb-2">
+                            <button type="button" @click="form.billing_period = '/year'" :class="form.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2.5 py-1 rounded text-xs font-semibold border transition">/year (Yearly)</button>
+                            <button type="button" @click="form.billing_period = '/month'" :class="form.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2.5 py-1 rounded text-xs font-semibold border transition">/month (Monthly)</button>
+                            <button type="button" @click="form.billing_period = 'forever'" :class="form.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2.5 py-1 rounded text-xs font-semibold border transition">forever</button>
                         </div>
+                        <input 
+                            type="text" 
+                            v-model="form.billing_period" 
+                            class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
+                            required
+                        />
+                        <div v-if="form.errors.billing_period" class="text-xs text-red-600 mt-1">{{ form.errors.billing_period }}</div>
+                    </div>
 
-                        <!-- Renewal Price INR -->
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Next Renewal Price (INR)</label>
-                            <input 
-                                type="number" 
-                                v-model="form.renewal_price_inr" 
-                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
-                                min="0"
-                                placeholder="e.g. 4790"
-                            />
-                            <div v-if="form.errors.renewal_price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_inr }}</div>
-                        </div>
-
-                        <!-- Billing Period -->
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Billing Period</label>
-                            <div class="flex items-center gap-1.5 mb-2">
-                                <button type="button" @click="form.billing_period = '/year'" :class="form.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/year (Yearly)</button>
-                                <button type="button" @click="form.billing_period = '/month'" :class="form.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/month (Monthly)</button>
-                                <button type="button" @click="form.billing_period = 'forever'" :class="form.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">forever</button>
+                    <!-- YEARLY / ANNUAL PRICING SECTION -->
+                    <div class="bg-slate-50 border border-gray-200 rounded-xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="material-symbols-rounded text-emerald-600 text-base">calendar_month</span>
+                                Yearly / Annual Pricing
                             </div>
-                            <input 
-                                type="text" 
-                                v-model="form.billing_period" 
-                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
-                                required
-                            />
-                            <div v-if="form.errors.billing_period" class="text-xs text-red-600 mt-1">{{ form.errors.billing_period }}</div>
+                            <span class="text-[11px] text-gray-500">Billed annually</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Yearly Price (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.price_inr" 
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    required
+                                    min="0"
+                                />
+                                <div v-if="form.errors.price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.price_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next Yearly Renewal (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_price_inr" 
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                    placeholder="e.g. 4790"
+                                />
+                                <div v-if="form.errors.renewal_price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Yearly Price (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.price_usd" 
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    required
+                                    min="0"
+                                />
+                                <div v-if="form.errors.price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.price_usd }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next Yearly Renewal (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_price_usd" 
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                    placeholder="e.g. 59"
+                                />
+                                <div v-if="form.errors.renewal_price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_usd }}</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <!-- Price USD -->
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Initial Price (USD)</label>
-                            <input 
-                                type="number" 
-                                v-model="form.price_usd" 
-                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
-                                required
-                                min="0"
-                            />
-                            <div v-if="form.errors.price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.price_usd }}</div>
+                    <!-- MONTHLY PRICING SECTION -->
+                    <div class="bg-emerald-50/40 border border-emerald-200/80 rounded-xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="material-symbols-rounded text-emerald-600 text-base">schedule</span>
+                                Monthly Pricing (Optional)
+                            </div>
+                            <span class="text-[11px] text-emerald-700 font-medium">Billed monthly on Nimbus product page</span>
                         </div>
 
-                        <!-- Renewal Price USD -->
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Next Renewal Price (USD)</label>
-                            <input 
-                                type="number" 
-                                v-model="form.renewal_price_usd" 
-                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
-                                min="0"
-                                placeholder="e.g. 59"
-                            />
-                            <div v-if="form.errors.renewal_price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_usd }}</div>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Monthly Price (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.monthly_price_inr" 
+                                    placeholder="e.g. 49"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.monthly_price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.monthly_price_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next Monthly Renewal (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_monthly_price_inr" 
+                                    placeholder="e.g. 49"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.renewal_monthly_price_inr" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_monthly_price_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Monthly Price (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.monthly_price_usd" 
+                                    placeholder="e.g. 2"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.monthly_price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.monthly_price_usd }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next Monthly Renewal (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_monthly_price_usd" 
+                                    placeholder="e.g. 2"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.renewal_monthly_price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_monthly_price_usd }}</div>
+                            </div>
                         </div>
                     </div>
 

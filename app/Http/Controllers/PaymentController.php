@@ -34,15 +34,22 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Invalid plan requested.'], 422);
         }
 
+        $billingCycle = $request->input('billing_cycle', 'yearly');
+        $amountInr = $plan->price_inr;
+        if ($billingCycle === 'monthly' && !empty($plan->monthly_price_inr) && $plan->monthly_price_inr > 0) {
+            $amountInr = $plan->monthly_price_inr;
+        }
+
         $api = new Api($this->razorpayId, $this->razorpayKey);
 
         $orderData = [
             'receipt'         => 'rcpt_' . Auth::id() . '_' . time(),
-            'amount'          => $plan->price_inr * 100, // amount in paise
+            'amount'          => (int) round($amountInr * 100), // amount in paise
             'currency'        => 'INR',
             'notes'           => [
                 'plan' => $plan->slug,
                 'user_id' => Auth::id(),
+                'billing_cycle' => $billingCycle,
             ]
         ];
 
@@ -82,6 +89,9 @@ class PaymentController extends Controller
             $license = License::where('razorpay_payment_id', $paymentId)->first();
 
             if (!$license) {
+                $billingCycle = $order->notes->billing_cycle ?? 'yearly';
+                $expiresAt = ($billingCycle === 'monthly') ? now()->addMonth() : now()->addYear();
+
                 $license = License::create([
                     'user_id' => Auth::id(),
                     'license_key' => License::generateKey($plan),
@@ -89,7 +99,7 @@ class PaymentController extends Controller
                     'status' => 'active',
                     'razorpay_payment_id' => $paymentId,
                     'razorpay_order_id' => $request->razorpay_order_id,
-                    'expires_at' => now()->addYear(), // Standard 1 year expiry for paid plans
+                    'expires_at' => $expiresAt,
                     'status_changed_at' => now(),
                 ]);
             }
@@ -98,13 +108,16 @@ class PaymentController extends Controller
             $existingInvoice = \App\Models\Invoice::where('payment_id', $paymentId)->first();
             if (!$existingInvoice) {
                 $planModel = \App\Models\Plan::where('slug', $plan)->first();
-                $amount = $planModel ? $planModel->price_inr : ($order->amount / 100);
+                $billingCycle = $order->notes->billing_cycle ?? 'yearly';
+                $amount = $order->amount ? ($order->amount / 100) : ($planModel ? $planModel->price_inr : 0);
+                $periodLabel = ($billingCycle === 'monthly') ? 'Monthly Subscription' : 'Annual Subscription';
+
                 \App\Models\Invoice::create([
                     'user_id' => Auth::id(),
                     'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
                     'type' => 'license_plan',
                     'plan_name' => $planModel->name ?? (ucfirst($plan) . ' Plan'),
-                    'description' => 'Nimbus ' . ($planModel->name ?? ucfirst($plan)) . ' Server License (Annual Subscription)',
+                    'description' => 'Nimbus ' . ($planModel->name ?? ucfirst($plan)) . ' Server License (' . $periodLabel . ')',
                     'amount' => $amount,
                     'currency' => 'INR',
                     'status' => 'paid',
@@ -116,6 +129,7 @@ class PaymentController extends Controller
                         'customer_name' => Auth::user()->name,
                         'customer_email' => Auth::user()->email,
                         'order_id' => $request->razorpay_order_id,
+                        'billing_cycle' => $billingCycle,
                     ],
                 ]);
             }
