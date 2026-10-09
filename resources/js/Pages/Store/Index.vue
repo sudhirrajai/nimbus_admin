@@ -160,6 +160,53 @@ const getSelfHostChargeINR = (plan) => {
     return plan.price_inr;
 };
 
+const getManagedPrice = (plan) => {
+    if (billingCycle.value === 'monthly') {
+        if (selectedCurrency.value === 'INR') {
+            const price = (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') 
+                ? plan.monthly_price_inr 
+                : (plan.price_inr ? Math.round(Number(plan.price_inr) / 10) : 0);
+            return '₹' + Number(price).toLocaleString('en-IN');
+        } else {
+            const price = (plan.monthly_price_usd != null && plan.monthly_price_usd !== '') 
+                ? plan.monthly_price_usd 
+                : (plan.price_usd ? Math.round(Number(plan.price_usd) / 10) : 0);
+            return '$' + price;
+        }
+    } else {
+        if (selectedCurrency.value === 'INR') {
+            return '₹' + Number(plan.price_inr || 0).toLocaleString('en-IN');
+        } else {
+            return '$' + (plan.price_usd || 0);
+        }
+    }
+};
+
+const getManagedPeriod = (plan) => {
+    return billingCycle.value === 'monthly' ? '/ month' : (plan.billing_period || '/ year');
+};
+
+const getManagedRenewal = (plan) => {
+    if (billingCycle.value === 'monthly') {
+        const renewalInr = plan.renewal_monthly_price_inr || plan.monthly_price_inr;
+        const renewalUsd = plan.renewal_monthly_price_usd || plan.monthly_price_usd;
+        if (renewalInr || renewalUsd) {
+            return selectedCurrency.value === 'INR'
+                ? 'Renews at: ₹' + Number(renewalInr || Math.round(Number(plan.price_inr) / 10)).toLocaleString('en-IN') + ' / month'
+                : 'Renews at: $' + (renewalUsd || Math.round(Number(plan.price_usd) / 10)) + ' / month';
+        }
+    } else {
+        const renewalInr = plan.renewal_price_inr || plan.price_inr;
+        const renewalUsd = plan.renewal_price_usd || plan.price_usd;
+        if (renewalInr || renewalUsd) {
+            return selectedCurrency.value === 'INR'
+                ? 'Renews at: ₹' + Number(renewalInr).toLocaleString('en-IN') + ' ' + (plan.billing_period || '/ year')
+                : 'Renews at: $' + renewalUsd + ' ' + (plan.billing_period || '/ year');
+        }
+    }
+    return null;
+};
+
 const getSelfHostRenewal = (plan) => {
     if (billingCycle.value === 'monthly') {
         if (plan.renewal_monthly_price_inr || plan.renewal_monthly_price_usd) {
@@ -266,7 +313,7 @@ const getFeatures = (plan) => {
 
             <!-- TAB 1: MANAGED CLOUD HOSTING PACKAGES -->
             <div v-if="activeTab === 'managed_hosting'" class="space-y-6 animate-fade-in">
-                <!-- Info Banner -->
+                <!-- Info Banner with Billing Cycle Toggle -->
                 <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-rounded text-emerald-600 text-2xl">support_agent</span>
@@ -274,6 +321,26 @@ const getFeatures = (plan) => {
                             <div class="text-sm font-bold text-gray-900">Zero Maintenance &bull; Fully Managed by Roook Engineers</div>
                             <div class="text-xs text-gray-600 mt-0.5">High-speed NVMe nodes, 24/7 security monitoring, automated backups, and 99.9% uptime SLA included.</div>
                         </div>
+                    </div>
+
+                    <!-- Billing Cycle Selector for Managed Hosting -->
+                    <div class="flex items-center bg-white p-1 rounded-lg border border-emerald-200 shadow-xs shrink-0">
+                        <button 
+                            type="button"
+                            @click="billingCycle = 'monthly'"
+                            :class="billingCycle === 'monthly' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="px-3 py-1 text-xs rounded transition-all cursor-pointer"
+                        >
+                            Monthly
+                        </button>
+                        <button 
+                            type="button"
+                            @click="billingCycle = 'yearly'"
+                            :class="billingCycle === 'yearly' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="px-3 py-1 text-xs rounded transition-all cursor-pointer"
+                        >
+                            Yearly (-20%)
+                        </button>
                     </div>
                 </div>
 
@@ -299,12 +366,12 @@ const getFeatures = (plan) => {
                             <div class="space-y-1">
                                 <div class="flex items-baseline gap-1">
                                     <span class="text-3xl font-bold text-gray-900">
-                                        {{ selectedCurrency === 'INR' ? '₹' + Number(plan.price_inr).toLocaleString('en-IN') : '$' + plan.price_usd }}
+                                        {{ getManagedPrice(plan) }}
                                     </span>
-                                    <span class="text-xs text-gray-400">{{ plan.billing_period }}</span>
+                                    <span class="text-xs text-gray-400">{{ getManagedPeriod(plan) }}</span>
                                 </div>
-                                <div v-if="plan.renewal_price_inr" class="text-xs text-gray-500 font-mono">
-                                    Renews at: {{ selectedCurrency === 'INR' ? '₹' + Number(plan.renewal_price_inr).toLocaleString('en-IN') : '$' + plan.renewal_price_usd }} {{ plan.billing_period }}
+                                <div v-if="getManagedRenewal(plan)" class="text-xs text-gray-500 font-mono">
+                                    {{ getManagedRenewal(plan) }}
                                 </div>
                             </div>
 
@@ -318,7 +385,7 @@ const getFeatures = (plan) => {
 
                         <div>
                             <Link 
-                                :href="route('checkout', { plan: plan.slug, billing: 'yearly' })"
+                                :href="route('checkout', { plan: plan.slug, billing: billingCycle, currency: selectedCurrency })"
                                 class="w-full text-xs font-semibold py-3 rounded-lg mt-8 transition-colors shadow-sm cursor-pointer text-center block"
                                 :class="[
                                     plan.is_popular 

@@ -86,7 +86,7 @@ const availablePlans = computed(() => {
 // Selection state
 const selectedPlanId = ref(null);
 const billing = ref(props.initialBilling === 'monthly' ? 'monthly' : 'yearly');
-const currency = ref('INR');
+const currency = ref(props.initialCurrency === 'USD' ? 'USD' : 'INR');
 const domainChoice = ref('have'); // 'have' or 'later'
 const domain = ref('');
 const name = ref(props.user?.name || '');
@@ -153,13 +153,21 @@ onMounted(() => {
         }
     } catch (e) {}
 
-    // Currency timezone auto-detect
+    // Currency timezone auto-detect or URL parameter priority
     try {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (tz && (tz === 'Asia/Kolkata' || tz.includes('Calcutta') || tz.includes('Kolkata'))) {
-            currency.value = 'INR';
-        } else if (props.initialCurrency) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryCurrency = urlParams.get('currency');
+        if (queryCurrency) {
+            currency.value = queryCurrency.toUpperCase() === 'USD' ? 'USD' : 'INR';
+        } else if (props.initialCurrency && props.initialCurrency !== 'INR') {
             currency.value = props.initialCurrency;
+        } else {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (tz && (tz === 'Asia/Kolkata' || tz.includes('Calcutta') || tz.includes('Kolkata'))) {
+                currency.value = 'INR';
+            } else if (props.initialCurrency) {
+                currency.value = props.initialCurrency;
+            }
         }
     } catch (e) {}
 

@@ -62,6 +62,7 @@ const companyName = computed(() => {
 });
 
 const annual = ref(false);
+const selectedCurrency = ref('USD');
 const openFaq = ref(0);
 const lightTheme = ref(false);
 const menuOpen = ref(false);
@@ -134,20 +135,29 @@ const stacks = [
 ];
 
 const pricing = computed(() => {
+    const isINR = selectedCurrency.value === 'INR';
+    const symbol = isINR ? '₹' : '$';
+
     if (props.managedHostingPlans && props.managedHostingPlans.length > 0) {
         return props.managedHostingPlans.map((plan) => {
-            const isCustom = !plan.price_usd || Number(plan.price_usd) <= 0;
-            let monthly = null;
-            let yearly = null;
-            let unit = '/ month';
+            const baseYearly = isINR ? Number(plan.price_inr) : Number(plan.price_usd);
+            const baseMonthly = isINR 
+                ? (plan.monthly_price_inr ? Number(plan.monthly_price_inr) : (baseYearly > 0 ? Math.round(baseYearly / 10) : null))
+                : (plan.monthly_price_usd ? Number(plan.monthly_price_usd) : (baseYearly > 0 ? Math.round(baseYearly / 10) : null));
+
+            const isCustom = !baseYearly || baseYearly <= 0;
+            let displayAmount = null;
+            let caption = '';
 
             if (!isCustom) {
-                if (plan.billing_period === '/year' || plan.billing_period === 'yearly') {
-                    monthly = Math.round(Number(plan.price_usd) / 10);
-                    yearly = Math.round(Number(plan.price_usd) / 12);
+                if (annual.value) {
+                    // Yearly billed: show monthly equivalent
+                    displayAmount = Math.round(baseYearly / 12);
+                    caption = `Billed annually · ${symbol}${isINR ? baseYearly.toLocaleString('en-IN') : baseYearly} / year`;
                 } else {
-                    monthly = Number(plan.price_usd);
-                    yearly = Math.round(Number(plan.price_usd) * 0.8);
+                    // Monthly billed
+                    displayAmount = baseMonthly;
+                    caption = 'Billed monthly · cancel anytime';
                 }
             }
 
@@ -164,10 +174,11 @@ const pricing = computed(() => {
                 id: plan.id,
                 name: plan.name,
                 description: plan.description || 'High-performance cloud servers fully maintained, secured, and backed up by our engineers.',
-                monthly: monthly,
-                yearly: yearly,
-                unit: isCustom ? '' : unit,
-                annualTotal: isCustom ? null : (plan.billing_period === '/year' ? Number(plan.price_usd) : yearly * 12),
+                symbol: symbol,
+                displayAmount: displayAmount,
+                isCustom: isCustom,
+                unit: isCustom ? '' : '/ month',
+                caption: isCustom ? 'Scoped to your setup' : caption,
                 items: items,
                 action: plan.cta_text || (isCustom ? 'Talk to an engineer' : (plan.is_popular ? 'Start free migration' : `Deploy ${plan.name}`)),
                 featured: Boolean(plan.is_popular),
@@ -180,26 +191,28 @@ const pricing = computed(() => {
         {
             name: 'Starter Cloud',
             description: 'For a small app or a site ready to leave shared hosting.',
-            monthly: 39,
-            yearly: 32,
+            symbol: symbol,
+            displayAmount: isINR ? (annual.value ? 317 : 390) : (annual.value ? 4 : 5),
+            isCustom: false,
             unit: '/ month',
-            annualTotal: 384,
+            caption: annual.value ? `Billed annually · ${symbol}${isINR ? '3,800' : '49'} / year` : 'Billed monthly · cancel anytime',
             items: [
                 'One production application',
                 'Managed updates & security',
                 'Daily backups · 14-day retention',
                 'Email support',
             ],
-            action: 'Talk about Starter',
+            action: 'Deploy Starter Cloud',
             featured: false,
         },
         {
             name: 'Business Cloud',
             description: 'For growing teams that need room and a steady hand.',
-            monthly: 119,
-            yearly: 95,
+            symbol: symbol,
+            displayAmount: isINR ? (annual.value ? 665 : 790) : (annual.value ? 8 : 10),
+            isCustom: false,
             unit: '/ month',
-            annualTotal: 1140,
+            caption: annual.value ? `Billed annually · ${symbol}${isINR ? '7,990' : '99'} / year` : 'Billed monthly · cancel anytime',
             items: [
                 'Up to 3 production applications',
                 'Everything in Starter',
@@ -207,25 +220,24 @@ const pricing = computed(() => {
                 'Priority engineer response',
                 'Staging environment included',
             ],
-            action: 'Start a free migration',
+            action: 'Deploy Business Cloud',
             featured: true,
         },
         {
             name: 'Enterprise Cloud',
             description: 'For complex systems, compliance needs, or many properties.',
-            monthly: null,
-            yearly: null,
-            unit: '',
-            annualTotal: null,
+            symbol: symbol,
+            displayAmount: isINR ? (annual.value ? 1415 : 1690) : (annual.value ? 16 : 20),
+            isCustom: false,
+            unit: '/ month',
+            caption: annual.value ? `Billed annually · ${symbol}${isINR ? '16,990' : '199'} / year` : 'Billed monthly · cancel anytime',
             items: [
-                'Custom application portfolio',
-                'Architecture & migration planning',
-                'Named infrastructure lead',
-                'Custom backup and recovery plan',
-                'Security review and reporting',
+                'Multi-server fleet orchestration',
+                'Dedicated engineer channel',
+                'Custom backup retention',
+                'SLA & compliance support',
             ],
-            action: 'Talk to an engineer',
-            featured: false,
+            action: 'Deploy Enterprise Cloud',
         },
     ];
 });
@@ -310,6 +322,13 @@ onMounted(() => {
     if (saved === 'light') {
         lightTheme.value = true;
     }
+
+    try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz && (tz === 'Asia/Kolkata' || tz.includes('Calcutta') || tz.includes('Kolkata'))) {
+            selectedCurrency.value = 'INR';
+        }
+    } catch (e) {}
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
         return;
@@ -771,23 +790,48 @@ const currentYear = new Date().getFullYear();
                             <h2 class="section-heading" id="pricing-title">One less moving part in your budget.</h2>
                             <p class="section-intro">Choose the level of care that fits today. We’ll talk through the infrastructure and quote before any work begins.</p>
                         </div>
-                        <div class="billing-control" role="group" aria-label="Choose a billing period">
-                            <button
-                                type="button"
-                                @click="annual = false"
-                                :aria-pressed="!annual"
-                                data-testid="button-monthly"
-                            >
-                                Monthly
-                            </button>
-                            <button
-                                type="button"
-                                @click="annual = true"
-                                :aria-pressed="annual"
-                                data-testid="button-yearly"
-                            >
-                                Yearly <span class="save-label">-20%</span>
-                            </button>
+                        <div class="billing-control flex-wrap gap-2" role="group" aria-label="Billing options">
+                            <!-- Interval Toggle -->
+                            <div class="inline-flex rounded-lg border border-[var(--edge)] p-0.5 bg-[var(--surface-deep)]">
+                                <button
+                                    type="button"
+                                    @click="annual = false"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': !annual }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                    data-testid="button-monthly"
+                                >
+                                    Monthly
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="annual = true"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': annual }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                    data-testid="button-yearly"
+                                >
+                                    Yearly <span class="save-label">-20%</span>
+                                </button>
+                            </div>
+
+                            <!-- Currency Switcher -->
+                            <div class="inline-flex rounded-lg border border-[var(--edge)] p-0.5 bg-[var(--surface-deep)]">
+                                <button
+                                    type="button"
+                                    @click="selectedCurrency = 'USD'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': selectedCurrency === 'USD' }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                >
+                                    USD ($)
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="selectedCurrency = 'INR'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': selectedCurrency === 'INR' }"
+                                    class="px-2.5 py-1 text-xs rounded transition"
+                                >
+                                    INR (₹)
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="pricing-grid">
@@ -801,27 +845,19 @@ const currentYear = new Date().getFullYear();
                             <div class="plan-name">{{ plan.name }}</div>
                             <p class="plan-note">{{ plan.description }}</p>
                             <div class="plan-price">
-                                <span v-if="plan.monthly === null" class="price-amount" style="font-size: 31px;">
+                                <span v-if="plan.isCustom" class="price-amount" style="font-size: 31px;">
                                     Let’s talk
                                 </span>
                                 <template v-else>
-                                    <span class="price-amount">${{ annual ? plan.yearly : plan.monthly }}</span>
+                                    <span class="price-amount">{{ plan.symbol }}{{ plan.displayAmount != null ? Number(plan.displayAmount).toLocaleString(selectedCurrency === 'INR' ? 'en-IN' : 'en-US') : '0' }}</span>
                                     <span class="price-unit">{{ plan.unit }}</span>
                                 </template>
                             </div>
                             <div class="billing-caption">
-                                <template v-if="plan.monthly === null">
-                                    Scoped to your setup
-                                </template>
-                                <template v-else-if="annual">
-                                    Billed annually · ${{ plan.yearly * 12 }} / year
-                                </template>
-                                <template v-else>
-                                    Billed monthly · cancel with notice
-                                </template>
+                                {{ plan.caption }}
                             </div>
                             <a
-                                v-if="plan.monthly === null"
+                                v-if="plan.isCustom"
                                 :href="`mailto:${contactEmail}?subject=${encodeURIComponent(`Enterprise Hosting Inquiry — ${plan.name}`)}`"
                                 :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
                             >
@@ -829,7 +865,7 @@ const currentYear = new Date().getFullYear();
                             </a>
                             <Link
                                 v-else
-                                :href="route('checkout', { plan: plan.rawPlan?.slug || plan.name.toLowerCase().replace(' cloud', ''), billing: annual ? 'yearly' : 'monthly' })"
+                                :href="route('checkout', { plan: plan.rawPlan?.slug || plan.name.toLowerCase().replace(' cloud', ''), billing: annual ? 'yearly' : 'monthly', currency: selectedCurrency })"
                                 :class="['button', plan.featured ? 'button-primary' : 'button-outline', 'plan-cta']"
                             >
                                 <span>{{ plan.action }}</span>

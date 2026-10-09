@@ -393,6 +393,20 @@ const formatTimeAgo = (dateStr) => {
                     Inbound Client Requests
                     <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-mono">{{ requests.total || 0 }}</span>
                 </button>
+
+                <button 
+                    @click="activeTab = 'plans'"
+                    :class="[
+                        activeTab === 'plans' 
+                            ? 'border-emerald-500 text-emerald-600 font-semibold' 
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ]"
+                    class="py-3 px-4 border-b-2 text-sm flex items-center gap-2 transition-colors"
+                >
+                    <span class="material-symbols-rounded text-base">layers</span>
+                    Hosting Plans &amp; Pricing
+                    <span class="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-mono">{{ managedPlans?.length || 0 }}</span>
+                </button>
             </div>
 
             <!-- TAB 1: CLIENT ACCOUNTS -->
@@ -729,6 +743,92 @@ const formatTimeAgo = (dateStr) => {
                                                 Reject
                                             </button>
                                         </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: HOSTING PLANS & PRICING -->
+            <div v-if="activeTab === 'plans'" class="space-y-4">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-rounded text-emerald-600 text-2xl">layers</span>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-900">Frontend Hosting Plans &amp; Rates</h4>
+                            <p class="text-[11px] text-gray-600">These plans appear directly on the website landing page and client store for online purchase with automatic Razorpay checkout.</p>
+                        </div>
+                    </div>
+                    <Link 
+                        :href="route('admin.plans.index')"
+                        class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm inline-flex items-center gap-1.5 shrink-0"
+                    >
+                        <span class="material-symbols-rounded text-sm">add_circle</span>
+                        Create / Manage All Plans
+                    </Link>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-gray-200 text-gray-500">
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Plan Details</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">INR Rates (Monthly &amp; Annual)</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">USD Rates (Monthly &amp; Annual)</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="plan in managedPlans" :key="plan.id" class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-bold text-gray-900">{{ plan.name }}</span>
+                                            <span v-if="plan.is_popular" class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+                                                Popular
+                                            </span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-0.5">{{ plan.description }}</div>
+                                        <div class="text-[10px] font-mono text-gray-400 mt-0.5">slug: {{ plan.slug }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-xs font-mono">
+                                        <div class="font-bold text-gray-900">
+                                            Yearly: ₹{{ Number(plan.price_inr).toLocaleString('en-IN') }}
+                                        </div>
+                                        <div class="text-emerald-700 font-semibold mt-0.5">
+                                            Monthly: ₹{{ plan.monthly_price_inr ? Number(plan.monthly_price_inr).toLocaleString('en-IN') : Math.round(Number(plan.price_inr) / 10).toLocaleString('en-IN') }}/mo
+                                        </div>
+                                        <div class="text-[10px] text-gray-500 mt-0.5">
+                                            Renews: ₹{{ Number(plan.renewal_price_inr || plan.price_inr).toLocaleString('en-IN') }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-xs font-mono">
+                                        <div class="font-bold text-gray-900">
+                                            Yearly: ${{ plan.price_usd }}
+                                        </div>
+                                        <div class="text-emerald-700 font-semibold mt-0.5">
+                                            Monthly: ${{ plan.monthly_price_usd ? plan.monthly_price_usd : Math.round(Number(plan.price_usd) / 10) }}/mo
+                                        </div>
+                                        <div class="text-[10px] text-gray-500 mt-0.5">
+                                            Renews: ${{ plan.renewal_price_usd || plan.price_usd }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span :class="plan.is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border">
+                                            {{ plan.is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <Link 
+                                            :href="route('admin.plans.edit', plan.id)"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 text-xs font-semibold rounded border border-gray-200 transition-colors shadow-2xs"
+                                        >
+                                            <span class="material-symbols-rounded text-sm">edit</span>
+                                            Edit Details &amp; Pricing
+                                        </Link>
                                     </td>
                                 </tr>
                             </tbody>

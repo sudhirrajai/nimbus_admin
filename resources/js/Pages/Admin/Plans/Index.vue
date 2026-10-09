@@ -85,11 +85,46 @@ const openCreateModal = (defaultType = 'managed_hosting') => {
     showCreateModal.value = true;
 };
 
+const autoCalcMonthlyFromYearly = () => {
+    if (createForm.price_inr) {
+        createForm.monthly_price_inr = Math.round(Number(createForm.price_inr) / 10);
+        createForm.renewal_monthly_price_inr = createForm.monthly_price_inr;
+    }
+    if (createForm.price_usd) {
+        createForm.monthly_price_usd = Math.max(1, Math.round(Number(createForm.price_usd) / 10));
+        createForm.renewal_monthly_price_usd = createForm.monthly_price_usd;
+    }
+};
+
+const autoCalcINRFromUSD = () => {
+    const rate = 85;
+    if (createForm.price_usd) {
+        createForm.price_inr = Math.round(Number(createForm.price_usd) * rate);
+    }
+    if (createForm.renewal_price_usd) {
+        createForm.renewal_price_inr = Math.round(Number(createForm.renewal_price_usd) * rate);
+    }
+    if (createForm.monthly_price_usd) {
+        createForm.monthly_price_inr = Math.round(Number(createForm.monthly_price_usd) * rate);
+    }
+    if (createForm.renewal_monthly_price_usd) {
+        createForm.renewal_monthly_price_inr = Math.round(Number(createForm.renewal_monthly_price_usd) * rate);
+    }
+};
+
 const submitCreatePlan = () => {
     createForm.features = featuresInput.value
         .split('\n')
         .map(f => f.trim())
         .filter(f => f.length > 0);
+
+    // Sanitize empty strings to null for optional numbers
+    if (createForm.monthly_price_inr === '' || createForm.monthly_price_inr === null) createForm.monthly_price_inr = null;
+    if (createForm.renewal_monthly_price_inr === '' || createForm.renewal_monthly_price_inr === null) createForm.renewal_monthly_price_inr = null;
+    if (createForm.monthly_price_usd === '' || createForm.monthly_price_usd === null) createForm.monthly_price_usd = null;
+    if (createForm.renewal_monthly_price_usd === '' || createForm.renewal_monthly_price_usd === null) createForm.renewal_monthly_price_usd = null;
+    if (createForm.renewal_price_inr === '' || createForm.renewal_price_inr === null) createForm.renewal_price_inr = createForm.price_inr;
+    if (createForm.renewal_price_usd === '' || createForm.renewal_price_usd === null) createForm.renewal_price_usd = createForm.price_usd;
 
     createForm.post(route('admin.plans.store'), {
         onSuccess: () => {
@@ -336,6 +371,17 @@ const deletePlan = (plan) => {
                 </div>
 
                 <form @submit.prevent="submitCreatePlan" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                    <!-- Global Error Alert -->
+                    <div v-if="Object.keys(createForm.errors).length > 0" class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs space-y-1">
+                        <div class="font-bold flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm">error</span>
+                            Please correct the following errors:
+                        </div>
+                        <ul class="list-disc list-inside text-[11px] space-y-0.5">
+                            <li v-for="(err, key) in createForm.errors" :key="key">{{ err }}</li>
+                        </ul>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Plan Name</label>
@@ -346,6 +392,7 @@ const deletePlan = (plan) => {
                                 placeholder="e.g. Business Cloud"
                                 class="w-full text-sm rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
                             />
+                            <div v-if="createForm.errors.name" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.name }}</div>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Service Category</label>
@@ -357,6 +404,7 @@ const deletePlan = (plan) => {
                                 <option value="managed_hosting">Fully Managed Cloud Hosting</option>
                                 <option value="self_hosted">Self-Hosted Nimbus License</option>
                             </select>
+                            <div v-if="createForm.errors.type" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.type }}</div>
                         </div>
                     </div>
 
@@ -368,23 +416,33 @@ const deletePlan = (plan) => {
                             placeholder="e.g. High-performance cloud hosting managed entirely by our team"
                             class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
                         />
+                        <div v-if="createForm.errors.description" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.description }}</div>
                     </div>
 
-                    <!-- Billing Period Display Preset -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-700 mb-1">Billing Period Display Preset</label>
-                        <div class="flex items-center gap-1.5 mb-1.5">
-                            <button type="button" @click="createForm.billing_period = '/year'" :class="createForm.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/year (Yearly)</button>
-                            <button type="button" @click="createForm.billing_period = '/month'" :class="createForm.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">/month (Monthly)</button>
-                            <button type="button" @click="createForm.billing_period = 'forever'" :class="createForm.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2 py-0.5 rounded text-[10px] font-semibold border transition">forever</button>
+                    <!-- Pricing Quick Helper Tools -->
+                    <div class="flex items-center justify-between bg-slate-100/80 p-2.5 rounded-xl border border-slate-200 text-xs">
+                        <span class="font-bold text-slate-700 flex items-center gap-1.5 text-[11px]">
+                            <span class="material-symbols-rounded text-emerald-600 text-sm">calculate</span>
+                            Pricing Helpers:
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <button 
+                                type="button" 
+                                @click="autoCalcINRFromUSD"
+                                class="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-[10px] font-semibold transition shadow-2xs"
+                                title="Converts USD values to INR at ₹85 per dollar"
+                            >
+                                Auto-fill INR (USD &times; 85)
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="autoCalcMonthlyFromYearly"
+                                class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-lg text-[10px] font-semibold transition shadow-2xs"
+                                title="Calculates monthly rate as roughly Yearly &divide; 10 (giving ~20% discount on annual)"
+                            >
+                                Auto-fill Monthly (Yearly &divide; 10)
+                            </button>
                         </div>
-                        <input 
-                            v-model="createForm.billing_period" 
-                            type="text" 
-                            placeholder="/year or /month"
-                            required
-                            class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500" 
-                        />
                     </div>
 
                     <!-- YEARLY PRICING SECTION -->
@@ -394,19 +452,21 @@ const deletePlan = (plan) => {
                                 <span class="material-symbols-rounded text-emerald-600 text-sm">calendar_month</span>
                                 Yearly / Annual Pricing
                             </span>
-                            <span class="text-[10px] text-gray-500 font-normal">Primary Annual Rate</span>
+                            <span class="text-[10px] text-gray-500 font-normal">Primary Annual Billing Rate</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Price (INR ₹)</label>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Price (INR ₹) *</label>
                                 <input 
                                     v-model="createForm.price_inr" 
                                     type="number" 
                                     step="1"
                                     min="0"
                                     required
+                                    placeholder="e.g. 3800"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.price_inr" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.price_inr }}</div>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Renewal (INR ₹)</label>
@@ -415,21 +475,25 @@ const deletePlan = (plan) => {
                                     type="number" 
                                     step="1"
                                     min="0"
+                                    placeholder="e.g. 4790 (defaults to yearly price)"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.renewal_price_inr" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.renewal_price_inr }}</div>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Price (USD $)</label>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Price (USD $) *</label>
                                 <input 
                                     v-model="createForm.price_usd" 
                                     type="number" 
                                     step="1"
                                     min="0"
                                     required
+                                    placeholder="e.g. 49"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.price_usd" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.price_usd }}</div>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Yearly Renewal (USD $)</label>
@@ -438,8 +502,10 @@ const deletePlan = (plan) => {
                                     type="number" 
                                     step="1"
                                     min="0"
+                                    placeholder="e.g. 59 (defaults to yearly price)"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.renewal_price_usd" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.renewal_price_usd }}</div>
                             </div>
                         </div>
                     </div>
@@ -449,9 +515,9 @@ const deletePlan = (plan) => {
                         <div class="text-xs font-bold text-gray-900 flex items-center justify-between">
                             <span class="flex items-center gap-1.5">
                                 <span class="material-symbols-rounded text-emerald-600 text-sm">schedule</span>
-                                Monthly Pricing (Optional)
+                                Monthly Recurring Pricing
                             </span>
-                            <span class="text-[10px] text-emerald-700 font-medium">Billed Monthly</span>
+                            <span class="text-[10px] text-emerald-700 font-medium">Billed every month on frontend</span>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -461,9 +527,10 @@ const deletePlan = (plan) => {
                                     type="number" 
                                     step="1"
                                     min="0"
-                                    placeholder="e.g. 49"
+                                    placeholder="e.g. 390"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.monthly_price_inr" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.monthly_price_inr }}</div>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Monthly Renewal (INR ₹)</label>
@@ -472,9 +539,10 @@ const deletePlan = (plan) => {
                                     type="number" 
                                     step="1"
                                     min="0"
-                                    placeholder="e.g. 49"
+                                    placeholder="e.g. 390"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.renewal_monthly_price_inr" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.renewal_monthly_price_inr }}</div>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
@@ -485,9 +553,10 @@ const deletePlan = (plan) => {
                                     type="number" 
                                     step="1"
                                     min="0"
-                                    placeholder="e.g. 2"
+                                    placeholder="e.g. 5"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.monthly_price_usd" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.monthly_price_usd }}</div>
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">Monthly Renewal (USD $)</label>
@@ -496,12 +565,36 @@ const deletePlan = (plan) => {
                                     type="number" 
                                     step="1"
                                     min="0"
-                                    placeholder="e.g. 2"
+                                    placeholder="e.g. 5"
                                     class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                                 />
+                                <div v-if="createForm.errors.renewal_monthly_price_usd" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.renewal_monthly_price_usd }}</div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Live Frontend Pricing Preview Box -->
+                    <div class="bg-slate-900 text-white rounded-xl p-3.5 space-y-1.5 font-mono text-[11px]">
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest font-sans font-bold flex items-center justify-between">
+                            <span class="flex items-center gap-1">
+                                <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Frontend Preview (How users see this plan)
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800">
+                            <div>
+                                <span class="text-slate-400 block text-[9px] uppercase font-sans">Monthly Cycle:</span>
+                                <span class="text-emerald-400 font-bold">₹{{ createForm.monthly_price_inr || Math.round((createForm.price_inr || 0) / 10) }}/mo</span>
+                                <span class="text-slate-400 text-[10px] ml-1">(${{ createForm.monthly_price_usd || Math.round((createForm.price_usd || 0) / 10) }}/mo)</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[9px] uppercase font-sans">Yearly Cycle:</span>
+                                <span class="text-emerald-400 font-bold">₹{{ createForm.price_inr || 0 }}/yr</span>
+                                <span class="text-slate-400 text-[10px] ml-1">(${{ createForm.price_usd || 0 }}/yr)</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-[11px] font-semibold text-gray-600 mb-1">Max Domains Allowed</label>
                         <input 
@@ -511,6 +604,7 @@ const deletePlan = (plan) => {
                             required 
                             class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
                         />
+                        <div v-if="createForm.errors.max_domains" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.max_domains }}</div>
                     </div>
 
                     <!-- Features text list -->
@@ -522,6 +616,7 @@ const deletePlan = (plan) => {
                             placeholder="Enter bullet points, one per line..."
                             class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 font-sans"
                         ></textarea>
+                        <div v-if="createForm.errors.features" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.features }}</div>
                     </div>
 
                     <!-- Toggles: Active & Popular -->

@@ -32,7 +32,7 @@ class AdminPlanController extends Controller
             'monthly_price_usd' => 'nullable|numeric|min:0',
             'renewal_price_usd' => 'nullable|numeric|min:0',
             'renewal_monthly_price_usd' => 'nullable|numeric|min:0',
-            'billing_period' => 'required|string|max:255',
+            'billing_period' => 'nullable|string|max:255',
             'max_domains' => 'required|integer|min:1',
             'features' => 'required|array',
             'features.*' => 'required|string|max:255',
@@ -43,6 +43,24 @@ class AdminPlanController extends Controller
             'cta_text' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
         ]);
+
+        if (empty($validated['billing_period'])) {
+            $validated['billing_period'] = '/year';
+        }
+
+        if (empty($validated['renewal_price_inr'])) {
+            $validated['renewal_price_inr'] = $validated['price_inr'];
+        }
+        if (empty($validated['renewal_price_usd'])) {
+            $validated['renewal_price_usd'] = $validated['price_usd'];
+        }
+
+        if (!empty($validated['monthly_price_inr']) && empty($validated['renewal_monthly_price_inr'])) {
+            $validated['renewal_monthly_price_inr'] = $validated['monthly_price_inr'];
+        }
+        if (!empty($validated['monthly_price_usd']) && empty($validated['renewal_monthly_price_usd'])) {
+            $validated['renewal_monthly_price_usd'] = $validated['monthly_price_usd'];
+        }
 
         if (empty($validated['slug'])) {
             $baseSlug = Str::slug($validated['name']);
@@ -81,7 +99,7 @@ class AdminPlanController extends Controller
             'monthly_price_usd' => 'nullable|numeric|min:0',
             'renewal_price_usd' => 'nullable|numeric|min:0',
             'renewal_monthly_price_usd' => 'nullable|numeric|min:0',
-            'billing_period' => 'required|string|max:255',
+            'billing_period' => 'nullable|string|max:255',
             'max_domains' => 'required|integer|min:1',
             'features' => 'required|array',
             'features.*' => 'required|string|max:255',
@@ -92,6 +110,24 @@ class AdminPlanController extends Controller
             'cta_text' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
         ]);
+
+        if (empty($validated['billing_period'])) {
+            $validated['billing_period'] = $plan->billing_period ?: '/year';
+        }
+
+        if (empty($validated['renewal_price_inr'])) {
+            $validated['renewal_price_inr'] = $validated['price_inr'];
+        }
+        if (empty($validated['renewal_price_usd'])) {
+            $validated['renewal_price_usd'] = $validated['price_usd'];
+        }
+
+        if (!empty($validated['monthly_price_inr']) && empty($validated['renewal_monthly_price_inr'])) {
+            $validated['renewal_monthly_price_inr'] = $validated['monthly_price_inr'];
+        }
+        if (!empty($validated['monthly_price_usd']) && empty($validated['renewal_monthly_price_usd'])) {
+            $validated['renewal_monthly_price_usd'] = $validated['monthly_price_usd'];
+        }
 
         $plan->update($validated);
 

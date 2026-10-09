@@ -47,12 +47,47 @@ const deselectAllModules = () => {
     form.modules = [];
 };
 
+const autoCalcMonthlyFromYearly = () => {
+    if (form.price_inr) {
+        form.monthly_price_inr = Math.round(Number(form.price_inr) / 10);
+        form.renewal_monthly_price_inr = form.monthly_price_inr;
+    }
+    if (form.price_usd) {
+        form.monthly_price_usd = Math.max(1, Math.round(Number(form.price_usd) / 10));
+        form.renewal_monthly_price_usd = form.monthly_price_usd;
+    }
+};
+
+const autoCalcINRFromUSD = () => {
+    const rate = 85;
+    if (form.price_usd) {
+        form.price_inr = Math.round(Number(form.price_usd) * rate);
+    }
+    if (form.renewal_price_usd) {
+        form.renewal_price_inr = Math.round(Number(form.renewal_price_usd) * rate);
+    }
+    if (form.monthly_price_usd) {
+        form.monthly_price_inr = Math.round(Number(form.monthly_price_usd) * rate);
+    }
+    if (form.renewal_monthly_price_usd) {
+        form.renewal_monthly_price_inr = Math.round(Number(form.renewal_monthly_price_usd) * rate);
+    }
+};
+
 const submit = () => {
     // Process newlines into features array
     form.features = featuresText.value
         .split('\n')
         .map(f => f.trim())
         .filter(f => f.length > 0);
+
+    // Sanitize empty inputs to null
+    if (form.monthly_price_inr === '' || form.monthly_price_inr === null) form.monthly_price_inr = null;
+    if (form.renewal_monthly_price_inr === '' || form.renewal_monthly_price_inr === null) form.renewal_monthly_price_inr = null;
+    if (form.monthly_price_usd === '' || form.monthly_price_usd === null) form.monthly_price_usd = null;
+    if (form.renewal_monthly_price_usd === '' || form.renewal_monthly_price_usd === null) form.renewal_monthly_price_usd = null;
+    if (form.renewal_price_inr === '' || form.renewal_price_inr === null) form.renewal_price_inr = form.price_inr;
+    if (form.renewal_price_usd === '' || form.renewal_price_usd === null) form.renewal_price_usd = form.price_usd;
 
     form.put(route('admin.plans.update', props.plan.id));
 };
@@ -82,6 +117,17 @@ const submit = () => {
         <div class="max-w-3xl">
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-gray-900">
                 <form @submit.prevent="submit" class="space-y-6">
+                    <!-- Global Error Alert -->
+                    <div v-if="Object.keys(form.errors).length > 0" class="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs space-y-1">
+                        <div class="font-bold flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm">error</span>
+                            Please correct the following errors:
+                        </div>
+                        <ul class="list-disc list-inside text-[11px] space-y-0.5">
+                            <li v-for="(err, key) in form.errors" :key="key">{{ err }}</li>
+                        </ul>
+                    </div>
+
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                         <!-- Plan Name -->
                         <div>
@@ -132,21 +178,30 @@ const submit = () => {
                         <div v-if="form.errors.description" class="text-xs text-red-600 mt-1">{{ form.errors.description }}</div>
                     </div>
 
-                    <!-- Billing Period Preset -->
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Billing Period Display Preset</label>
-                        <div class="flex items-center gap-1.5 mb-2">
-                            <button type="button" @click="form.billing_period = '/year'" :class="form.billing_period === '/year' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2.5 py-1 rounded text-xs font-semibold border transition">/year (Yearly)</button>
-                            <button type="button" @click="form.billing_period = '/month'" :class="form.billing_period === '/month' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2.5 py-1 rounded text-xs font-semibold border transition">/month (Monthly)</button>
-                            <button type="button" @click="form.billing_period = 'forever'" :class="form.billing_period === 'forever' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'" class="px-2.5 py-1 rounded text-xs font-semibold border transition">forever</button>
+                    <!-- Pricing Quick Helper Tools -->
+                    <div class="flex items-center justify-between bg-slate-100/80 p-2.5 rounded-xl border border-slate-200 text-xs">
+                        <span class="font-bold text-slate-700 flex items-center gap-1.5 text-[11px]">
+                            <span class="material-symbols-rounded text-emerald-600 text-sm">calculate</span>
+                            Pricing Auto-Calculators:
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <button 
+                                type="button" 
+                                @click="autoCalcINRFromUSD"
+                                class="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-[10px] font-semibold transition shadow-2xs"
+                                title="Converts USD rates to INR at ₹85/USD"
+                            >
+                                Auto-fill INR (USD &times; 85)
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="autoCalcMonthlyFromYearly"
+                                class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-lg text-[10px] font-semibold transition shadow-2xs"
+                                title="Calculates monthly rate as roughly Yearly &divide; 10"
+                            >
+                                Auto-fill Monthly (Yearly &divide; 10)
+                            </button>
                         </div>
-                        <input 
-                            type="text" 
-                            v-model="form.billing_period" 
-                            class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
-                            required
-                        />
-                        <div v-if="form.errors.billing_period" class="text-xs text-red-600 mt-1">{{ form.errors.billing_period }}</div>
                     </div>
 
                     <!-- YEARLY / ANNUAL PRICING SECTION -->
@@ -156,7 +211,7 @@ const submit = () => {
                                 <span class="material-symbols-rounded text-emerald-600 text-base">calendar_month</span>
                                 Yearly / Annual Pricing
                             </div>
-                            <span class="text-[11px] text-gray-500">Billed annually</span>
+                            <span class="text-[11px] text-gray-500">Primary Annual Billing Rate</span>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -267,6 +322,28 @@ const submit = () => {
                                     min="0"
                                 />
                                 <div v-if="form.errors.renewal_monthly_price_usd" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_monthly_price_usd }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Frontend Pricing Preview Box -->
+                    <div class="bg-slate-900 text-white rounded-xl p-4 space-y-2 font-mono text-xs">
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest font-sans font-bold flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Live Frontend Pricing Preview
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 pt-1.5 border-t border-slate-800">
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-sans">Monthly Cycle:</span>
+                                <span class="text-emerald-400 font-bold text-sm">₹{{ form.monthly_price_inr || Math.round((form.price_inr || 0) / 10) }}/mo</span>
+                                <span class="text-slate-400 text-xs ml-1.5">(${{ form.monthly_price_usd || Math.round((form.price_usd || 0) / 10) }}/mo)</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-sans">Yearly Cycle:</span>
+                                <span class="text-emerald-400 font-bold text-sm">₹{{ form.price_inr || 0 }}/yr</span>
+                                <span class="text-slate-400 text-xs ml-1.5">(${{ form.price_usd || 0 }}/yr)</span>
                             </div>
                         </div>
                     </div>
