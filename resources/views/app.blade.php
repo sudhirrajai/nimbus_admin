@@ -34,6 +34,44 @@
             $twitterHandle = $seoSettings['twitter_handle'] ?? '@roookhost';
             $robots = ($seoSettings['robots_index'] ?? true) ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, nofollow';
             $canonicalUrl = url()->current();
+
+            $schemaData = [
+                '@context' => 'https://schema.org',
+                '@graph' => [
+                    [
+                        '@type' => 'Organization',
+                        '@id' => url('/') . '#organization',
+                        'name' => $seoSettings['company_name'] ?? $siteName,
+                        'url' => url('/'),
+                        'logo' => [
+                            '@type' => 'ImageObject',
+                            'url' => url('/apple-touch-icon.png'),
+                            'width' => 180,
+                            'height' => 180,
+                        ],
+                        'email' => $seoSettings['company_email'] ?? 'billing@vmcore.in',
+                        'telephone' => $seoSettings['company_phone'] ?? '+91 80 4567 8900',
+                        'address' => [
+                            '@type' => 'PostalAddress',
+                            'streetAddress' => $seoSettings['company_address_line1'] ?? '',
+                            'addressLocality' => $seoSettings['company_address_line2'] ?? '',
+                            'addressCountry' => 'IN',
+                        ],
+                    ],
+                    [
+                        '@type' => 'WebSite',
+                        '@id' => url('/') . '#website',
+                        'url' => url('/'),
+                        'name' => $siteName,
+                        'description' => $metaDescription,
+                        'publisher' => [
+                            '@id' => url('/') . '#organization',
+                        ],
+                        'inLanguage' => 'en-US',
+                    ],
+                ],
+            ];
+            $schemaJson = json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         @endphp
 
         <!-- SEO Primary Meta Tags -->
@@ -77,42 +115,7 @@
 
         <!-- Schema.org JSON-LD Structured Data -->
         <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@graph": [
-                {
-                    "@type": "Organization",
-                    "@id": "{{ url('/') }}#organization",
-                    "name": "{{ $seoSettings['company_name'] ?? $siteName }}",
-                    "url": "{{ url('/') }}",
-                    "logo": {
-                        "@type": "ImageObject",
-                        "url": "{{ url('/apple-touch-icon.png') }}",
-                        "width": 180,
-                        "height": 180
-                    },
-                    "email": "{{ $seoSettings['company_email'] ?? 'billing@vmcore.in' }}",
-                    "telephone": "{{ $seoSettings['company_phone'] ?? '+91 80 4567 8900' }}",
-                    "address": {
-                        "@type": "PostalAddress",
-                        "streetAddress": "{{ $seoSettings['company_address_line1'] ?? '' }}",
-                        "addressLocality": "{{ $seoSettings['company_address_line2'] ?? '' }}",
-                        "addressCountry": "IN"
-                    }
-                },
-                {
-                    "@type": "WebSite",
-                    "@id": "{{ url('/') }}#website",
-                    "url": "{{ url('/') }}",
-                    "name": "{{ $siteName }}",
-                    "description": "{{ $metaDescription }}",
-                    "publisher": {
-                        "@id": "{{ url('/') }}#organization"
-                    },
-                    "inLanguage": "en-US"
-                }
-            ]
-        }
+        {!! $schemaJson !!}
         </script>
 
         <!-- Scripts -->
