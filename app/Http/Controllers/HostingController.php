@@ -111,10 +111,11 @@ class HostingController extends Controller
             abort(403, 'Unauthorized access to this order.');
         }
 
-        $account->load(['invoices' => fn($q) => $q->latest(), 'server']);
+        $account->load(['invoices' => fn($q) => $q->latest(), 'server', 'user']);
 
         return Inertia::render('Hosting/OrderConfirmation', [
             'account' => $account,
+            'user' => $account->user ?? auth()->user(),
             'latestInvoice' => $account->invoices->first(),
         ]);
     }

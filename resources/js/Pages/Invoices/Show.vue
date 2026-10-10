@@ -200,14 +200,19 @@ const numberToWords = (num) => {
                     <div class="space-y-1.5">
                         <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Invoiced To</div>
                         <div class="text-base font-bold text-gray-950">{{ invoice.billing_details?.customer_name || invoice.user?.name || 'Valued Customer' }}</div>
-                        <div v-if="invoice.user?.company_name" class="text-xs font-semibold text-gray-800">{{ invoice.user.company_name }}</div>
-                        <div v-if="invoice.user?.address" class="text-xs text-gray-600">{{ invoice.user.address }}</div>
-                        <div v-if="invoice.user?.city || invoice.user?.state || invoice.user?.postal_code" class="text-xs text-gray-600">
-                            {{ [invoice.user?.city, invoice.user?.state, invoice.user?.postal_code].filter(Boolean).join(', ') }}
+                        <div v-if="invoice.billing_details?.company_name || invoice.user?.company_name" class="text-xs font-semibold text-gray-800">{{ invoice.billing_details?.company_name || invoice.user?.company_name }}</div>
+                        <div v-if="invoice.billing_details?.address || invoice.user?.address" class="text-xs text-gray-600">{{ invoice.billing_details?.address || invoice.user?.address }}</div>
+                        <div v-if="(invoice.billing_details?.city || invoice.user?.city) || (invoice.billing_details?.state || invoice.user?.state) || (invoice.billing_details?.postal_code || invoice.user?.postal_code)" class="text-xs text-gray-600">
+                            {{ [invoice.billing_details?.city || invoice.user?.city, invoice.billing_details?.state || invoice.user?.state, invoice.billing_details?.postal_code || invoice.user?.postal_code].filter(Boolean).join(', ') }}
                         </div>
-                        <div class="text-xs text-gray-600">{{ invoice.user?.country || 'India' }}</div>
+                        <div class="text-xs text-gray-600">{{ invoice.billing_details?.country || invoice.user?.country || 'India' }}</div>
                         <div class="text-xs text-emerald-700 font-medium pt-0.5">{{ invoice.billing_details?.customer_email || invoice.user?.email }}</div>
-                        <div v-if="invoice.user?.phone" class="text-xs text-gray-500">{{ invoice.user.phone }}</div>
+                        <div v-if="invoice.billing_details?.customer_phone || invoice.user?.phone" class="text-xs text-gray-500 font-mono">
+                            Phone: {{ invoice.billing_details?.customer_phone || invoice.user?.phone }}
+                        </div>
+                        <div v-if="invoice.billing_details?.tax_id" class="text-xs text-gray-500 font-mono">
+                            GST / Tax ID: <span class="font-semibold text-gray-800">{{ invoice.billing_details?.tax_id }}</span>
+                        </div>
                     </div>
 
                     <!-- Right: Invoice Meta & Clean Status Badge -->

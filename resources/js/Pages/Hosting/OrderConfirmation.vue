@@ -21,6 +21,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    user: {
+        type: Object,
+        default: null,
+    },
     latestInvoice: {
         type: Object,
         default: null,
@@ -101,6 +105,19 @@ const formatCurrency = (amount) => {
                 <p class="text-sm text-[var(--text-soft)] max-w-lg mx-auto mt-2">
                     Thank you for your order! Your payment was verified and our infrastructure engineering team has received your deployment request.
                 </p>
+
+                <!-- Email Verification & Invoice Dispatch Notice -->
+                <div class="mt-5 p-4 rounded-xl border border-emerald-500/25 bg-emerald-500/10 flex items-start sm:items-center gap-3 text-left text-xs max-w-xl mx-auto shadow-sm">
+                    <div class="p-2 rounded-lg bg-emerald-500/20 text-emerald-600 shrink-0">
+                        <Mail :size="16" />
+                    </div>
+                    <div class="space-y-0.5">
+                        <strong class="font-bold text-emerald-700 dark:text-emerald-400 block text-xs">Account verification link &amp; receipt dispatched</strong>
+                        <p class="text-[var(--text-soft)] text-[11px] leading-relaxed">
+                            We’ve sent an account verification link and official payment invoice to <span class="font-mono font-bold text-[var(--text)]">{{ user?.email || account.user?.email || 'your email' }}</span>. Please check your inbox and verify your email.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- PROVISIONING SLA CARD -->

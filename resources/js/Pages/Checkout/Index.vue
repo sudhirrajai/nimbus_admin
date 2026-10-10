@@ -5,12 +5,15 @@ import axios from 'axios';
 import {
     ArrowLeft,
     ArrowRight,
+    Building2,
     Check,
     CircleHelp,
     Lock,
+    MapPin,
     Moon,
     ShieldCheck,
     Sun,
+    User,
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -89,8 +92,34 @@ const billing = ref(props.initialBilling === 'monthly' ? 'monthly' : 'yearly');
 const currency = ref(props.initialCurrency === 'USD' ? 'USD' : 'INR');
 const domainChoice = ref('have'); // 'have' or 'later'
 const domain = ref('');
+
+// Customer & Professional Billing Address State
 const name = ref(props.user?.name || '');
 const email = ref(props.user?.email || '');
+const phone = ref(props.user?.phone || '');
+const companyName = ref(props.user?.company_name || '');
+const address = ref(props.user?.address || '');
+const city = ref(props.user?.city || '');
+const state = ref(props.user?.state || '');
+const postalCode = ref(props.user?.postal_code || '');
+const country = ref(props.user?.country || 'India');
+const taxId = ref('');
+
+const countries = [
+    'India',
+    'United States',
+    'United Kingdom',
+    'Canada',
+    'Australia',
+    'Singapore',
+    'United Arab Emirates',
+    'Germany',
+    'France',
+    'Netherlands',
+    'Ireland',
+    'Japan',
+    'Other',
+];
 
 // Form validation and state
 const errorMessage = ref('');
@@ -202,13 +231,8 @@ const handleCheckoutSubmit = async () => {
     errorMessage.value = '';
     domainError.value = '';
 
-    if (!name.value || !name.value.trim()) {
-        errorMessage.value = 'Please enter your name.';
-        return;
-    }
-
-    if (!email.value || !email.value.trim() || !email.value.includes('@')) {
-        errorMessage.value = 'Please enter a valid work email.';
+    if (!selectedPlan.value) {
+        errorMessage.value = 'Please select a hosting plan to continue.';
         return;
     }
 
@@ -219,8 +243,43 @@ const handleCheckoutSubmit = async () => {
         }
     }
 
-    if (!selectedPlan.value) {
-        errorMessage.value = 'Please select a hosting plan to continue.';
+    if (!name.value || !name.value.trim()) {
+        errorMessage.value = 'Please enter your full name.';
+        return;
+    }
+
+    if (!email.value || !email.value.trim() || !email.value.includes('@')) {
+        errorMessage.value = 'Please enter a valid work or account email.';
+        return;
+    }
+
+    if (!phone.value || !phone.value.trim() || phone.value.trim().length < 6) {
+        errorMessage.value = 'Please enter a valid phone or mobile number for account verification & alerts.';
+        return;
+    }
+
+    if (!address.value || !address.value.trim()) {
+        errorMessage.value = 'Please enter your street address (flat, building, road).';
+        return;
+    }
+
+    if (!city.value || !city.value.trim()) {
+        errorMessage.value = 'Please enter your city.';
+        return;
+    }
+
+    if (!state.value || !state.value.trim()) {
+        errorMessage.value = 'Please enter your state or province.';
+        return;
+    }
+
+    if (!postalCode.value || !postalCode.value.trim()) {
+        errorMessage.value = 'Please enter your postal / PIN code.';
+        return;
+    }
+
+    if (!country.value || !country.value.trim()) {
+        errorMessage.value = 'Please select your country.';
         return;
     }
 
@@ -235,6 +294,14 @@ const handleCheckoutSubmit = async () => {
             domain: domainChoice.value === 'have' ? domain.value.trim() : '',
             name: name.value.trim(),
             email: email.value.trim(),
+            phone: phone.value.trim(),
+            company_name: companyName.value.trim(),
+            address: address.value.trim(),
+            city: city.value.trim(),
+            state: state.value.trim(),
+            postal_code: postalCode.value.trim(),
+            country: country.value.trim(),
+            tax_id: taxId.value.trim(),
         };
 
         const res = await axios.post(route('payment.initiate-hosting'), payload);
@@ -262,6 +329,14 @@ const handleCheckoutSubmit = async () => {
                     razorpay_signature: response.razorpay_signature,
                     name: name.value.trim(),
                     email: email.value.trim(),
+                    phone: phone.value.trim(),
+                    company_name: companyName.value.trim(),
+                    address: address.value.trim(),
+                    city: city.value.trim(),
+                    state: state.value.trim(),
+                    postal_code: postalCode.value.trim(),
+                    country: country.value.trim(),
+                    tax_id: taxId.value.trim(),
                     domain_choice: domainChoice.value,
                     domain: domainChoice.value === 'have' ? domain.value.trim() : '',
                     plan: selectedPlan.value.slug,
@@ -283,6 +358,7 @@ const handleCheckoutSubmit = async () => {
             prefill: {
                 name: name.value.trim(),
                 email: email.value.trim(),
+                contact: phone.value.trim(),
             },
             theme: {
                 color: "#10B981",
@@ -352,11 +428,15 @@ const handleCheckoutSubmit = async () => {
             <ol class="checkout-progress" aria-label="Checkout sections" data-testid="status-checkout-progress">
                 <li class="is-current">
                     <span>01</span>
-                    <strong>Your setup</strong>
+                    <strong>Hosting Plan</strong>
                 </li>
-                <li>
+                <li class="is-current">
                     <span>02</span>
-                    <strong>Order review &amp; Payment</strong>
+                    <strong>Domain Setup</strong>
+                </li>
+                <li class="is-current">
+                    <span>03</span>
+                    <strong>Billing &amp; Tax Info</strong>
                 </li>
             </ol>
 
@@ -445,47 +525,19 @@ const handleCheckoutSubmit = async () => {
                         </p>
                     </section>
 
-                    <!-- Section 02: Your Details -->
-                    <section class="checkout-section" aria-labelledby="details-heading">
+                    <!-- Section 02: Primary Domain Setup -->
+                    <section class="checkout-section" aria-labelledby="domain-heading">
                         <div class="checkout-section-head">
                             <span class="checkout-step-number">02</span>
                             <div>
-                                <h2 id="details-heading">Your details</h2>
-                                <p>We’ll use these to provision your account and dispatch credentials.</p>
-                            </div>
-                        </div>
-
-                        <div class="checkout-fields">
-                            <div class="checkout-field">
-                                <label for="checkout-name">Your name <span class="required-mark" aria-hidden="true">*</span></label>
-                                <input
-                                    id="checkout-name"
-                                    v-model="name"
-                                    type="text"
-                                    autoComplete="name"
-                                    placeholder="Alex Morgan"
-                                    required
-                                    data-testid="input-checkout-name"
-                                />
-                            </div>
-
-                            <div class="checkout-field">
-                                <label for="checkout-email">Work email <span class="required-mark" aria-hidden="true">*</span></label>
-                                <input
-                                    id="checkout-email"
-                                    v-model="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    placeholder="alex@yourcompany.com"
-                                    required
-                                    data-testid="input-checkout-email"
-                                />
+                                <h2 id="domain-heading">Primary domain setup</h2>
+                                <p>Provide the website address you want provisioned on this managed server.</p>
                             </div>
                         </div>
 
                         <!-- Domain Choice Selection -->
                         <fieldset class="domain-choice">
-                            <legend>Domain</legend>
+                            <legend>Domain choice</legend>
                             <label :class="['domain-choice-option', { selected: domainChoice === 'have' }]">
                                 <input
                                     type="radio"
@@ -510,7 +562,7 @@ const handleCheckoutSubmit = async () => {
                                 />
                                 <span>
                                     <strong>I’ll add it later</strong>
-                                    <small>We can work through DNS and domain cutover together.</small>
+                                    <small>We will assign a temporary staging address and help you configure DNS later.</small>
                                 </span>
                             </label>
                         </fieldset>
@@ -531,6 +583,169 @@ const handleCheckoutSubmit = async () => {
                             <p v-if="domainError" class="checkout-inline-error" role="alert" data-testid="error-checkout-domain">
                                 {{ domainError }}
                             </p>
+                        </div>
+                    </section>
+
+                    <!-- Section 03: Account & Professional Billing Details -->
+                    <section class="checkout-section" aria-labelledby="billing-heading">
+                        <div class="checkout-section-head">
+                            <span class="checkout-step-number">03</span>
+                            <div>
+                                <h2 id="billing-heading">Billing &amp; Tax information</h2>
+                                <p>Entered information is used for compliant tax invoices and your official client letterhead.</p>
+                            </div>
+                        </div>
+
+                        <!-- Contact Details -->
+                        <div class="checkout-group-heading">
+                            <User :size="13" /> Account Contact
+                        </div>
+                        <div class="checkout-fields">
+                            <div class="checkout-field">
+                                <label for="checkout-name">Full name <span class="required-mark" aria-hidden="true">*</span></label>
+                                <input
+                                    id="checkout-name"
+                                    v-model="name"
+                                    type="text"
+                                    autoComplete="name"
+                                    placeholder="Alex Morgan"
+                                    required
+                                    data-testid="input-checkout-name"
+                                />
+                            </div>
+
+                            <div class="checkout-field">
+                                <label for="checkout-email">Work / Account email <span class="required-mark" aria-hidden="true">*</span></label>
+                                <input
+                                    id="checkout-email"
+                                    v-model="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    placeholder="alex@yourcompany.com"
+                                    required
+                                    data-testid="input-checkout-email"
+                                />
+                            </div>
+
+                            <div class="checkout-field checkout-field-full">
+                                <label for="checkout-phone">Phone / Mobile number <span class="required-mark" aria-hidden="true">*</span></label>
+                                <input
+                                    id="checkout-phone"
+                                    v-model="phone"
+                                    type="tel"
+                                    autoComplete="tel"
+                                    placeholder="+91 98765 43210"
+                                    required
+                                    data-testid="input-checkout-phone"
+                                />
+                                <span class="checkout-field-hint">Required for payment security, OTP verification, and critical infrastructure notices.</span>
+                            </div>
+                        </div>
+
+                        <!-- Organization & Tax Details (Optional) -->
+                        <div class="checkout-group-heading">
+                            <Building2 :size="13" /> Company &amp; Tax (Optional)
+                        </div>
+                        <div class="checkout-fields">
+                            <div class="checkout-field">
+                                <label for="checkout-company">Company / Organization name</label>
+                                <input
+                                    id="checkout-company"
+                                    v-model="companyName"
+                                    type="text"
+                                    autoComplete="organization"
+                                    placeholder="Acme Technologies Pvt Ltd"
+                                    data-testid="input-checkout-company"
+                                />
+                                <span class="checkout-field-hint">Printed on your tax invoice if provided.</span>
+                            </div>
+
+                            <div class="checkout-field">
+                                <label for="checkout-tax-id">GSTIN / Tax ID</label>
+                                <input
+                                    id="checkout-tax-id"
+                                    v-model="taxId"
+                                    type="text"
+                                    placeholder="e.g. 29ABCDE1234F1Z5"
+                                    data-testid="input-checkout-tax-id"
+                                />
+                                <span class="checkout-field-hint">For B2B input tax credit on your official GST receipt.</span>
+                            </div>
+                        </div>
+
+                        <!-- Billing Address -->
+                        <div class="checkout-group-heading">
+                            <MapPin :size="13" /> Official Billing Address
+                        </div>
+                        <div class="checkout-fields">
+                            <div class="checkout-field checkout-field-full">
+                                <label for="checkout-address">Street address <span class="required-mark" aria-hidden="true">*</span></label>
+                                <input
+                                    id="checkout-address"
+                                    v-model="address"
+                                    type="text"
+                                    autoComplete="street-address"
+                                    placeholder="Flat / Suite No., Building, Street Name"
+                                    required
+                                    data-testid="input-checkout-address"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="checkout-fields-3 mt-3">
+                            <div class="checkout-field">
+                                <label for="checkout-city">City <span class="required-mark" aria-hidden="true">*</span></label>
+                                <input
+                                    id="checkout-city"
+                                    v-model="city"
+                                    type="text"
+                                    autoComplete="address-level2"
+                                    placeholder="Bangalore"
+                                    required
+                                    data-testid="input-checkout-city"
+                                />
+                            </div>
+
+                            <div class="checkout-field">
+                                <label for="checkout-state">State / Province <span class="required-mark" aria-hidden="true">*</span></label>
+                                <input
+                                    id="checkout-state"
+                                    v-model="state"
+                                    type="text"
+                                    autoComplete="address-level1"
+                                    placeholder="Karnataka"
+                                    required
+                                    data-testid="input-checkout-state"
+                                />
+                            </div>
+
+                            <div class="checkout-field">
+                                <label for="checkout-postal">PIN / Postal code <span class="required-mark" aria-hidden="true">*</span></label>
+                                <input
+                                    id="checkout-postal"
+                                    v-model="postalCode"
+                                    type="text"
+                                    autoComplete="postal-code"
+                                    placeholder="560001"
+                                    required
+                                    data-testid="input-checkout-postal"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="checkout-fields mt-3">
+                            <div class="checkout-field checkout-field-full">
+                                <label for="checkout-country">Country <span class="required-mark" aria-hidden="true">*</span></label>
+                                <select
+                                    id="checkout-country"
+                                    v-model="country"
+                                    autoComplete="country-name"
+                                    required
+                                    data-testid="select-checkout-country"
+                                >
+                                    <option v-for="c in countries" :key="c" :value="c">{{ c }}</option>
+                                </select>
+                            </div>
                         </div>
                     </section>
 
@@ -563,6 +778,16 @@ const handleCheckoutSubmit = async () => {
                         <span>Domain</span>
                         <strong data-testid="text-review-domain">
                             {{ domainChoice === 'later' ? 'Add later (temporary hostname)' : (domain.trim() || 'Not entered yet') }}
+                        </strong>
+                    </div>
+
+                    <div v-if="name.trim() || city.trim()" class="review-line">
+                        <span>Billed To</span>
+                        <strong class="text-right">
+                            <div>{{ name.trim() || 'Customer' }}</div>
+                            <small class="text-[10px] text-gray-500 font-normal">
+                                {{ [city.trim(), country.trim()].filter(Boolean).join(', ') }}
+                            </small>
                         </strong>
                     </div>
 

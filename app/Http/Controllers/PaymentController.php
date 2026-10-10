@@ -154,6 +154,14 @@ class PaymentController extends Controller
             'domain' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:30',
+            'company_name' => 'nullable|string|max:255',
+            'address' => 'required|string|max:500',
+            'city' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:30',
+            'country' => 'required|string|max:100',
+            'tax_id' => 'nullable|string|max:50',
         ]);
 
         $planSlug = $request->plan;
@@ -193,15 +201,20 @@ class PaymentController extends Controller
             'currency' => 'INR',
             'notes'    => [
                 'order_type'     => 'hosting',
-                'plan_id'        => $plan->id,
-                'plan_slug'      => $plan->slug,
-                'plan_name'      => $plan->name,
-                'billing_cycle'  => $billingCycle,
-                'domain_choice'  => $domainChoice,
-                'domain'         => $domain,
-                'customer_name'  => $request->name,
-                'customer_email' => $request->email,
-                'user_id'        => Auth::id() ?? '',
+                'plan_id'        => (string) $plan->id,
+                'plan_slug'      => (string) $plan->slug,
+                'plan_name'      => substr((string) $plan->name, 0, 40),
+                'billing_cycle'  => (string) $billingCycle,
+                'domain_choice'  => (string) $domainChoice,
+                'domain'         => substr((string) $domain, 0, 80),
+                'customer_name'  => substr((string) $request->name, 0, 80),
+                'customer_email' => substr((string) $request->email, 0, 80),
+                'customer_phone' => substr((string) $request->phone, 0, 30),
+                'company_name'   => substr((string) ($request->company_name ?? ''), 0, 80),
+                'address'        => substr((string) $request->address, 0, 100),
+                'city'           => substr((string) $request->city, 0, 50),
+                'state'          => substr((string) $request->state, 0, 50),
+                'country'        => substr((string) $request->country, 0, 50),
             ],
         ];
 
@@ -249,22 +262,45 @@ class PaymentController extends Controller
                 }
             }
 
-            // Authenticate or register customer
+            // Authenticate or register customer with full address details
             $user = Auth::user();
+            $isNewUser = false;
             if (!$user) {
-                $email = $notes->customer_email ?? $request->email;
-                $name = $notes->customer_name ?? $request->name ?? 'Customer';
+                $email = $request->input('email', $notes->customer_email ?? null);
+                $name = $request->input('name', $notes->customer_name ?? 'Customer');
 
                 $user = \App\Models\User::where('email', $email)->first();
                 if (!$user) {
                     $user = \App\Models\User::create([
                         'name' => $name,
                         'email' => $email,
+                        'phone' => $request->input('phone', $notes->customer_phone ?? null),
+                        'company_name' => $request->input('company_name', $notes->company_name ?? null),
+                        'address' => $request->input('address', $notes->address ?? null),
+                        'city' => $request->input('city', $notes->city ?? null),
+                        'state' => $request->input('state', $notes->state ?? null),
+                        'postal_code' => $request->input('postal_code', null),
+                        'country' => $request->input('country', $notes->country ?? 'India'),
                         'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
                         'role' => 'user',
                     ]);
+                    $isNewUser = true;
                 }
                 Auth::login($user);
+            }
+
+            // Sync user billing profile with latest details
+            $profileUpdates = array_filter([
+                'phone' => $request->input('phone', $notes->customer_phone ?? null),
+                'company_name' => $request->input('company_name', $notes->company_name ?? null),
+                'address' => $request->input('address', $notes->address ?? null),
+                'city' => $request->input('city', $notes->city ?? null),
+                'state' => $request->input('state', $notes->state ?? null),
+                'postal_code' => $request->input('postal_code', null),
+                'country' => $request->input('country', $notes->country ?? null),
+            ]);
+            if (!empty($profileUpdates)) {
+                $user->update($profileUpdates);
             }
 
             $planSlug = $notes->plan_slug ?? $request->plan;
@@ -304,8 +340,8 @@ class PaymentController extends Controller
                 'notes' => "Order verified via Razorpay ({$paymentId}). Status: Pending verification & server container provisioning (max 2 hrs target). Domain setup: {$domainChoice}",
             ]);
 
-            // Create Invoice
-            \App\Models\Invoice::create([
+            // Create Invoice with comprehensive professional billing details
+            $invoice = \App\Models\Invoice::create([
                 'user_id' => $user->id,
                 'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
                 'type' => 'hosting_plan',
@@ -324,12 +360,36 @@ class PaymentController extends Controller
                 'billing_details' => [
                     'customer_name' => $user->name,
                     'customer_email' => $user->email,
+                    'customer_phone' => $request->input('phone', $notes->customer_phone ?? $user->phone),
+                    'company_name' => $request->input('company_name', $notes->company_name ?? $user->company_name),
+                    'address' => $request->input('address', $notes->address ?? $user->address),
+                    'city' => $request->input('city', $notes->city ?? $user->city),
+                    'state' => $request->input('state', $notes->state ?? $user->state),
+                    'postal_code' => $request->input('postal_code', $user->postal_code),
+                    'country' => $request->input('country', $notes->country ?? ($user->country ?: 'India')),
+                    'tax_id' => $request->input('tax_id'),
                     'order_id' => $request->razorpay_order_id,
                     'domain' => $domain,
                     'billing_cycle' => $billingCycle,
                     'transaction_id' => $paymentId,
                 ],
             ]);
+
+            // Dispatch Account Verification link email if the user is new or unverified
+            if ($isNewUser || !$user->hasVerifiedEmail()) {
+                try {
+                    $user->sendEmailVerificationNotification();
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to dispatch email verification: ' . $e->getMessage());
+                }
+            }
+
+            // Dispatch official Invoice & Payment receipt email
+            try {
+                $user->notify(new \App\Notifications\InvoiceNotification($invoice));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to dispatch invoice notification: ' . $e->getMessage());
+            }
 
             return redirect()->route('hosting.order-confirmation', $account->uuid)
                 ->with('success', 'Payment successful! Your hosting account is under verification and server setup (typically within 2 hours).');
