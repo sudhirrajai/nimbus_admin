@@ -183,6 +183,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::post('/hosting/accounts', [\App\Http\Controllers\Admin\AdminHostingController::class, 'storeAccount'])->name('hosting.accounts.store');
     Route::put('/hosting/accounts/{account}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'updateAccount'])->name('hosting.accounts.update');
+    Route::patch('/hosting/accounts/{account}/quick-activate', [\App\Http\Controllers\Admin\AdminHostingController::class, 'quickActivate'])->name('hosting.accounts.quick-activate');
     Route::delete('/hosting/accounts/{account}', [\App\Http\Controllers\Admin\AdminHostingController::class, 'destroyAccount'])->name('hosting.accounts.destroy');
     Route::get('/hosting/accounts/{account}/sso', [\App\Http\Controllers\Admin\AdminHostingController::class, 'loginAccount'])->name('hosting.accounts.sso');
     Route::post('/hosting/accounts/{account}/renewal-invoice', [\App\Http\Controllers\Admin\AdminHostingController::class, 'generateRenewalInvoice'])->name('hosting.accounts.renewal-invoice');

@@ -220,12 +220,17 @@ class AdminHostingController extends Controller
             'billing_cycle' => 'nullable|string|in:monthly,quarterly,semi_annual,yearly,biennial,triennial',
             'starts_at' => 'nullable|date',
             'initial_price' => 'nullable|numeric|min:0',
+            'amount' => 'nullable|numeric|min:0',
             'renewal_price' => 'nullable|numeric|min:0',
             'renews_at' => 'nullable|date',
             'auto_invoice' => 'nullable|boolean',
             'renewal_invoice_days' => 'nullable|integer|min:1|max:90',
             'notes' => 'nullable|string|max:1000',
         ]);
+
+        $initialPrice = isset($validated['amount'])
+            ? (float)$validated['amount']
+            : (isset($validated['initial_price']) ? (float)$validated['initial_price'] : $account->initial_price);
 
         $startsAt = !empty($validated['starts_at']) 
             ? \Carbon\Carbon::parse($validated['starts_at']) 
@@ -245,7 +250,7 @@ class AdminHostingController extends Controller
             'status' => $validated['status'],
             'billing_cycle' => $validated['billing_cycle'] ?? $account->billing_cycle ?? 'yearly',
             'starts_at' => $startsAt,
-            'initial_price' => isset($validated['initial_price']) ? (float)$validated['initial_price'] : $account->initial_price,
+            'initial_price' => $initialPrice,
             'renewal_price' => isset($validated['renewal_price']) ? (float)$validated['renewal_price'] : $account->renewal_price,
             'renews_at' => $renewsAt,
             'auto_invoice' => $request->has('auto_invoice') ? $request->boolean('auto_invoice') : $account->auto_invoice,
@@ -283,6 +288,25 @@ class AdminHostingController extends Controller
         }
 
         return back()->with('success', 'Hosting account and associated invoice updated successfully.');
+    }
+
+    /**
+     * 1-Click Quick Activate / Approve a pending hosting account.
+     */
+    public function quickActivate(Request $request, HostingAccount $account)
+    {
+        $defaultServer = HostingServer::first();
+        $serverId = $request->input('hosting_server_id') ?? $account->server_id ?? $defaultServer?->id;
+
+        $account->update([
+            'status' => 'active',
+            'server_id' => $serverId,
+            'hosting_server_id' => $serverId,
+            'starts_at' => $account->starts_at ?? now(),
+            'renews_at' => $account->renews_at ?? ($account->billing_cycle === 'monthly' ? now()->addMonth() : now()->addYear()),
+        ]);
+
+        return back()->with('success', "Hosting account for {$account->domain} has been verified and provisioned!");
     }
 
     /**

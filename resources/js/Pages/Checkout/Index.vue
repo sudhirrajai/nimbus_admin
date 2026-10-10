@@ -52,7 +52,7 @@ const toggleTheme = () => {
     } catch (e) {}
 };
 
-// Fallback plans if none found in database
+// Fallback plans matching Landing page exactly
 const fallbackPlans = [
     {
         id: 1,
@@ -63,8 +63,10 @@ const fallbackPlans = [
         price_usd: 49,
         monthly_price_inr: 390,
         monthly_price_usd: 5,
-        renewal_price_inr: 3800,
-        renewal_price_usd: 49,
+        renewal_price_inr: 4790,
+        renewal_price_usd: 59,
+        renewal_monthly_price_inr: 490,
+        renewal_monthly_price_usd: 6,
         billing_period: '/year',
     },
     {
@@ -76,8 +78,25 @@ const fallbackPlans = [
         price_usd: 99,
         monthly_price_inr: 790,
         monthly_price_usd: 10,
-        renewal_price_inr: 7990,
-        renewal_price_usd: 99,
+        renewal_price_inr: 9990,
+        renewal_price_usd: 119,
+        renewal_monthly_price_inr: 990,
+        renewal_monthly_price_usd: 12,
+        billing_period: '/year',
+    },
+    {
+        id: 3,
+        slug: 'enterprise-cloud',
+        name: 'Enterprise Cloud',
+        description: 'For complex systems, compliance needs, or many properties.',
+        price_inr: 16990,
+        price_usd: 199,
+        monthly_price_inr: 1690,
+        monthly_price_usd: 20,
+        renewal_price_inr: 19990,
+        renewal_price_usd: 249,
+        renewal_monthly_price_inr: 1990,
+        renewal_monthly_price_usd: 25,
         billing_period: '/year',
     },
 ];
@@ -135,9 +154,9 @@ const selectedPlan = computed(() => {
 const getMonthlyRate = (plan) => {
     if (!plan) return 0;
     if (currency.value === 'INR') {
-        return plan.monthly_price_inr || Math.round(Number(plan.price_inr) / 10);
+        return plan.monthly_price_inr ? Number(plan.monthly_price_inr) : Math.round(Number(plan.price_inr) / 10);
     }
-    return plan.monthly_price_usd || Math.round(Number(plan.price_usd) / 10);
+    return plan.monthly_price_usd ? Number(plan.monthly_price_usd) : Math.round(Number(plan.price_usd) / 10);
 };
 
 const getYearlyMonthlyEquivalent = (plan) => {
@@ -148,20 +167,54 @@ const getYearlyMonthlyEquivalent = (plan) => {
     return Math.round(Number(plan.price_usd) / 12);
 };
 
-const getTotalPrice = computed(() => {
-    if (!selectedPlan.value) return 0;
-    const plan = selectedPlan.value;
+const getRenewalPrice = (plan) => {
+    if (!plan) return 0;
+    const isINR = currency.value === 'INR';
+    if (billing.value === 'monthly') {
+        if (isINR) {
+            return Number(plan.renewal_monthly_price_inr || plan.monthly_price_inr || Math.round(Number(plan.renewal_price_inr || plan.price_inr) / 10));
+        }
+        return Number(plan.renewal_monthly_price_usd || plan.monthly_price_usd || Math.round(Number(plan.renewal_price_usd || plan.price_usd) / 10));
+    } else {
+        if (isINR) {
+            return Number(plan.renewal_price_inr || plan.price_inr);
+        }
+        return Number(plan.renewal_price_usd || plan.price_usd);
+    }
+};
+
+const getCurrentPrice = (plan) => {
+    if (!plan) return 0;
     if (billing.value === 'monthly') {
         return getMonthlyRate(plan);
     }
     return currency.value === 'INR' ? Number(plan.price_inr) : Number(plan.price_usd);
+};
+
+const getSavings = (plan) => {
+    if (!plan) return 0;
+    const renewal = getRenewalPrice(plan);
+    const current = getCurrentPrice(plan);
+    return (renewal > current) ? (renewal - current) : 0;
+};
+
+const getDiscountPercent = (plan) => {
+    if (!plan) return 0;
+    const renewal = getRenewalPrice(plan);
+    const savings = getSavings(plan);
+    return (renewal > 0 && savings > 0) ? Math.round((savings / renewal) * 100) : 0;
+};
+
+const getTotalPrice = computed(() => {
+    if (!selectedPlan.value) return 0;
+    return getCurrentPrice(selectedPlan.value);
 });
 
 const getRazorpayChargeINR = computed(() => {
     if (!selectedPlan.value) return 0;
     const plan = selectedPlan.value;
     if (billing.value === 'monthly') {
-        return plan.monthly_price_inr || Math.round(Number(plan.price_inr) / 10);
+        return plan.monthly_price_inr ? Number(plan.monthly_price_inr) : Math.round(Number(plan.price_inr) / 10);
     }
     return Number(plan.price_inr);
 });
@@ -467,9 +520,19 @@ const handleCheckoutSubmit = async () => {
                                 <span class="checkout-radio" aria-hidden="true">
                                     <Check v-if="selectedPlan?.id === plan.id" :size="12" />
                                 </span>
-                                <span class="checkout-option-name">{{ plan.name }}</span>
-                                <span class="checkout-option-price">
-                                    {{ currency === 'INR' ? `₹${billing === 'monthly' ? getMonthlyRate(plan) : getYearlyMonthlyEquivalent(plan)}` : `$${billing === 'monthly' ? getMonthlyRate(plan) : getYearlyMonthlyEquivalent(plan)}` }}
+                                <div class="flex-1 min-w-0 pr-2">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="checkout-option-name">{{ plan.name }}</span>
+                                        <span v-if="getDiscountPercent(plan) > 0" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 uppercase tracking-wider font-mono">
+                                            Save {{ getDiscountPercent(plan) }}%
+                                        </span>
+                                    </div>
+                                    <span class="text-[10px] text-[var(--text-muted)] block mt-0.5">
+                                        Renews at {{ currency === 'INR' ? '₹' : '$' }}{{ getRenewalPrice(plan).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US') }}{{ billing === 'monthly' ? '/mo' : '/yr' }}
+                                    </span>
+                                </div>
+                                <span class="checkout-option-price shrink-0 text-right">
+                                    {{ currency === 'INR' ? `₹${billing === 'monthly' ? getMonthlyRate(plan).toLocaleString('en-IN') : getYearlyMonthlyEquivalent(plan).toLocaleString('en-IN')}` : `$${billing === 'monthly' ? getMonthlyRate(plan) : getYearlyMonthlyEquivalent(plan)}` }}
                                     <small>/mo</small>
                                 </span>
                             </button>
@@ -791,8 +854,30 @@ const handleCheckoutSubmit = async () => {
                         </strong>
                     </div>
 
+                    <!-- Introductory Discount / Difference Line -->
+                    <div v-if="getSavings(selectedPlan) > 0" class="review-line text-emerald-600 dark:text-emerald-400">
+                        <span class="flex items-center gap-1 font-semibold">
+                            <span>Introductory Discount</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/25 font-mono">{{ getDiscountPercent(selectedPlan) }}% OFF</span>
+                        </span>
+                        <strong class="text-emerald-600 dark:text-emerald-400 font-bold font-mono">
+                            -{{ currency === 'INR' ? '₹' : '$' }}{{ getSavings(selectedPlan).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US') }}
+                        </strong>
+                    </div>
+
+                    <!-- Small Renewal Rate Text in Sidebar -->
+                    <div class="review-line">
+                        <span>Subsequent Renewal</span>
+                        <div class="text-right">
+                            <span class="text-[11px] font-mono text-[var(--text-soft)]">
+                                {{ currency === 'INR' ? '₹' : '$' }}{{ getRenewalPrice(selectedPlan).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US') }} / {{ billing === 'monthly' ? 'month' : 'year' }}
+                            </span>
+                            <span class="block text-[9px] text-[var(--text-muted)]">Cancel or change anytime</span>
+                        </div>
+                    </div>
+
                     <div class="review-total">
-                        <span>{{ billing === 'monthly' ? 'Monthly total' : 'Annual total' }}</span>
+                        <span>{{ billing === 'monthly' ? 'Due today (1st month)' : 'Due today (1st year)' }}</span>
                         <strong data-testid="text-review-total">
                             {{ currency === 'INR' ? `₹${getTotalPrice.toLocaleString('en-IN')}` : `$${getTotalPrice.toLocaleString('en-US')}` }}
                             <small>{{ billing === 'monthly' ? ' / month' : ' / year' }}</small>

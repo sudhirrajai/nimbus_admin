@@ -145,19 +145,37 @@ const pricing = computed(() => {
                 ? (plan.monthly_price_inr ? Number(plan.monthly_price_inr) : (baseYearly > 0 ? Math.round(baseYearly / 10) : null))
                 : (plan.monthly_price_usd ? Number(plan.monthly_price_usd) : (baseYearly > 0 ? Math.round(baseYearly / 10) : null));
 
+            const renewalYearly = isINR
+                ? Number(plan.renewal_price_inr || plan.price_inr)
+                : Number(plan.renewal_price_usd || plan.price_usd);
+            const renewalMonthly = isINR
+                ? Number(plan.renewal_monthly_price_inr || plan.monthly_price_inr || Math.round(renewalYearly / 10))
+                : Number(plan.renewal_monthly_price_usd || plan.monthly_price_usd || Math.round(renewalYearly / 10));
+
             const isCustom = !baseYearly || baseYearly <= 0;
             let displayAmount = null;
             let caption = '';
+            let renewalText = '';
+            let discountPercent = 0;
+            let savings = 0;
 
             if (!isCustom) {
                 if (annual.value) {
-                    // Yearly billed: show monthly equivalent
                     displayAmount = Math.round(baseYearly / 12);
                     caption = `Billed annually · ${symbol}${isINR ? baseYearly.toLocaleString('en-IN') : baseYearly} / year`;
+                    renewalText = `Renews at ${symbol}${isINR ? renewalYearly.toLocaleString('en-IN') : renewalYearly} / year`;
+                    if (renewalYearly > baseYearly) {
+                        savings = renewalYearly - baseYearly;
+                        discountPercent = Math.round((savings / renewalYearly) * 100);
+                    }
                 } else {
-                    // Monthly billed
                     displayAmount = baseMonthly;
                     caption = 'Billed monthly · cancel anytime';
+                    renewalText = `Renews at ${symbol}${isINR ? renewalMonthly.toLocaleString('en-IN') : renewalMonthly} / month`;
+                    if (renewalMonthly > baseMonthly) {
+                        savings = renewalMonthly - baseMonthly;
+                        discountPercent = Math.round((savings / renewalMonthly) * 100);
+                    }
                 }
             }
 
@@ -179,6 +197,9 @@ const pricing = computed(() => {
                 isCustom: isCustom,
                 unit: isCustom ? '' : '/ month',
                 caption: isCustom ? 'Scoped to your setup' : caption,
+                renewalText: renewalText,
+                discountPercent: discountPercent,
+                savings: savings,
                 items: items,
                 action: plan.cta_text || (isCustom ? 'Talk to an engineer' : (plan.is_popular ? 'Start free migration' : `Deploy ${plan.name}`)),
                 featured: Boolean(plan.is_popular),
@@ -187,15 +208,19 @@ const pricing = computed(() => {
         });
     }
 
-    return [
+    const fallbackList = [
         {
             name: 'Starter Cloud',
+            slug: 'starter-cloud',
             description: 'For a small app or a site ready to leave shared hosting.',
-            symbol: symbol,
-            displayAmount: isINR ? (annual.value ? 317 : 390) : (annual.value ? 4 : 5),
-            isCustom: false,
-            unit: '/ month',
-            caption: annual.value ? `Billed annually · ${symbol}${isINR ? '3,800' : '49'} / year` : 'Billed monthly · cancel anytime',
+            yearly_inr: 3800,
+            monthly_inr: 390,
+            renewal_yearly_inr: 4790,
+            renewal_monthly_inr: 490,
+            yearly_usd: 49,
+            monthly_usd: 5,
+            renewal_yearly_usd: 59,
+            renewal_monthly_usd: 6,
             items: [
                 'One production application',
                 'Managed updates & security',
@@ -207,12 +232,16 @@ const pricing = computed(() => {
         },
         {
             name: 'Business Cloud',
+            slug: 'business-cloud',
             description: 'For growing teams that need room and a steady hand.',
-            symbol: symbol,
-            displayAmount: isINR ? (annual.value ? 665 : 790) : (annual.value ? 8 : 10),
-            isCustom: false,
-            unit: '/ month',
-            caption: annual.value ? `Billed annually · ${symbol}${isINR ? '7,990' : '99'} / year` : 'Billed monthly · cancel anytime',
+            yearly_inr: 7990,
+            monthly_inr: 790,
+            renewal_yearly_inr: 9990,
+            renewal_monthly_inr: 990,
+            yearly_usd: 99,
+            monthly_usd: 10,
+            renewal_yearly_usd: 119,
+            renewal_monthly_usd: 12,
             items: [
                 'Up to 3 production applications',
                 'Everything in Starter',
@@ -225,12 +254,16 @@ const pricing = computed(() => {
         },
         {
             name: 'Enterprise Cloud',
+            slug: 'enterprise-cloud',
             description: 'For complex systems, compliance needs, or many properties.',
-            symbol: symbol,
-            displayAmount: isINR ? (annual.value ? 1415 : 1690) : (annual.value ? 16 : 20),
-            isCustom: false,
-            unit: '/ month',
-            caption: annual.value ? `Billed annually · ${symbol}${isINR ? '16,990' : '199'} / year` : 'Billed monthly · cancel anytime',
+            yearly_inr: 16990,
+            monthly_inr: 1690,
+            renewal_yearly_inr: 19990,
+            renewal_monthly_inr: 1990,
+            yearly_usd: 199,
+            monthly_usd: 20,
+            renewal_yearly_usd: 249,
+            renewal_monthly_usd: 25,
             items: [
                 'Multi-server fleet orchestration',
                 'Dedicated engineer channel',
@@ -238,8 +271,53 @@ const pricing = computed(() => {
                 'SLA & compliance support',
             ],
             action: 'Deploy Enterprise Cloud',
+            featured: false,
         },
     ];
+
+    return fallbackList.map((plan) => {
+        const baseYearly = isINR ? plan.yearly_inr : plan.yearly_usd;
+        const baseMonthly = isINR ? plan.monthly_inr : plan.monthly_usd;
+        const renewalYearly = isINR ? plan.renewal_yearly_inr : plan.renewal_yearly_usd;
+        const renewalMonthly = isINR ? plan.renewal_monthly_inr : plan.renewal_monthly_usd;
+
+        let displayAmount = null;
+        let caption = '';
+        let renewalText = '';
+        let savings = 0;
+        let discountPercent = 0;
+
+        if (annual.value) {
+            displayAmount = Math.round(baseYearly / 12);
+            caption = `Billed annually · ${symbol}${isINR ? baseYearly.toLocaleString('en-IN') : baseYearly} / year`;
+            renewalText = `Renews at ${symbol}${isINR ? renewalYearly.toLocaleString('en-IN') : renewalYearly} / year`;
+            savings = renewalYearly - baseYearly;
+            discountPercent = Math.round((savings / renewalYearly) * 100);
+        } else {
+            displayAmount = baseMonthly;
+            caption = 'Billed monthly · cancel anytime';
+            renewalText = `Renews at ${symbol}${isINR ? renewalMonthly.toLocaleString('en-IN') : renewalMonthly} / month`;
+            savings = renewalMonthly - baseMonthly;
+            discountPercent = Math.round((savings / renewalMonthly) * 100);
+        }
+
+        return {
+            name: plan.name,
+            description: plan.description,
+            symbol: symbol,
+            displayAmount: displayAmount,
+            isCustom: false,
+            unit: '/ month',
+            caption: caption,
+            renewalText: renewalText,
+            discountPercent: discountPercent,
+            savings: savings,
+            items: plan.items,
+            action: plan.action,
+            featured: plan.featured,
+            rawPlan: { slug: plan.slug },
+        };
+    });
 });
 
 const customerStories = computed(() => {
@@ -842,7 +920,12 @@ const currentYear = new Date().getFullYear();
                             :data-testid="`card-plan-${plan.name.toLowerCase()}`"
                         >
                             <span v-if="plan.featured" class="popular-label">Most chosen</span>
-                            <div class="plan-name">{{ plan.name }}</div>
+                            <div class="plan-name flex items-center justify-between">
+                                <span>{{ plan.name }}</span>
+                                <span v-if="plan.discountPercent > 0" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                                    -{{ plan.discountPercent }}%
+                                </span>
+                            </div>
                             <p class="plan-note">{{ plan.description }}</p>
                             <div class="plan-price">
                                 <span v-if="plan.isCustom" class="price-amount" style="font-size: 31px;">
@@ -855,6 +938,14 @@ const currentYear = new Date().getFullYear();
                             </div>
                             <div class="billing-caption">
                                 {{ plan.caption }}
+                            </div>
+                            <div v-if="!plan.isCustom && plan.renewalText" class="text-[10px] text-[var(--text-muted)] font-mono mt-1">
+                                {{ plan.renewalText }}
+                            </div>
+                            <div v-if="!plan.isCustom && plan.discountPercent > 0" class="mt-2">
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 font-mono uppercase tracking-wider">
+                                    Save {{ plan.discountPercent }}% &bull; Introductory Offer
+                                </span>
                             </div>
                             <a
                                 v-if="plan.isCustom"

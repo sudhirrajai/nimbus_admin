@@ -184,7 +184,13 @@ class PaymentController extends Controller
         }
 
         if ($amountInr <= 0) {
-            $amountInr = ($billingCycle === 'monthly') ? 390 : 3800;
+            $isEnterprise = str_contains(strtolower((string)$planSlug), 'enterprise');
+            $isBusiness = str_contains(strtolower((string)$planSlug), 'business');
+            if ($billingCycle === 'monthly') {
+                $amountInr = $isEnterprise ? 1690 : ($isBusiness ? 790 : 390);
+            } else {
+                $amountInr = $isEnterprise ? 16990 : ($isBusiness ? 7990 : 3800);
+            }
         }
 
         $api = new Api($this->razorpayId, $this->razorpayKey);
@@ -315,8 +321,18 @@ class PaymentController extends Controller
 
             $amountInr = ($order->amount / 100);
             $renewalPrice = ($billingCycle === 'monthly')
-                ? ($plan?->renewal_monthly_price_inr ?? $plan?->monthly_price_inr ?? $amountInr)
-                : ($plan?->renewal_price_inr ?? $plan?->price_inr ?? $amountInr);
+                ? ($plan?->renewal_monthly_price_inr ?? $plan?->monthly_price_inr ?? null)
+                : ($plan?->renewal_price_inr ?? $plan?->price_inr ?? null);
+
+            if (!$renewalPrice || $renewalPrice <= $amountInr) {
+                $isEnterprise = str_contains(strtolower((string)$planSlug), 'enterprise');
+                $isBusiness = str_contains(strtolower((string)$planSlug), 'business');
+                if ($billingCycle === 'monthly') {
+                    $renewalPrice = $isEnterprise ? 1990 : ($isBusiness ? 990 : 490);
+                } else {
+                    $renewalPrice = $isEnterprise ? 19990 : ($isBusiness ? 9990 : 4790);
+                }
+            }
 
             $startsAt = now();
             $renewsAt = ($billingCycle === 'monthly') ? now()->addMonth() : now()->addYear();

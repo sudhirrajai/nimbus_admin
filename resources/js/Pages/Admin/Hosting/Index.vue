@@ -150,19 +150,31 @@ const openNewAccountModal = (prefillUserId = '', prefillDomain = '') => {
 const openEditAccountModal = (account) => {
     editingAccount.value = account;
     accountForm.user_id = account.user_id;
-    accountForm.hosting_server_id = account.server_id || account.hosting_server_id;
+    accountForm.hosting_server_id = account.server_id || account.hosting_server_id || (props.servers[0]?.id || '');
     accountForm.domain = account.domain;
     accountForm.plan_name = account.plan_name;
-    accountForm.status = account.status;
+    // Default to active when verifying a pending account
+    accountForm.status = account.status === 'pending' ? 'active' : account.status;
     accountForm.billing_cycle = account.billing_cycle || 'yearly';
     accountForm.amount = account.initial_price || 0;
     accountForm.renewal_price = account.renewal_price || 0;
-    accountForm.starts_at = account.starts_at ? account.starts_at.substring(0, 10) : (account.created_at ? account.created_at.substring(0, 10) : '');
+    accountForm.starts_at = account.starts_at ? account.starts_at.substring(0, 10) : (account.created_at ? account.created_at.substring(0, 10) : new Date().toISOString().substring(0, 10));
     accountForm.renews_at = account.renews_at ? account.renews_at.substring(0, 10) : '';
+    if (!accountForm.renews_at) {
+        recalculateRenewalDate();
+    }
     accountForm.auto_invoice = account.auto_invoice !== undefined ? Boolean(account.auto_invoice) : true;
     accountForm.renewal_invoice_days = account.renewal_invoice_days || 14;
     accountForm.notes = account.notes || '';
     showAccountModal.value = true;
+};
+
+const quickActivateAccount = (account) => {
+    if (confirm(`Approve and mark hosting account for "${account.domain}" as ACTIVE immediately?`)) {
+        router.patch(route('admin.hosting.accounts.quick-activate', account.id), {}, {
+            preserveScroll: true,
+        });
+    }
 };
 
 const submitAccountForm = () => {
@@ -532,15 +544,24 @@ const formatTimeAgo = (dateStr) => {
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-1.5">
-                                            <button 
-                                                v-if="account.status === 'pending'"
-                                                @click="openEditAccountModal(account)"
-                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded shadow-sm transition-colors cursor-pointer"
-                                                title="Assign server node and verify client account"
-                                            >
-                                                <span class="material-symbols-rounded text-sm">tune</span>
-                                                Verify &amp; Provision
-                                            </button>
+                                            <template v-if="account.status === 'pending'">
+                                                <button 
+                                                    @click="quickActivateAccount(account)"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded shadow-sm transition-colors cursor-pointer"
+                                                    title="Immediately approve and mark server active"
+                                                >
+                                                    <span class="material-symbols-rounded text-sm">check_circle</span>
+                                                    Approve &amp; Activate
+                                                </button>
+                                                <button 
+                                                    @click="openEditAccountModal(account)"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 text-xs font-semibold rounded border border-gray-200 transition-colors shadow-2xs cursor-pointer"
+                                                    title="Assign server node, review configuration, and verify"
+                                                >
+                                                    <span class="material-symbols-rounded text-sm text-emerald-600">tune</span>
+                                                    Configure
+                                                </button>
+                                            </template>
                                             <button 
                                                 v-else
                                                 @click="checkAccountUptime(account)"

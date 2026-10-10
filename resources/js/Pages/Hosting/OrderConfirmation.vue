@@ -98,12 +98,14 @@ const formatCurrency = (amount) => {
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 mb-4 shadow-sm">
                     <CheckCircle2 :size="28" />
                 </div>
-                <div class="eyebrow text-emerald-600 font-bold uppercase tracking-wider text-xs">Payment Received &bull; Order Confirmed</div>
+                <div class="eyebrow text-emerald-600 font-bold uppercase tracking-wider text-xs">
+                    {{ account.status === 'active' ? 'Account Provisioned • Server Live' : 'Payment Received • Order Confirmed' }}
+                </div>
                 <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--text)] mt-1">
-                    Your hosting environment is being prepared.
+                    {{ account.status === 'active' ? 'Your hosting environment is active and live!' : 'Your hosting environment is being prepared.' }}
                 </h1>
                 <p class="text-sm text-[var(--text-soft)] max-w-lg mx-auto mt-2">
-                    Thank you for your order! Your payment was verified and our infrastructure engineering team has received your deployment request.
+                    {{ account.status === 'active' ? 'Your server container has been provisioned, DNS/SSL is operational, and your control panel credentials are ready.' : 'Thank you for your order! Your payment was verified and our infrastructure engineering team has received your deployment request.' }}
                 </p>
 
                 <!-- Email Verification & Invoice Dispatch Notice -->
@@ -120,8 +122,72 @@ const formatCurrency = (amount) => {
                 </div>
             </div>
 
-            <!-- PROVISIONING SLA CARD -->
-            <div class="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 backdrop-blur-sm relative overflow-hidden">
+            <!-- ACTIVE / PROVISIONED CARD (When status is active) -->
+            <div v-if="account.status === 'active'" class="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 sm:p-8 backdrop-blur-sm relative overflow-hidden">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-emerald-500/20 pb-5">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="relative flex h-3 w-3">
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                            </span>
+                            <span class="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                Current Status: Provisioned &amp; 100% Operational
+                            </span>
+                        </div>
+                        <h2 class="text-lg font-bold text-[var(--text)] mt-1">
+                            Server Environment Ready
+                        </h2>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <a 
+                            :href="route('hosting.accounts.client-sso', account.id)"
+                            target="_blank"
+                            class="button button-primary button-small inline-flex items-center gap-2 shadow-sm font-bold"
+                        >
+                            <ExternalLink :size="13" /> 1-Click Login to Control Panel
+                        </a>
+                    </div>
+                </div>
+
+                <p class="text-xs text-[var(--text-soft)] mt-4 leading-relaxed">
+                    Your isolated Linux container has been provisioned, Nginx and PHP runtimes configured, auto-renewing Let's Encrypt SSL active, and real-time monitoring enabled. You can log in directly into your control panel with 1-click single sign-on below.
+                </p>
+
+                <!-- SLA Step Progress Tracker - All Completed -->
+                <div class="mt-6 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                    <div class="bg-[var(--panel)] p-3 rounded-xl border border-emerald-500/30">
+                        <div class="flex items-center gap-1.5 text-emerald-600 font-bold text-[11px]">
+                            <CheckCircle2 :size="13" /> 1. Payment Verified
+                        </div>
+                        <div class="text-[10px] text-[var(--text-muted)] mt-1">Verified via Razorpay</div>
+                    </div>
+
+                    <div class="bg-[var(--panel)] p-3 rounded-xl border border-emerald-500/30">
+                        <div class="flex items-center gap-1.5 text-emerald-600 font-bold text-[11px]">
+                            <CheckCircle2 :size="13" /> 2. Server Allocated
+                        </div>
+                        <div class="text-[10px] text-[var(--text-muted)] mt-1">Container active</div>
+                    </div>
+
+                    <div class="bg-[var(--panel)] p-3 rounded-xl border border-emerald-500/30">
+                        <div class="flex items-center gap-1.5 text-emerald-600 font-bold text-[11px]">
+                            <CheckCircle2 :size="13" /> 3. Domain &amp; SSL
+                        </div>
+                        <div class="text-[10px] text-[var(--text-muted)] mt-1">SSL secured</div>
+                    </div>
+
+                    <div class="bg-[var(--panel)] p-3 rounded-xl border border-emerald-500/30 ring-1 ring-emerald-500/20">
+                        <div class="flex items-center gap-1.5 text-emerald-600 font-bold text-[11px]">
+                            <CheckCircle2 :size="13" /> 4. Access Live
+                        </div>
+                        <div class="text-[10px] text-[var(--text-muted)] mt-1">SSO Ready</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROVISIONING SLA CARD (When status is pending) -->
+            <div v-else class="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 backdrop-blur-sm relative overflow-hidden">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-amber-500/20 pb-5">
                     <div>
                         <div class="flex items-center gap-2">
@@ -220,8 +286,11 @@ const formatCurrency = (amount) => {
 
                 <!-- CTA Buttons -->
                 <div class="pt-5 border-t border-[var(--edge)] flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <Link :href="route('hosting.client.index')" class="button button-primary button-small w-full sm:w-auto justify-center">
+                    <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                        <a v-if="account.status === 'active'" :href="route('hosting.accounts.client-sso', account.id)" target="_blank" class="button button-primary button-small w-full sm:w-auto justify-center font-bold">
+                            <ExternalLink :size="13" /> 1-Click Control Panel Login
+                        </a>
+                        <Link :href="route('hosting.client.index')" :class="account.status === 'active' ? 'button button-outline button-small' : 'button button-primary button-small'" class="w-full sm:w-auto justify-center">
                             Go to Hosting Dashboard <ArrowRight :size="13" />
                         </Link>
                         <Link v-if="latestInvoice" :href="route('invoices.show', latestInvoice.id)" class="button button-outline button-small w-full sm:w-auto justify-center">
