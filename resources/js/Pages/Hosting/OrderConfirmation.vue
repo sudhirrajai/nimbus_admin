@@ -298,7 +298,7 @@ const formatCurrency = (amount) => {
                         </Link>
                     </div>
 
-                    <a href="mailto:support@roook.host?subject=Question%20regarding%20Hosting%20Setup" class="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] flex items-center gap-1.5 transition-colors">
+                    <a href="mailto:support@roook.cloud?subject=Question%20regarding%20Hosting%20Setup" class="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] flex items-center gap-1.5 transition-colors">
                         <HelpCircle :size="13" /> Need assistance? Contact ops
                     </a>
                 </div>

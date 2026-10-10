@@ -31,7 +31,7 @@
             $metaKeywords = $seoSettings['meta_keywords'] ?? 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers';
             $metaAuthor = $seoSettings['meta_author'] ?? $siteName;
             $ogImage = url(($seoSettings['og_image'] ?? '/og-image.png') . '?v=2');
-            $twitterHandle = $seoSettings['twitter_handle'] ?? '@roookhost';
+            $twitterHandle = $seoSettings['twitter_handle'] ?? '@roookcloud';
             $robots = ($seoSettings['robots_index'] ?? true) ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, nofollow';
             $canonicalUrl = url()->current();
 
@@ -49,8 +49,8 @@
                             'width' => 180,
                             'height' => 180,
                         ],
-                        'email' => $seoSettings['company_email'] ?? 'billing@roook.host',
-                        'telephone' => $seoSettings['company_phone'] ?? '+91 80 4567 8900',
+                        'email' => $seoSettings['company_email'] ?? 'billing@roook.cloud',
+                        'telephone' => $seoSettings['company_phone'] ?? '+91 8849259933',
                         'address' => [
                             '@type' => 'PostalAddress',
                             'streetAddress' => $seoSettings['company_address_line1'] ?? '',

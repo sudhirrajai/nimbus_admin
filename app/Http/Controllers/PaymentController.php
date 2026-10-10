@@ -162,6 +162,7 @@ class PaymentController extends Controller
             'postal_code' => 'required|string|max:30',
             'country' => 'required|string|max:100',
             'tax_id' => 'nullable|string|max:50',
+            'datacenter' => 'nullable|string|max:100',
         ]);
 
         $planSlug = $request->plan;
@@ -198,8 +199,10 @@ class PaymentController extends Controller
         $domainChoice = $request->input('domain_choice', 'have');
         $domain = $request->input('domain');
         if ($domainChoice === 'later' || empty($domain)) {
-            $domain = 'pending-setup-' . strtolower(\Illuminate\Support\Str::random(6)) . '.roook.host';
+            $domain = 'pending-setup-' . strtolower(\Illuminate\Support\Str::random(6)) . '.roook.cloud';
         }
+
+        $datacenter = $request->input('datacenter', 'in-mumbai');
 
         $orderData = [
             'receipt'  => 'host_' . (Auth::id() ?? 'guest') . '_' . time(),
@@ -211,6 +214,7 @@ class PaymentController extends Controller
                 'plan_slug'      => (string) $plan->slug,
                 'plan_name'      => substr((string) $plan->name, 0, 40),
                 'billing_cycle'  => (string) $billingCycle,
+                'datacenter'     => substr((string) $datacenter, 0, 50),
                 'domain_choice'  => (string) $domainChoice,
                 'domain'         => substr((string) $domain, 0, 80),
                 'customer_name'  => substr((string) $request->name, 0, 80),
@@ -314,9 +318,10 @@ class PaymentController extends Controller
             $billingCycle = $notes->billing_cycle ?? $request->billing_cycle ?? 'yearly';
             $domain = $notes->domain ?? $request->domain;
             $domainChoice = $notes->domain_choice ?? $request->domain_choice ?? 'have';
+            $datacenter = $notes->datacenter ?? $request->datacenter ?? 'in-mumbai';
 
             if (empty($domain)) {
-                $domain = 'pending-setup-' . strtolower(\Illuminate\Support\Str::random(6)) . '.roook.host';
+                $domain = 'pending-setup-' . strtolower(\Illuminate\Support\Str::random(6)) . '.roook.cloud';
             }
 
             $amountInr = ($order->amount / 100);
@@ -342,6 +347,7 @@ class PaymentController extends Controller
                 'user_id' => $user->id,
                 'primary_domain' => $domain,
                 'domain' => $domain,
+                'datacenter' => $datacenter,
                 'package_name' => $plan ? $plan->name : 'Starter Cloud',
                 'plan_name' => $plan ? $plan->name : 'Starter Cloud',
                 'billing_cycle' => $billingCycle,
@@ -353,7 +359,7 @@ class PaymentController extends Controller
                 'renews_at' => $renewsAt,
                 'auto_invoice' => true,
                 'renewal_invoice_days' => 14,
-                'notes' => "Order verified via Razorpay ({$paymentId}). Status: Pending verification & server container provisioning (max 2 hrs target). Domain setup: {$domainChoice}",
+                'notes' => "Order verified via Razorpay ({$paymentId}). Datacenter: {$datacenter}. Status: Pending verification & server container provisioning (max 2 hrs target). Domain setup: {$domainChoice}",
             ]);
 
             // Create Invoice with comprehensive professional billing details

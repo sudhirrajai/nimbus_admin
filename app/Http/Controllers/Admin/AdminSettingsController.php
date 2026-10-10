@@ -28,9 +28,9 @@ class AdminSettingsController extends Controller
             'company_name' => 'Roook Hosting',
             'company_address_line1' => '#104, Tech Park Boulevard',
             'company_address_line2' => 'Bangalore - 560038, Karnataka, India',
-            'company_email' => 'billing@roook.host',
-            'company_phone' => '+91 80 4567 8900',
-            'company_website' => 'https://roook.host',
+            'company_email' => 'billing@roook.cloud',
+            'company_phone' => '+91 8849259933',
+            'company_website' => 'https://roook.cloud',
             'bank_name' => 'HDFC Bank Ltd.',
             'bank_account_name' => 'Roook Hosting',
             'bank_account' => '50200088991122',
@@ -39,15 +39,19 @@ class AdminSettingsController extends Controller
             'bank_upi' => 'roook@hdfcbank',
 
             // Global SEO & Social Sharing Metadata
-            'meta_title' => 'Roook Hosting — Managed Cloud Servers',
+            'meta_title' => 'Roook Hosting — Managed Cloud Servers & Nimbus Panel',
             'meta_description' => 'High-performance managed cloud hosting with NVMe SSD infrastructure, isolated Docker architecture, automated daily backups, and a 2-hour provisioning SLA.',
             'meta_keywords' => 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers, linux server management',
             'meta_author' => 'Roook Hosting',
             'og_image' => '/og-image.png',
-            'twitter_handle' => '@roookhost',
+            'twitter_handle' => '@roookcloud',
             'google_site_verification' => '',
             'bing_site_verification' => '',
             'robots_index' => true,
+
+            // Datacenter Regions
+            'datacenter_india_mumbai' => true,
+            'datacenter_usa' => true,
         ];
 
         if (!Storage::disk('local')->exists($path)) {
@@ -58,6 +62,42 @@ class AdminSettingsController extends Controller
         $settings = json_decode(Storage::disk('local')->get($path), true) ?: [];
         
         return array_merge($defaults, $settings);
+    }
+
+    public static function getActiveDatacenters(): array
+    {
+        $settings = self::getSettings();
+        $list = [];
+
+        if (!empty($settings['datacenter_india_mumbai'])) {
+            $list[] = [
+                'id' => 'in-mumbai',
+                'name' => 'India (Mumbai)',
+                'city' => 'Mumbai',
+                'country' => 'India',
+                'flag' => '🇮🇳',
+                'region_code' => 'BOM1',
+                'tier' => 'Tier IV Facility',
+                'description' => 'Fastest latency for India, Middle East & APAC users.',
+                'tag' => 'Lowest Latency IN',
+            ];
+        }
+
+        if (!empty($settings['datacenter_usa'])) {
+            $list[] = [
+                'id' => 'us-east',
+                'name' => 'USA (East Coast)',
+                'city' => 'Ashburn / NYC',
+                'country' => 'United States',
+                'flag' => '🇺🇸',
+                'region_code' => 'IAD1',
+                'tier' => 'Tier IV Facility',
+                'description' => 'Direct global backbone, optimal for Americas & Europe.',
+                'tag' => 'Global Backbone',
+            ];
+        }
+
+        return $list;
     }
 
     public function index()
@@ -100,6 +140,10 @@ class AdminSettingsController extends Controller
             'google_site_verification' => 'nullable|string|max:150',
             'bing_site_verification' => 'nullable|string|max:150',
             'robots_index' => 'required|boolean',
+
+            // Datacenter Regions
+            'datacenter_india_mumbai' => 'required|boolean',
+            'datacenter_usa' => 'required|boolean',
         ]);
 
         Storage::disk('local')->put(self::getSettingsPath(), json_encode($validated, JSON_PRETTY_PRINT));

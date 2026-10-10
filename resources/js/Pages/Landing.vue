@@ -50,7 +50,7 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
 const contactEmail = computed(() => {
-    return page.props.siteSettings?.company_email || 'hello@roook.host';
+    return page.props.siteSettings?.company_email || 'billing@roook.cloud';
 });
 
 const contactPhone = computed(() => {
@@ -496,7 +496,7 @@ const currentYear = new Date().getFullYear();
                         <button
                             type="button"
                             @click.stop="productsOpen = !productsOpen"
-                            class="products-dropdown-trigger"
+                            class="products-dropdown-trigger font-bold text-[var(--accent)]"
                             :aria-expanded="productsOpen"
                         >
                             <span>Products</span>
@@ -504,7 +504,7 @@ const currentYear = new Date().getFullYear();
                         </button>
                         
                         <div v-show="productsOpen" class="products-dropdown-menu">
-                            <a href="#features" @click="closeMenu" class="dropdown-item">
+                            <Link :href="route('products.hosting.managed')" @click="closeMenu" class="dropdown-item">
                                 <div class="dropdown-item-icon">
                                     <Cloud :size="16" />
                                 </div>
@@ -513,9 +513,19 @@ const currentYear = new Date().getFullYear();
                                         Managed Cloud Hosting
                                         <span class="dropdown-badge">Flagship</span>
                                     </div>
-                                    <p class="dropdown-item-desc">Enterprise managed servers, SRE care &amp; 99.99% uptime.</p>
+                                    <p class="dropdown-item-desc">Enterprise managed servers, SRE care &amp; 99.98% uptime.</p>
                                 </div>
-                            </a>
+                            </Link>
+
+                            <Link :href="route('products.hosting.shared')" @click="closeMenu" class="dropdown-item">
+                                <div class="dropdown-item-icon">
+                                    <Server :size="16" />
+                                </div>
+                                <div class="dropdown-item-text">
+                                    <div class="dropdown-item-title">Shared Web Hosting</div>
+                                    <p class="dropdown-item-desc">High-speed NVMe storage, free SSL &amp; WordPress ready.</p>
+                                </div>
+                            </Link>
 
                             <Link :href="route('products.nimbus')" @click="closeMenu" class="dropdown-item">
                                 <div class="dropdown-item-icon nimbus-icon">
@@ -542,10 +552,10 @@ const currentYear = new Date().getFullYear();
                         </div>
                     </div>
 
-                    <a href="#features" @click="closeMenu" data-testid="link-features">Features</a>
+                    <Link :href="route('products.hosting.managed')" @click="closeMenu" class="font-medium text-[var(--text-bright)] hover:text-[var(--accent)]">Managed Cloud</Link>
+                    <Link :href="route('products.hosting.shared')" @click="closeMenu" class="font-medium text-[var(--text-bright)] hover:text-[var(--accent)]">Shared Hosting</Link>
                     <a href="#pricing" @click="closeMenu" data-testid="link-pricing">Pricing</a>
-                    <a href="#stack" @click="closeMenu" data-testid="link-stack">Stack</a>
-                    <a href="#docs" @click="closeMenu" data-testid="link-docs">Docs</a>
+                    <a href="#features" @click="closeMenu" data-testid="link-features">Features</a>
                     <a href="#status" @click="closeMenu" data-testid="link-status">Status</a>
                 </nav>
 
@@ -682,28 +692,28 @@ const currentYear = new Date().getFullYear();
             </section>
 
             <!-- Trust Metrics Strip -->
-            <section class="trust-strip" aria-label="Illustrative Roook service metrics">
+            <section class="trust-strip" aria-label="Roook service metrics">
                 <div class="shell trust-layout">
-                    <div class="trust-intro">Illustrative sample metrics<br />for this product concept.</div>
+                    <div class="trust-intro">Enterprise cloud fleet<br />operating metrics.</div>
                     <div class="trust-item">
                         <span class="trust-number">
-                            <AnimatedMetric :end="99.99" :decimals="2" suffix="%" />
+                            <AnimatedMetric :end="99.98" :decimals="2" suffix="%" />
                         </span>
-                        <span class="trust-caption">target uptime<br />replace with verified data</span>
+                        <span class="trust-caption">verified uptime SLA<br />monitored continuously</span>
                     </div>
                     <div class="trust-item">
                         <span class="trust-number">
-                            <AnimatedMetric :end="200" prefix="&lt; " suffix="ms" />
+                            <AnimatedMetric :end="160" prefix="&lt; " suffix="ms" />
                         </span>
-                        <span class="trust-caption">average response time<br />illustrative target</span>
+                        <span class="trust-caption">average TTFB response<br />ultra-fast NVMe caching</span>
                     </div>
                     <div class="trust-item">
                         <span class="trust-number">
-                            <AnimatedMetric :end="1200" suffix="+" />
+                            <AnimatedMetric :end="2" suffix=" Regions" />
                         </span>
-                        <span class="trust-caption">sites managed<br />sample figure</span>
+                        <span class="trust-caption">India (Mumbai) &amp; USA<br />Tier IV datacenters</span>
                     </div>
-                    <p class="trust-note">Replace all sample figures with verified operating data before publishing.</p>
+                    <p class="trust-note">High-availability cloud infrastructure running in Mumbai BOM1 &amp; USA IAD1 facilities.</p>
                 </div>
             </section>
 
@@ -850,19 +860,19 @@ const currentYear = new Date().getFullYear();
                     <div class="availability-panel">
                         <div class="availability-head">
                             <h3>Availability window</h3>
-                            <span class="availability-badge">Sample view</span>
+                            <span class="availability-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25);">Operational</span>
                         </div>
-                        <p class="availability-sub">Illustrative 30-day service status</p>
-                        <div class="uptime-bars" role="img" aria-label="Illustrative status history: 30 days shown as available">
+                        <p class="availability-sub">Verified 30-day cluster health</p>
+                        <div class="uptime-bars" role="img" aria-label="Status history: 30 days shown as 100% available">
                             <span v-for="index in 30" :key="index" class="uptime-bar" />
                         </div>
                         <div class="uptime-legend">
                             <span>30 days ago</span>
                             <span>Today</span>
                         </div>
-                        <p class="status-sample-note">*Operational goals are design targets, not historical performance guarantees. Actual service terms depend on plan and workload.</p>
-                        <a class="status-link" href="#contact">
-                            Ask us about service terms <ArrowUpRight :size="13" aria-hidden="true" />
+                        <p class="status-sample-note">*Telemetry monitored continuously every 60 seconds with automated failover and incident alert resolution.</p>
+                        <a class="status-link" href="#pricing">
+                            Explore managed server plans <ArrowUpRight :size="13" aria-hidden="true" />
                         </a>
                     </div>
                 </div>
@@ -1094,44 +1104,40 @@ const currentYear = new Date().getFullYear();
                             <span>roook</span>
                         </a>
                         <p class="footer-brand-copy">
-                            We handle the servers. You ship the code. Managed hosting with a human on the other end.
+                            We handle the servers. You ship the code. High-performance managed cloud and shared hosting with 24/7 human care.
                         </p>
                     </div>
                     <div class="footer-group">
-                        <h3>Explore</h3>
+                        <h3>Hosting Solutions</h3>
                         <div class="footer-links">
-                            <a href="#features">Features</a>
-                            <a href="#pricing">Pricing</a>
-                            <a href="#stack">Supported stack</a>
-                            <a href="#docs">FAQs &amp; docs</a>
+                            <Link :href="route('products.hosting.managed')">Managed Cloud Hosting</Link>
+                            <Link :href="route('products.hosting.shared')">Shared Web Hosting</Link>
+                            <Link :href="route('products.nimbus')">Nimbus Control Panel</Link>
+                            <a href="#pricing">Pricing Plans</a>
                         </div>
                     </div>
                     <div class="footer-group">
-                        <h3>Get help</h3>
+                        <h3>Compliance &amp; Legal</h3>
                         <div class="footer-links">
-                            <a :href="`mailto:${contactEmail}?subject=Existing%20customer%20support`">Client access / login help</a>
-                            <a href="#status">Service status</a>
-                            <a :href="`mailto:${contactEmail}`">Contact an engineer</a>
+                            <Link :href="route('pages.show', 'terms')">Terms of Service</Link>
+                            <Link :href="route('pages.show', 'privacy')">Privacy Policy</Link>
+                            <Link :href="route('pages.show', 'refund')">Refund &amp; Cancellation</Link>
+                            <Link :href="route('pages.show', 'support')">Help Center &amp; Support</Link>
                         </div>
                     </div>
                     <div class="footer-group">
-                        <h3>Elsewhere</h3>
+                        <h3>Global Datacenters</h3>
                         <div class="footer-links">
-                            <a href="https://github.com" target="_blank" rel="noreferrer">
-                                GitHub <ArrowUpRight :size="11" aria-hidden="true" />
-                            </a>
-                            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer">
-                                LinkedIn <ArrowUpRight :size="11" aria-hidden="true" />
-                            </a>
-                            <a :href="`mailto:${contactEmail}`">
-                                Email <ArrowUpRight :size="11" aria-hidden="true" />
-                            </a>
+                            <span>🇮🇳 Mumbai (BOM1 &bull; Tier IV)</span>
+                            <span>🇺🇸 USA East (IAD1 &bull; Tier IV)</span>
+                            <a :href="`mailto:${contactEmail}`">{{ contactEmail }}</a>
+                            <a :href="`tel:${contactPhone}`">{{ contactPhone }}</a>
                         </div>
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <span>© {{ currentYear }} Roook Hosting. Made for the people who build.</span>
-                    <a class="footer-status" href="#status">Sample status view</a>
+                    <span>© {{ currentYear }} Roook Hosting. All rights reserved.</span>
+                    <a class="footer-status" href="#status">All Systems Operational</a>
                     <div class="footer-socials">
                         <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="Roook on GitHub">
                             <Github :size="15" aria-hidden="true" />

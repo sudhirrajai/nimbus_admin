@@ -57,6 +57,26 @@ Route::get('/products/nimbus', function () {
     ]);
 })->name('products.nimbus');
 
+Route::get('/hosting/managed', function () {
+    $plans = \App\Models\Plan::where('is_active', true)->managedHosting()->orderBy('price_usd')->get();
+    return Inertia::render('Hosting/Managed', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'plans' => $plans,
+        'datacenters' => \App\Http\Controllers\Admin\AdminSettingsController::getActiveDatacenters(),
+    ]);
+})->name('products.hosting.managed');
+
+Route::get('/hosting/shared', function () {
+    $plans = \App\Models\Plan::where('is_active', true)->managedHosting()->orderBy('price_usd')->get();
+    return Inertia::render('Hosting/Shared', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'plans' => $plans,
+        'datacenters' => \App\Http\Controllers\Admin\AdminSettingsController::getActiveDatacenters(),
+    ]);
+})->name('products.hosting.shared');
+
 // Direct Checkout & Managed Hosting Payment
 Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
 Route::post('/payment/initiate-hosting', [\App\Http\Controllers\PaymentController::class, 'initiateHostingPayment'])->name('payment.initiate-hosting');
@@ -250,5 +270,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/hosting/request', [\App\Http\Controllers\HostingController::class, 'submitRequest'])->name('hosting.request.submit');
     Route::get('/hosting/accounts/{account}/sso', [\App\Http\Controllers\HostingController::class, 'ssoLogin'])->name('hosting.accounts.client-sso');
 });
+
+// Public Legal, Terms, Privacy & Refund CMS Pages
+Route::get('/p/{slug}', [\App\Http\Controllers\PageController::class, 'show'])->name('pages.show');
 
 require __DIR__.'/auth.php';

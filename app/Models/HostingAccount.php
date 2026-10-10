@@ -17,6 +17,7 @@ class HostingAccount extends Model
         'hosting_server_id',
         'primary_domain',
         'domain',
+        'datacenter',
         'username',
         'package_name',
         'plan_name',

@@ -355,7 +355,7 @@ const numberToWords = (num) => {
                 <div class="mt-14 pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3">
                     <div class="space-y-0.5 text-center sm:text-left">
                         <div class="font-semibold text-gray-700">Thank you for choosing Roook Hosting!</div>
-                        <div class="text-[11px] text-gray-400">For support, contact {{ company?.support_email || 'support@roook.host' }}</div>
+                        <div class="text-[11px] text-gray-400">For support, contact {{ company?.support_email || 'support@roook.cloud' }}</div>
                     </div>
                     <div class="text-center sm:text-right text-[11px] text-gray-400 space-y-0.5">
                         <div>PDF Generated on {{ formatOrdinalDate(new Date()) }}</div>

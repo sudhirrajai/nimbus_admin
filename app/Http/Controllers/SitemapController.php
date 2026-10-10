@@ -20,10 +20,22 @@ class SitemapController extends Controller
                 'priority' => '1.0',
             ],
             [
-                'loc' => $baseUrl . '/products/nimbus',
+                'loc' => $baseUrl . '/hosting/managed',
                 'lastmod' => now()->toAtomString(),
                 'changefreq' => 'weekly',
                 'priority' => '0.9',
+            ],
+            [
+                'loc' => $baseUrl . '/hosting/shared',
+                'lastmod' => now()->toAtomString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.9',
+            ],
+            [
+                'loc' => $baseUrl . '/products/nimbus',
+                'lastmod' => now()->toAtomString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.8',
             ],
         ];
 

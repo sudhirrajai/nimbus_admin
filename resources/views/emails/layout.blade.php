@@ -54,7 +54,7 @@
                             <td class="footer">
                                 <p style="margin: 0 0 8px 0;">
                                     Questions or need assistance? Reach out to us at 
-                                    <a href="mailto:{{ $supportEmail ?? 'support@roook.host' }}">{{ $supportEmail ?? 'support@roook.host' }}</a>
+                                    <a href="mailto:{{ $supportEmail ?? 'support@roook.cloud' }}">{{ $supportEmail ?? 'support@roook.cloud' }}</a>
                                 </p>
                                 <p style="margin: 0; font-size: 11px; color: #94a3b8;">
                                     &copy; {{ date('Y') }} Roook Hosting. All rights reserved.<br/>

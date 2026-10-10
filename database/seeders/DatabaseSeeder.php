@@ -52,7 +52,12 @@ class DatabaseSeeder extends Seeder
             [
                 'slug' => 'support',
                 'title' => 'Help Center & Support',
-                'content' => "<h1>Help Center & Support</h1><p>Need assistance with your server configuration, DNS binding, or cloud setup? Here are the quickest channels to find help.</p><h3>1. Direct Support</h3><p>If you encounter configuration questions, reach out to our dedicated operations desk at support@roook.host or open a support ticket inside your client dashboard.</p><h3>2. 2-Hour Provisioning Assistance</h3><p>All new managed hosting accounts are verified and set up by our infrastructure team within maximum 2 hours with hands-on engineer support.</p>",
+                'content' => "<h1>Help Center & Support</h1><p>Need assistance with your server configuration, DNS binding, or cloud setup? Here are the quickest channels to find help.</p><h3>1. Direct Support</h3><p>If you encounter configuration questions, reach out to our dedicated operations desk at support@roook.cloud or open a support ticket inside your client dashboard.</p><h3>2. 2-Hour Provisioning Assistance</h3><p>All new managed hosting accounts are verified and set up by our infrastructure team within maximum 2 hours with hands-on engineer support.</p>",
+            ],
+            [
+                'slug' => 'refund',
+                'title' => 'Refund & Cancellation Policy',
+                'content' => "<h1>Refund & Cancellation Policy</h1><p>At Roook Hosting, we stand behind the performance of our cloud infrastructure. We offer a transparent, straightforward money-back guarantee for all managed cloud hosting plans.</p><h3>1. 7-Day Money-Back Guarantee</h3><p>If you are not completely satisfied with your managed hosting service within the first 7 days of your initial purchase, you may request a 100% full refund of the hosting fees paid. No complicated questions or hidden deductions.</p><h3>2. Cancellation Anytime</h3><p>You may cancel your monthly or annual subscription at any time directly through your account dashboard or by submitting a ticket to support@roook.cloud. Upon cancellation, your service will remain operational until the end of the paid billing period, with no subsequent renewal charges.</p><h3>3. Refund Processing Window</h3><p>Approved refunds are initiated through our payment gateway (Razorpay) back to your original payment method (Bank Account, UPI, or Card) within 5 to 7 business days.</p><h3>4. Contact Us for Refunds</h3><p>To request a cancellation or refund, email our billing team at billing@roook.cloud with your registered account email and invoice number.</p>",
             ]
         ];
 

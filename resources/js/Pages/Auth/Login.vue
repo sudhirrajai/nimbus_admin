@@ -108,7 +108,7 @@ const submit = () => {
         </div>
 
         <div class="auth-support">
-            Need a hand? <a href="mailto:support@roook.host?subject=Roook%20account%20help">Talk to an engineer</a>
+            Need a hand? <a href="mailto:support@roook.cloud?subject=Roook%20account%20help">Talk to an engineer</a>
         </div>
     </GuestLayout>
 </template>

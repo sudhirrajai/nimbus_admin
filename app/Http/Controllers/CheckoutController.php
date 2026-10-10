@@ -25,6 +25,7 @@ class CheckoutController extends Controller
             'initialBilling' => $request->query('billing', 'yearly'),
             'initialCurrency' => $request->query('currency', 'INR'),
             'razorpayKey' => env('RAZORPAY_KEY_ID'),
+            'datacenters' => \App\Http\Controllers\Admin\AdminSettingsController::getActiveDatacenters(),
             'user' => Auth::user(),
         ]);
     }

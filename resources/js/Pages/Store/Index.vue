@@ -509,7 +509,7 @@ const getFeatures = (plan) => {
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
                     <a 
-                        href="mailto:support@roook.host?subject=Custom%20Hosting%20%2F%20Self-Host%20Requirements" 
+                        href="mailto:support@roook.cloud?subject=Custom%20Hosting%20%2F%20Self-Host%20Requirements" 
                         class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider shadow-sm transition-all flex items-center gap-2 cursor-pointer"
                     >
                         <span class="material-symbols-rounded text-sm">mail</span>

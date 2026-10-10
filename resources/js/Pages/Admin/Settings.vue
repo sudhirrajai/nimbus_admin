@@ -17,9 +17,9 @@ const form = useForm({
     company_name: props.settings.company_name || 'Roook Hosting',
     company_address_line1: props.settings.company_address_line1 || '#104, Tech Park Boulevard',
     company_address_line2: props.settings.company_address_line2 || 'Bangalore - 560038, Karnataka, India',
-    company_email: props.settings.company_email || 'billing@roook.host',
-    company_phone: props.settings.company_phone || '+91 80 4567 8900',
-    company_website: props.settings.company_website || 'https://roook.host',
+    company_email: props.settings.company_email || 'billing@roook.cloud',
+    company_phone: props.settings.company_phone || '+91 8849259933',
+    company_website: props.settings.company_website || 'https://roook.cloud',
     bank_name: props.settings.bank_name || 'HDFC Bank Ltd.',
     bank_account_name: props.settings.bank_account_name || 'Roook Hosting',
     bank_account: props.settings.bank_account || '50200088991122',
@@ -28,15 +28,19 @@ const form = useForm({
     bank_upi: props.settings.bank_upi || 'roook@hdfcbank',
 
     // SEO & Social Metadata
-    meta_title: props.settings.meta_title || 'Roook Hosting — Managed Cloud Servers',
+    meta_title: props.settings.meta_title || 'Roook Hosting — Managed Cloud Servers & Nimbus Panel',
     meta_description: props.settings.meta_description || 'High-performance managed cloud hosting with NVMe SSD infrastructure, isolated Docker architecture, automated daily backups, and a 2-hour provisioning SLA.',
     meta_keywords: props.settings.meta_keywords || 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers',
     meta_author: props.settings.meta_author || 'Roook Hosting',
     og_image: props.settings.og_image || '/og-image.png',
-    twitter_handle: props.settings.twitter_handle || '@roookhost',
+    twitter_handle: props.settings.twitter_handle || '@roookcloud',
     google_site_verification: props.settings.google_site_verification || '',
     bing_site_verification: props.settings.bing_site_verification || '',
     robots_index: props.settings.robots_index !== undefined ? Boolean(props.settings.robots_index) : true,
+
+    // Datacenter Regions
+    datacenter_india_mumbai: props.settings.datacenter_india_mumbai !== undefined ? Boolean(props.settings.datacenter_india_mumbai) : true,
+    datacenter_usa: props.settings.datacenter_usa !== undefined ? Boolean(props.settings.datacenter_usa) : true,
 });
 
 const submit = () => {
@@ -225,7 +229,7 @@ const submit = () => {
                                 type="email"
                                 v-model="form.company_email"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="billing@roook.host"
+                                placeholder="billing@roook.cloud"
                             />
                         </div>
 
@@ -236,7 +240,7 @@ const submit = () => {
                                 type="text"
                                 v-model="form.company_phone"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="+91 80 4567 8900"
+                                placeholder="+91 8849259933"
                             />
                         </div>
 
@@ -247,7 +251,7 @@ const submit = () => {
                                 type="text"
                                 v-model="form.company_website"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="https://roook.host"
+                                placeholder="https://roook.cloud"
                             />
                         </div>
 
@@ -416,6 +420,62 @@ const submit = () => {
                             <input type="checkbox" v-model="form.robots_index" class="sr-only peer" />
                             <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
                         </label>
+                    </div>
+                </div>
+
+                <!-- Datacenter Regions Configuration Block -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm space-y-6">
+                    <div class="border-b border-gray-100 pb-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                    <span class="material-symbols-rounded text-emerald-600 text-lg">dns</span>
+                                    Datacenter Regions & Availability
+                                </h3>
+                                <p class="text-xs text-gray-500 mt-1">Enable or disable server deployment regions selectable by customers during checkout.</p>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                                Active in Checkout
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- India Mumbai -->
+                        <div class="flex items-center justify-between p-3.5 rounded-lg border border-gray-100 hover:border-gray-200 transition bg-gray-50/50">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🇮🇳</span>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-gray-900">India (Mumbai) &bull; BOM1</span>
+                                        <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">Tier IV NVMe</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500">Equinix / CtrlS Datacenter, Mumbai. Lowest latency for India, South Asia & APAC.</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" v-model="form.datacenter_india_mumbai" class="sr-only peer" />
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+
+                        <!-- USA East Coast -->
+                        <div class="flex items-center justify-between p-3.5 rounded-lg border border-gray-100 hover:border-gray-200 transition bg-gray-50/50">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🇺🇸</span>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-gray-900">USA (East Coast) &bull; IAD1</span>
+                                        <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">Tier IV NVMe</span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500">Ashburn / Northern Virginia. Global transit backbone, optimal for Americas & Europe.</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" v-model="form.datacenter_usa" class="sr-only peer" />
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
                     </div>
                 </div>
 

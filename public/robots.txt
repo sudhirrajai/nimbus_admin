@@ -11,4 +11,4 @@ Disallow: /profile
 Disallow: /self-host
 Disallow: /store
 
-Sitemap: https://roook.host/sitemap.xml
+Sitemap: https://roook.cloud/sitemap.xml

@@ -37,6 +37,10 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    datacenters: {
+        type: Array,
+        default: () => [],
+    },
     user: {
         type: Object,
         default: null,
@@ -172,6 +176,43 @@ const countries = [
 const errorMessage = ref('');
 const domainError = ref('');
 const isProcessing = ref(false);
+
+// Datacenter Regions
+const fallbackDatacenters = [
+    {
+        id: 'in-mumbai',
+        name: 'India (Mumbai)',
+        flag: '🇮🇳',
+        region_code: 'BOM1',
+        tier: 'Tier IV Facility',
+        description: 'Equinix / CtrlS Datacenter. Lowest latency for India, South Asia & APAC.',
+        tag: 'Lowest Latency IN',
+    },
+    {
+        id: 'us-east',
+        name: 'USA (East Coast)',
+        flag: '🇺🇸',
+        region_code: 'IAD1',
+        tier: 'Tier IV Facility',
+        description: 'Ashburn / Northern Virginia. Global transit backbone for Americas & Europe.',
+        tag: 'Global Backbone',
+    },
+];
+
+const availableDatacenters = computed(() => {
+    if (props.datacenters && props.datacenters.length > 0) {
+        return props.datacenters;
+    }
+    return fallbackDatacenters;
+});
+
+const selectedDatacenter = ref(
+    props.datacenters && props.datacenters.length > 0 ? props.datacenters[0].id : 'in-mumbai'
+);
+
+const currentDatacenterObj = computed(() => {
+    return availableDatacenters.value.find((d) => d.id === selectedDatacenter.value) || availableDatacenters.value[0];
+});
 
 const selectedPlan = computed(() => {
     if (!selectedPlanId.value) return availablePlans.value[0] || null;
@@ -383,6 +424,7 @@ const handleCheckoutSubmit = async () => {
             currency: currency.value,
             domain_choice: domainChoice.value,
             domain: domainChoice.value === 'have' ? domain.value.trim() : '',
+            datacenter: selectedDatacenter.value,
             name: name.value.trim(),
             email: email.value.trim(),
             phone: phone.value.trim(),
@@ -649,6 +691,56 @@ const handleCheckoutSubmit = async () => {
                         <p class="checkout-price-caveat" data-testid="text-illustrative-pricing">
                             Billed in INR through Razorpay secure gateway. 100% money-back guarantee within 7 days.
                         </p>
+
+                        <!-- Datacenter Region Selection -->
+                        <div class="mt-6 pt-5 border-t border-[var(--edge)]">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 class="text-xs font-bold text-[var(--text-bright)] tracking-wide uppercase">Datacenter Region</h3>
+                                    <p class="text-[11px] text-[var(--text-muted)] mt-0.5">Select the physical cloud infrastructure location for your container.</p>
+                                </div>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                                    Enterprise Tier IV NVMe
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button
+                                    v-for="dc in availableDatacenters"
+                                    :key="dc.id"
+                                    type="button"
+                                    @click="selectedDatacenter = dc.id"
+                                    :class="[
+                                        'p-3.5 rounded-lg border text-left transition-all flex items-start gap-3 relative cursor-pointer',
+                                        selectedDatacenter === dc.id
+                                            ? 'border-[var(--accent)] bg-[var(--surface-hi)] shadow-sm'
+                                            : 'border-[var(--edge)] bg-[var(--surface-deep)] hover:border-[var(--edge-hi)]'
+                                    ]"
+                                    :aria-pressed="selectedDatacenter === dc.id"
+                                >
+                                    <span class="text-2xl shrink-0 mt-0.5" aria-hidden="true">{{ dc.flag }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="text-xs font-bold text-[var(--text-bright)]">{{ dc.name }}</span>
+                                            <span v-if="dc.region_code" class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--surface-sunken)] text-[var(--text-muted)] border border-[var(--edge)]">
+                                                {{ dc.region_code }}
+                                            </span>
+                                        </div>
+                                        <p class="text-[11px] text-[var(--text-muted)] mt-1 leading-snug">{{ dc.description || dc.tier }}</p>
+                                        <div v-if="dc.tag" class="mt-2">
+                                            <span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                                {{ dc.tag }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0 mt-0.5">
+                                        <span :class="['w-4 h-4 rounded-full border flex items-center justify-center', selectedDatacenter === dc.id ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : 'border-[var(--edge)]']">
+                                            <Check v-if="selectedDatacenter === dc.id" :size="10" />
+                                        </span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
 
                         <!-- Step 1 Actions -->
                         <div class="mt-7 pt-5 border-t border-[var(--edge)] flex items-center justify-between gap-4">
@@ -976,6 +1068,14 @@ const handleCheckoutSubmit = async () => {
                         </strong>
                     </div>
 
+                    <div class="review-line">
+                        <span>Datacenter</span>
+                        <strong class="text-right flex items-center gap-1.5 justify-end">
+                            <span aria-hidden="true">{{ currentDatacenterObj?.flag }}</span>
+                            <span>{{ currentDatacenterObj?.name || 'India (Mumbai)' }}</span>
+                        </strong>
+                    </div>
+
                     <div v-if="name.trim() || city.trim()" class="review-line">
                         <span>Billed To</span>
                         <strong class="text-right">
@@ -1089,7 +1189,7 @@ const handleCheckoutSubmit = async () => {
 
                     <div class="checkout-help">
                         <CircleHelp :size="14" aria-hidden="true" />
-                        <span>Questions before you start? <a href="mailto:support@roook.host?subject=Question%20about%20Roook%20Hosting%20Setup" data-testid="link-checkout-support">Talk with an engineer</a></span>
+                        <span>Questions before you start? <a href="mailto:support@roook.cloud?subject=Question%20about%20Roook%20Hosting%20Setup" data-testid="link-checkout-support">Talk with an engineer</a></span>
                     </div>
                 </aside>
             </form>

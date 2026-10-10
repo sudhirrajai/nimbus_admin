@@ -66,7 +66,7 @@ const billingCycle = ref('yearly');
 
 const installCommand = typeof window !== 'undefined'
     ? `curl -fsSL ${window.location.origin}/install.sh | bash`
-    : 'curl -fsSL https://roook.host/install.sh | bash';
+    : 'curl -fsSL https://roook.cloud/install.sh | bash';
 
 const copyInstall = async () => {
     try {
@@ -710,7 +710,7 @@ const currentYear = new Date().getFullYear();
                         <div class="eyebrow">Common Questions</div>
                         <h2 class="section-heading" id="faq-title">About Nimbus Software.</h2>
                         <p class="section-intro">Have a question about installation, licensing, or server compatibility? Everything you need to know.</p>
-                        <a class="faq-contact" href="mailto:support@roook.host?subject=Nimbus%20Software%20Question">
+                        <a class="faq-contact" href="mailto:support@roook.cloud?subject=Nimbus%20Software%20Question">
                             <Mail :size="14" aria-hidden="true" /> Ask support team
                         </a>
                     </div>
@@ -754,29 +754,29 @@ const currentYear = new Date().getFullYear();
                         </p>
                     </div>
                     <div class="footer-group">
-                        <h3>Products</h3>
+                        <h3>Hosting Products</h3>
                         <div class="footer-links">
-                            <Link :href="route('home')">Managed Cloud Hosting</Link>
+                            <Link :href="route('products.hosting.managed')">Managed Cloud Hosting</Link>
+                            <Link :href="route('products.hosting.shared')">Shared Web Hosting</Link>
                             <Link :href="route('products.nimbus')">Nimbus Control Panel</Link>
-                            <a :href="`${route('home')}#stack`">Supported Stacks</a>
                             <a :href="`${route('home')}#pricing`">Hosting Pricing</a>
                         </div>
                     </div>
                     <div class="footer-group">
-                        <h3>Nimbus Links</h3>
+                        <h3>Compliance &amp; Legal</h3>
                         <div class="footer-links">
-                            <a href="#terminal">Install Command</a>
-                            <a href="#pricing">License Keys</a>
-                            <a href="#features">Architecture</a>
-                            <Link :href="route('dashboard')">Client Workspace</Link>
+                            <Link :href="route('pages.show', 'terms')">Terms of Service</Link>
+                            <Link :href="route('pages.show', 'privacy')">Privacy Policy</Link>
+                            <Link :href="route('pages.show', 'refund')">Refund &amp; Cancellation</Link>
+                            <Link :href="route('pages.show', 'support')">Help Center &amp; Support</Link>
                         </div>
                     </div>
                     <div class="footer-group">
-                        <h3>Contact</h3>
+                        <h3>Contact &amp; Regions</h3>
                         <div class="footer-links">
-                            <a href="mailto:support@roook.host">support@roook.host</a>
+                            <a href="mailto:support@roook.cloud">support@roook.cloud</a>
                             <Link :href="route('tickets.index')">Support Tickets</Link>
-                            <a :href="`${route('home')}#status`">System Status</a>
+                            <span>🇮🇳 Mumbai &bull; 🇺🇸 USA</span>
                         </div>
                     </div>
                 </div>
@@ -787,7 +787,7 @@ const currentYear = new Date().getFullYear();
                         <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub">
                             <Github :size="15" aria-hidden="true" />
                         </a>
-                        <a href="mailto:support@roook.host" aria-label="Email">
+                        <a href="mailto:support@roook.cloud" aria-label="Email">
                             <Mail :size="15" aria-hidden="true" />
                         </a>
                     </div>

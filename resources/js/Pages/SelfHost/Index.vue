@@ -35,7 +35,7 @@ const copyToClipboard = (text) => {
 };
 
 const getInstallCommand = (key) => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://roook.host';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://roook.cloud';
     return `curl -fsSL ${origin}/install.sh | bash -s -- --key=${key}`;
 };
 

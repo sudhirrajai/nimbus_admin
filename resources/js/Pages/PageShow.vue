@@ -60,9 +60,9 @@ const cleanDescription = computed(() => {
                                 >
                                     {{ item.title }}
                                 </Link>
-                                <a href="https://roook.host" class="page-sidebar__link">
+                                <Link :href="route('home')" class="page-sidebar__link">
                                     Platform Home <span class="ext-icon">↗</span>
-                                </a>
+                                </Link>
                             </nav>
                         </div>
                     </aside>
