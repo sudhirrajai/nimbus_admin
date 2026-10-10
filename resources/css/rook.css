@@ -1251,6 +1251,8 @@ a { color: inherit; }
 .checkout-progress li span { width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid var(--edge-strong); border-radius: 50%; color: var(--text-muted); font: 10px var(--mono); }
 .checkout-progress li.is-current { color: var(--text); }
 .checkout-progress li.is-current span { border-color: var(--accent); background: var(--green-wash); color: var(--accent); }
+.checkout-progress li.is-completed { color: var(--text-soft); }
+.checkout-progress li.is-completed span { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 .checkout-progress strong { font-weight: 500; white-space: nowrap; }
 .checkout-layout { display: grid; grid-template-columns: minmax(0, 1.34fr) minmax(290px, .76fr); align-items: start; gap: 28px; }
 .checkout-form-column { display: grid; gap: 18px; }

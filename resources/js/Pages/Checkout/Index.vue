@@ -112,7 +112,36 @@ const currency = ref(props.initialCurrency === 'USD' ? 'USD' : 'INR');
 const domainChoice = ref('have'); // 'have' or 'later'
 const domain = ref('');
 
-// Customer & Professional Billing Address State
+// 3-Step Wizard state
+const currentStep = ref(1);
+
+const goToStep = (targetStep) => {
+    errorMessage.value = '';
+    domainError.value = '';
+
+    // If attempting to advance past step 1 without plan
+    if (targetStep > 1 && !selectedPlan.value) {
+        errorMessage.value = 'Please select a hosting plan to continue.';
+        currentStep.value = 1;
+        return;
+    }
+
+    // If attempting to advance past step 2 with invalid domain
+    if (targetStep > 2 && domainChoice.value === 'have') {
+        if (!domain.value || !validDomain(domain.value)) {
+            domainError.value = 'Please enter a valid domain name (e.g. yourcompany.com) or select "Skip domain setup for now".';
+            currentStep.value = 2;
+            return;
+        }
+    }
+
+    currentStep.value = targetStep;
+    try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {}
+};
+
+// Customer & Billing Address State (GST/Tax ID removed)
 const name = ref(props.user?.name || '');
 const email = ref(props.user?.email || '');
 const phone = ref(props.user?.phone || '');
@@ -122,7 +151,6 @@ const city = ref(props.user?.city || '');
 const state = ref(props.user?.state || '');
 const postalCode = ref(props.user?.postal_code || '');
 const country = ref(props.user?.country || 'India');
-const taxId = ref('');
 
 const countries = [
     'India',
@@ -285,53 +313,63 @@ const handleCheckoutSubmit = async () => {
     domainError.value = '';
 
     if (!selectedPlan.value) {
+        currentStep.value = 1;
         errorMessage.value = 'Please select a hosting plan to continue.';
         return;
     }
 
     if (domainChoice.value === 'have') {
         if (!domain.value || !validDomain(domain.value)) {
+            currentStep.value = 2;
             domainError.value = 'Please enter a valid domain name, such as yourcompany.com.';
             return;
         }
     }
 
     if (!name.value || !name.value.trim()) {
+        currentStep.value = 3;
         errorMessage.value = 'Please enter your full name.';
         return;
     }
 
     if (!email.value || !email.value.trim() || !email.value.includes('@')) {
+        currentStep.value = 3;
         errorMessage.value = 'Please enter a valid work or account email.';
         return;
     }
 
     if (!phone.value || !phone.value.trim() || phone.value.trim().length < 6) {
+        currentStep.value = 3;
         errorMessage.value = 'Please enter a valid phone or mobile number for account verification & alerts.';
         return;
     }
 
     if (!address.value || !address.value.trim()) {
+        currentStep.value = 3;
         errorMessage.value = 'Please enter your street address (flat, building, road).';
         return;
     }
 
     if (!city.value || !city.value.trim()) {
+        currentStep.value = 3;
         errorMessage.value = 'Please enter your city.';
         return;
     }
 
     if (!state.value || !state.value.trim()) {
+        currentStep.value = 3;
         errorMessage.value = 'Please enter your state or province.';
         return;
     }
 
     if (!postalCode.value || !postalCode.value.trim()) {
+        currentStep.value = 3;
         errorMessage.value = 'Please enter your postal / PIN code.';
         return;
     }
 
     if (!country.value || !country.value.trim()) {
+        currentStep.value = 3;
         errorMessage.value = 'Please select your country.';
         return;
     }
@@ -354,7 +392,7 @@ const handleCheckoutSubmit = async () => {
             state: state.value.trim(),
             postal_code: postalCode.value.trim(),
             country: country.value.trim(),
-            tax_id: taxId.value.trim(),
+            tax_id: '',
         };
 
         const res = await axios.post(route('payment.initiate-hosting'), payload);
@@ -389,7 +427,7 @@ const handleCheckoutSubmit = async () => {
                     state: state.value.trim(),
                     postal_code: postalCode.value.trim(),
                     country: country.value.trim(),
-                    tax_id: taxId.value.trim(),
+                    tax_id: '',
                     domain_choice: domainChoice.value,
                     domain: domainChoice.value === 'have' ? domain.value.trim() : '',
                     plan: selectedPlan.value.slug,
@@ -479,17 +517,38 @@ const handleCheckoutSubmit = async () => {
 
             <!-- Step Progress -->
             <ol class="checkout-progress" aria-label="Checkout sections" data-testid="status-checkout-progress">
-                <li class="is-current">
-                    <span>01</span>
+                <li
+                    :class="{ 'is-current': currentStep === 1, 'is-completed': currentStep > 1 }"
+                    @click="goToStep(1)"
+                    role="button"
+                    tabindex="0"
+                >
+                    <span>
+                        <Check v-if="currentStep > 1" :size="12" />
+                        <template v-else>01</template>
+                    </span>
                     <strong>Hosting Plan</strong>
                 </li>
-                <li class="is-current">
-                    <span>02</span>
+                <li
+                    :class="{ 'is-current': currentStep === 2, 'is-completed': currentStep > 2 }"
+                    @click="currentStep > 1 ? goToStep(2) : null"
+                    :role="currentStep > 1 ? 'button' : undefined"
+                    :tabindex="currentStep > 1 ? 0 : undefined"
+                >
+                    <span>
+                        <Check v-if="currentStep > 2" :size="12" />
+                        <template v-else>02</template>
+                    </span>
                     <strong>Domain Setup</strong>
                 </li>
-                <li class="is-current">
+                <li
+                    :class="{ 'is-current': currentStep === 3 }"
+                    @click="currentStep > 2 ? goToStep(3) : null"
+                    :role="currentStep > 2 ? 'button' : undefined"
+                    :tabindex="currentStep > 2 ? 0 : undefined"
+                >
                     <span>03</span>
-                    <strong>Billing &amp; Tax Info</strong>
+                    <strong>Billing Details</strong>
                 </li>
             </ol>
 
@@ -497,7 +556,7 @@ const handleCheckoutSubmit = async () => {
                 <!-- Left Column: Setup Fields -->
                 <div class="checkout-form-column">
                     <!-- Section 01: Choose your plan -->
-                    <section class="checkout-section" aria-labelledby="plan-heading">
+                    <section v-show="currentStep === 1" class="checkout-section" aria-labelledby="plan-heading">
                         <div class="checkout-section-head">
                             <span class="checkout-step-number">01</span>
                             <div>
@@ -586,21 +645,35 @@ const handleCheckoutSubmit = async () => {
                         <p class="checkout-price-caveat" data-testid="text-illustrative-pricing">
                             Billed in INR through Razorpay secure gateway. 100% money-back guarantee within 7 days.
                         </p>
+
+                        <!-- Step 1 Actions -->
+                        <div class="mt-7 pt-5 border-t border-[var(--edge)] flex items-center justify-between gap-4">
+                            <span class="text-[11px] text-[var(--text-muted)]">Step 1 of 3 · Next: Primary domain</span>
+                            <button
+                                type="button"
+                                class="button button-primary cursor-pointer flex items-center gap-2 ml-auto"
+                                @click="goToStep(2)"
+                                data-testid="button-step1-continue"
+                            >
+                                <span>Continue to Domain Setup</span>
+                                <ArrowRight :size="15" aria-hidden="true" />
+                            </button>
+                        </div>
                     </section>
 
                     <!-- Section 02: Primary Domain Setup -->
-                    <section class="checkout-section" aria-labelledby="domain-heading">
+                    <section v-show="currentStep === 2" class="checkout-section" aria-labelledby="domain-heading">
                         <div class="checkout-section-head">
                             <span class="checkout-step-number">02</span>
                             <div>
                                 <h2 id="domain-heading">Primary domain setup</h2>
-                                <p>Provide the website address you want provisioned on this managed server.</p>
+                                <p>Provide an existing domain or skip this step to get a temporary staging address.</p>
                             </div>
                         </div>
 
                         <!-- Domain Choice Selection -->
                         <fieldset class="domain-choice">
-                            <legend>Domain choice</legend>
+                            <legend>Choose how you want to set up your domain</legend>
                             <label :class="['domain-choice-option', { selected: domainChoice === 'have' }]">
                                 <input
                                     type="radio"
@@ -610,8 +683,8 @@ const handleCheckoutSubmit = async () => {
                                     data-testid="radio-domain-have"
                                 />
                                 <span>
-                                    <strong>I have a domain</strong>
-                                    <small>Tell us the domain you’d like to host.</small>
+                                    <strong>Use an existing domain</strong>
+                                    <small>I already own a domain and want to connect it to this managed server.</small>
                                 </span>
                             </label>
 
@@ -624,15 +697,15 @@ const handleCheckoutSubmit = async () => {
                                     data-testid="radio-domain-later"
                                 />
                                 <span>
-                                    <strong>I’ll add it later</strong>
-                                    <small>We will assign a temporary staging address and help you configure DNS later.</small>
+                                    <strong>Skip domain setup for now</strong>
+                                    <small>We will assign a temporary staging address. You can link your custom domain at any time later.</small>
                                 </span>
                             </label>
                         </fieldset>
 
                         <!-- Domain input when user has a domain -->
-                        <div v-if="domainChoice === 'have'" class="checkout-field domain-field">
-                            <label for="checkout-domain">Domain name <span class="required-mark" aria-hidden="true">*</span></label>
+                        <div v-if="domainChoice === 'have'" class="checkout-field domain-field mt-4">
+                            <label for="checkout-domain">Your domain name <span class="required-mark" aria-hidden="true">*</span></label>
                             <input
                                 id="checkout-domain"
                                 v-model="domain"
@@ -643,19 +716,52 @@ const handleCheckoutSubmit = async () => {
                                 required
                                 data-testid="input-checkout-domain"
                             />
+                            <span class="checkout-field-hint">Enter your root domain or subdomain (e.g. example.com or app.example.com).</span>
                             <p v-if="domainError" class="checkout-inline-error" role="alert" data-testid="error-checkout-domain">
                                 {{ domainError }}
                             </p>
                         </div>
+
+                        <!-- Info banner when skipping domain setup -->
+                        <div v-else class="mt-4 p-4 rounded-lg bg-[var(--green-wash)] border border-[color-mix(in_srgb,var(--accent)_35%,transparent)] text-xs text-[var(--text-soft)] flex items-start gap-3">
+                            <Check :size="16" class="text-[var(--accent)] shrink-0 mt-0.5" />
+                            <div>
+                                <strong class="text-[var(--text)] block mb-0.5">Temporary staging address assigned</strong>
+                                <span>A unique staging hostname will be assigned to your server during provisioning. You can link your custom production domain at any time directly from the dashboard with zero downtime.</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 Actions -->
+                        <div class="mt-7 pt-5 border-t border-[var(--edge)] flex items-center justify-between gap-4">
+                            <button
+                                type="button"
+                                class="button button-outline cursor-pointer flex items-center gap-2"
+                                @click="goToStep(1)"
+                                data-testid="button-step2-back"
+                            >
+                                <ArrowLeft :size="15" aria-hidden="true" />
+                                <span>Back to Plan</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="button button-primary cursor-pointer flex items-center gap-2"
+                                @click="goToStep(3)"
+                                data-testid="button-step2-continue"
+                            >
+                                <span>Continue to Billing Details</span>
+                                <ArrowRight :size="15" aria-hidden="true" />
+                            </button>
+                        </div>
                     </section>
 
-                    <!-- Section 03: Account & Professional Billing Details -->
-                    <section class="checkout-section" aria-labelledby="billing-heading">
+                    <!-- Section 03: Account & Professional Billing Details (GST removed) -->
+                    <section v-show="currentStep === 3" class="checkout-section" aria-labelledby="billing-heading">
                         <div class="checkout-section-head">
                             <span class="checkout-step-number">03</span>
                             <div>
-                                <h2 id="billing-heading">Billing &amp; Tax information</h2>
-                                <p>Entered information is used for compliant tax invoices and your official client letterhead.</p>
+                                <h2 id="billing-heading">Billing &amp; Account details</h2>
+                                <p>Entered information is used for your account profile and official invoice generation.</p>
                             </div>
                         </div>
 
@@ -705,12 +811,12 @@ const handleCheckoutSubmit = async () => {
                             </div>
                         </div>
 
-                        <!-- Organization & Tax Details (Optional) -->
+                        <!-- Organization (Optional) -->
                         <div class="checkout-group-heading">
-                            <Building2 :size="13" /> Company &amp; Tax (Optional)
+                            <Building2 :size="13" /> Company Name (Optional)
                         </div>
                         <div class="checkout-fields">
-                            <div class="checkout-field">
+                            <div class="checkout-field checkout-field-full">
                                 <label for="checkout-company">Company / Organization name</label>
                                 <input
                                     id="checkout-company"
@@ -720,19 +826,7 @@ const handleCheckoutSubmit = async () => {
                                     placeholder="Acme Technologies Pvt Ltd"
                                     data-testid="input-checkout-company"
                                 />
-                                <span class="checkout-field-hint">Printed on your tax invoice if provided.</span>
-                            </div>
-
-                            <div class="checkout-field">
-                                <label for="checkout-tax-id">GSTIN / Tax ID</label>
-                                <input
-                                    id="checkout-tax-id"
-                                    v-model="taxId"
-                                    type="text"
-                                    placeholder="e.g. 29ABCDE1234F1Z5"
-                                    data-testid="input-checkout-tax-id"
-                                />
-                                <span class="checkout-field-hint">For B2B input tax credit on your official GST receipt.</span>
+                                <span class="checkout-field-hint">Included on your invoice if provided.</span>
                             </div>
                         </div>
 
@@ -810,6 +904,32 @@ const handleCheckoutSubmit = async () => {
                                 </select>
                             </div>
                         </div>
+
+                        <!-- Step 3 Actions -->
+                        <div class="mt-7 pt-5 border-t border-[var(--edge)] flex items-center justify-between gap-4">
+                            <button
+                                type="button"
+                                class="button button-outline cursor-pointer flex items-center gap-2"
+                                @click="goToStep(2)"
+                                data-testid="button-step3-back"
+                            >
+                                <ArrowLeft :size="15" aria-hidden="true" />
+                                <span>Back to Domain</span>
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="button button-primary cursor-pointer flex items-center gap-2"
+                                :disabled="isProcessing"
+                                data-testid="button-step3-pay"
+                            >
+                                <span v-if="isProcessing">Initiating Gateway...</span>
+                                <span v-else class="flex items-center gap-2">
+                                    Pay {{ currency === 'INR' ? `₹${getTotalPrice.toLocaleString('en-IN')}` : `$${getTotalPrice}` }} with Razorpay
+                                    <ArrowRight :size="15" aria-hidden="true" />
+                                </span>
+                            </button>
+                        </div>
                     </section>
 
                     <div class="checkout-privacy">
@@ -822,7 +942,7 @@ const handleCheckoutSubmit = async () => {
                 <aside class="checkout-review" aria-labelledby="review-heading">
                     <div class="review-topline">
                         <span class="eyebrow">Order review</span>
-                        <span class="review-step">02 / 02</span>
+                        <span class="review-step font-mono">Step 0{{ currentStep }} / 03</span>
                     </div>
 
                     <h2 id="review-heading">A clear view before you continue.</h2>
@@ -840,7 +960,15 @@ const handleCheckoutSubmit = async () => {
                     <div class="review-line">
                         <span>Domain</span>
                         <strong data-testid="text-review-domain">
-                            {{ domainChoice === 'later' ? 'Add later (temporary hostname)' : (domain.trim() || 'Not entered yet') }}
+                            <template v-if="domainChoice === 'later'">
+                                Skipped (Temporary staging host)
+                            </template>
+                            <template v-else-if="domain.trim()">
+                                {{ domain.trim() }}
+                            </template>
+                            <template v-else>
+                                {{ currentStep === 1 ? 'Configure in Step 2' : 'Enter in Step 2' }}
+                            </template>
                         </strong>
                     </div>
 
@@ -896,19 +1024,47 @@ const handleCheckoutSubmit = async () => {
                         </div>
                     </div>
 
-                    <!-- Payment Button -->
-                    <button
-                        class="button button-primary checkout-submit cursor-pointer"
-                        type="submit"
-                        :disabled="isProcessing"
-                        data-testid="button-checkout-continue"
-                    >
-                        <span v-if="isProcessing">Initiating Gateway...</span>
-                        <span v-else class="flex items-center justify-center gap-2">
-                            Pay {{ currency === 'INR' ? `₹${getTotalPrice.toLocaleString('en-IN')}` : `$${getTotalPrice}` }} with Razorpay
-                            <ArrowRight :size="15" aria-hidden="true" />
-                        </span>
-                    </button>
+                    <!-- Sidebar Navigation / Payment Button -->
+                    <template v-if="currentStep === 1">
+                        <button
+                            class="button button-primary checkout-submit cursor-pointer"
+                            type="button"
+                            @click="goToStep(2)"
+                            data-testid="button-sidebar-step1-continue"
+                        >
+                            <span class="flex items-center justify-center gap-2">
+                                Continue to Domain Setup
+                                <ArrowRight :size="15" aria-hidden="true" />
+                            </span>
+                        </button>
+                    </template>
+                    <template v-else-if="currentStep === 2">
+                        <button
+                            class="button button-primary checkout-submit cursor-pointer"
+                            type="button"
+                            @click="goToStep(3)"
+                            data-testid="button-sidebar-step2-continue"
+                        >
+                            <span class="flex items-center justify-center gap-2">
+                                Continue to Billing Details
+                                <ArrowRight :size="15" aria-hidden="true" />
+                            </span>
+                        </button>
+                    </template>
+                    <template v-else>
+                        <button
+                            class="button button-primary checkout-submit cursor-pointer"
+                            type="submit"
+                            :disabled="isProcessing"
+                            data-testid="button-checkout-continue"
+                        >
+                            <span v-if="isProcessing">Initiating Gateway...</span>
+                            <span v-else class="flex items-center justify-center gap-2">
+                                Pay {{ currency === 'INR' ? `₹${getTotalPrice.toLocaleString('en-IN')}` : `$${getTotalPrice}` }} with Razorpay
+                                <ArrowRight :size="15" aria-hidden="true" />
+                            </span>
+                        </button>
+                    </template>
 
                     <div v-if="currency === 'USD'" class="text-[10px] text-[var(--text-muted)] text-center mt-2">
                         Processed as ₹{{ getRazorpayChargeINR.toLocaleString('en-IN') }} via Razorpay
