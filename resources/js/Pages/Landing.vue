@@ -466,7 +466,16 @@ const currentYear = new Date().getFullYear();
 </script>
 
 <template>
-    <Head title="Roook Hosting — Managed Cloud Hosting" />
+    <Head>
+        <title>Roook Hosting — Carefully Engineered Managed Cloud Hosting</title>
+        <meta name="description" content="High-performance managed cloud servers powered by NVMe SSDs, isolated Docker environments, automated daily backups, and a 2-hour provisioning SLA." />
+        <meta name="keywords" content="managed cloud hosting, nimbus control panel, nvme cloud servers, fast web hosting, dedicated servers, isolated docker hosting" />
+        <meta property="og:title" content="Roook Hosting — Carefully Engineered Managed Cloud Hosting" />
+        <meta property="og:description" content="High-performance managed cloud servers powered by NVMe SSDs, isolated Docker environments, automated daily backups, and a 2-hour provisioning SLA." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:title" content="Roook Hosting — Carefully Engineered Managed Cloud Hosting" />
+        <meta name="twitter:description" content="High-performance managed cloud servers powered by NVMe SSDs, isolated Docker environments, automated daily backups, and a 2-hour provisioning SLA." />
+    </Head>
 
     <div
         class="rook-site"

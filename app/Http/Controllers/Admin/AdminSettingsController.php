@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminSettingsController extends Controller
 {
-    private function getSettingsPath()
+    public static function getSettingsPath()
     {
         return 'settings.json';
     }
 
-    private function getSettings()
+    public static function getSettings()
     {
-        $path = $this->getSettingsPath();
+        $path = self::getSettingsPath();
         $defaults = [
             'site_name' => 'Roook Hosting',
             'allow_registration' => true,
@@ -37,6 +37,17 @@ class AdminSettingsController extends Controller
             'bank_ifsc' => 'HDFC0001234',
             'bank_branch' => 'Indiranagar Branch, Bangalore',
             'bank_upi' => 'vmcore@hdfcbank',
+
+            // Global SEO & Social Sharing Metadata
+            'meta_title' => 'Roook Hosting — Managed Cloud Servers & Nimbus Panel',
+            'meta_description' => 'High-performance managed cloud hosting with NVMe SSD infrastructure, isolated Docker architecture, automated daily backups, and a 2-hour provisioning SLA.',
+            'meta_keywords' => 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers, linux server management',
+            'meta_author' => 'Roook Hosting',
+            'og_image' => '/og-image.png',
+            'twitter_handle' => '@roookhost',
+            'google_site_verification' => '',
+            'bing_site_verification' => '',
+            'robots_index' => true,
         ];
 
         if (!Storage::disk('local')->exists($path)) {
@@ -52,7 +63,7 @@ class AdminSettingsController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Settings', [
-            'settings' => $this->getSettings()
+            'settings' => self::getSettings()
         ]);
     }
 
@@ -78,10 +89,21 @@ class AdminSettingsController extends Controller
             'bank_ifsc' => 'nullable|string|max:30',
             'bank_branch' => 'nullable|string|max:100',
             'bank_upi' => 'nullable|string|max:100',
+
+            // SEO Metadata Validation
+            'meta_title' => 'nullable|string|max:150',
+            'meta_description' => 'nullable|string|max:300',
+            'meta_keywords' => 'nullable|string|max:300',
+            'meta_author' => 'nullable|string|max:100',
+            'og_image' => 'nullable|string|max:255',
+            'twitter_handle' => 'nullable|string|max:50',
+            'google_site_verification' => 'nullable|string|max:150',
+            'bing_site_verification' => 'nullable|string|max:150',
+            'robots_index' => 'required|boolean',
         ]);
 
-        Storage::disk('local')->put($this->getSettingsPath(), json_encode($validated, JSON_PRETTY_PRINT));
+        Storage::disk('local')->put(self::getSettingsPath(), json_encode($validated, JSON_PRETTY_PRINT));
 
-        return back()->with('success', 'System and tax invoice settings updated successfully.');
+        return back()->with('success', 'System, invoice, and SEO settings updated successfully.');
     }
 }

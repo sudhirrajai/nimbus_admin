@@ -26,6 +26,17 @@ const form = useForm({
     bank_ifsc: props.settings.bank_ifsc || 'HDFC0001234',
     bank_branch: props.settings.bank_branch || 'Indiranagar Branch, Bangalore',
     bank_upi: props.settings.bank_upi || 'vmcore@hdfcbank',
+
+    // SEO & Social Metadata
+    meta_title: props.settings.meta_title || 'Roook Hosting — Managed Cloud Servers & Nimbus Panel',
+    meta_description: props.settings.meta_description || 'High-performance managed cloud hosting with NVMe SSD infrastructure, isolated Docker architecture, automated daily backups, and a 2-hour provisioning SLA.',
+    meta_keywords: props.settings.meta_keywords || 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers',
+    meta_author: props.settings.meta_author || 'Roook Hosting',
+    og_image: props.settings.og_image || '/og-image.png',
+    twitter_handle: props.settings.twitter_handle || '@roookhost',
+    google_site_verification: props.settings.google_site_verification || '',
+    bing_site_verification: props.settings.bing_site_verification || '',
+    robots_index: props.settings.robots_index !== undefined ? Boolean(props.settings.robots_index) : true,
 });
 
 const submit = () => {
@@ -292,6 +303,119 @@ const submit = () => {
                                 <input type="text" v-model="form.bank_upi" class="w-full text-xs rounded-lg border-gray-200" placeholder="vmcore@hdfcbank" />
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- SEO & Search Engine Metadata Block -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm space-y-6">
+                    <div class="border-b border-gray-100 pb-4">
+                        <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                            <span class="material-symbols-rounded text-emerald-600 text-lg">travel_explore</span>
+                            Search Engine Optimization (SEO) &amp; Social Metadata
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">Configure global meta tags, Open Graph previews for WhatsApp/Twitter/LinkedIn, and search console verification.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <label for="meta_title" class="block text-xs font-semibold text-gray-700 mb-2">Default Meta Title (Title Tag)</label>
+                            <input 
+                                id="meta_title"
+                                type="text"
+                                v-model="form.meta_title"
+                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
+                                placeholder="Roook Hosting — Managed Cloud Servers &amp; Nimbus Panel"
+                            />
+                            <div class="text-[10px] text-gray-400 mt-1">Recommended length: 50–60 characters. Appears as the headline in Google search results.</div>
+                            <div v-if="form.errors.meta_title" class="text-xs text-red-500 mt-1">{{ form.errors.meta_title }}</div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="meta_description" class="block text-xs font-semibold text-gray-700 mb-2">Default Meta Description</label>
+                            <textarea 
+                                id="meta_description"
+                                v-model="form.meta_description"
+                                rows="3"
+                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
+                                placeholder="High-performance managed cloud hosting with NVMe SSD infrastructure..."
+                            ></textarea>
+                            <div class="text-[10px] text-gray-400 mt-1">Recommended length: 150–160 characters. Appears as the snippet summary below the title.</div>
+                            <div v-if="form.errors.meta_description" class="text-xs text-red-500 mt-1">{{ form.errors.meta_description }}</div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="meta_keywords" class="block text-xs font-semibold text-gray-700 mb-2">Meta Keywords (Comma-separated)</label>
+                            <input 
+                                id="meta_keywords"
+                                type="text"
+                                v-model="form.meta_keywords"
+                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
+                                placeholder="managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting"
+                            />
+                            <div v-if="form.errors.meta_keywords" class="text-xs text-red-500 mt-1">{{ form.errors.meta_keywords }}</div>
+                        </div>
+
+                        <div>
+                            <label for="og_image" class="block text-xs font-semibold text-gray-700 mb-2">Social Preview Image (Open Graph Image URL)</label>
+                            <input 
+                                id="og_image"
+                                type="text"
+                                v-model="form.og_image"
+                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
+                                placeholder="/og-image.png"
+                            />
+                            <div class="text-[10px] text-gray-400 mt-1">1200×630px image displayed when links are shared on Twitter, LinkedIn, WhatsApp, etc.</div>
+                            <div v-if="form.errors.og_image" class="text-xs text-red-500 mt-1">{{ form.errors.og_image }}</div>
+                        </div>
+
+                        <div>
+                            <label for="twitter_handle" class="block text-xs font-semibold text-gray-700 mb-2">Twitter / X Username</label>
+                            <input 
+                                id="twitter_handle"
+                                type="text"
+                                v-model="form.twitter_handle"
+                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
+                                placeholder="@roookhost"
+                            />
+                            <div class="text-[10px] text-gray-400 mt-1">Attached to twitter:site and twitter:creator card tags.</div>
+                            <div v-if="form.errors.twitter_handle" class="text-xs text-red-500 mt-1">{{ form.errors.twitter_handle }}</div>
+                        </div>
+
+                        <div>
+                            <label for="google_site_verification" class="block text-xs font-semibold text-gray-700 mb-2">Google Search Console Verification Code</label>
+                            <input 
+                                id="google_site_verification"
+                                type="text"
+                                v-model="form.google_site_verification"
+                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
+                                placeholder="e.g. D1fG... (optional)"
+                            />
+                            <div class="text-[10px] text-gray-400 mt-1">Found in Google Search Console HTML tag verification method.</div>
+                        </div>
+
+                        <div>
+                            <label for="bing_site_verification" class="block text-xs font-semibold text-gray-700 mb-2">Bing Webmaster Verification Code</label>
+                            <input 
+                                id="bing_site_verification"
+                                type="text"
+                                v-model="form.bing_site_verification"
+                                class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
+                                placeholder="e.g. 8A72... (optional)"
+                            />
+                            <div class="text-[10px] text-gray-400 mt-1">Found in Bing Webmaster Tools meta tag verification method.</div>
+                        </div>
+                    </div>
+
+                    <!-- Indexing toggle -->
+                    <div class="pt-2 border-t border-gray-100 flex items-center justify-between">
+                        <div>
+                            <span class="block text-xs font-semibold text-gray-900">Search Engine Indexing (Robots Index)</span>
+                            <span class="text-[10px] text-gray-500">Allow Google, Bing, and other web crawlers to index this website.</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" v-model="form.robots_index" class="sr-only peer" />
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
                     </div>
                 </div>
 

@@ -1,2 +1,14 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /payment/
+Disallow: /invoices
+Disallow: /tickets
+Disallow: /subscription
+Disallow: /profile
+Disallow: /self-host
+Disallow: /store
+
+Sitemap: https://roook.host/sitemap.xml

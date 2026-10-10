@@ -472,7 +472,11 @@ const handleCheckoutSubmit = async () => {
 </script>
 
 <template>
-    <Head title="Order Managed Hosting — Roook" />
+    <Head>
+        <title>Order Managed Hosting — Roook</title>
+        <meta name="description" content="Configure your managed cloud hosting server and domain. Fast 2-hour verified provisioning with 7-day money-back guarantee." />
+        <meta name="robots" content="noindex, nofollow" />
+    </Head>
 
     <main class="rook-site checkout-site" :data-theme="lightTheme ? 'light' : 'dark'">
         <!-- Sticky Header matching Roook design -->

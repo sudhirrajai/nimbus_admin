@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     page: Object,
@@ -8,10 +8,24 @@ const props = defineProps({
 });
 
 const mobileMenuOpen = ref(false);
+
+const cleanDescription = computed(() => {
+    if (!props.page?.content) return `${props.page?.title || 'Resource'} — Roook Managed Cloud Hosting official documentation and policy.`;
+    const text = props.page.content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+    return text.length > 160 ? text.substring(0, 157) + '...' : text;
+});
 </script>
 
 <template>
-    <Head :title="page.title + ' — Roook Hosting'" />
+    <Head>
+        <title>{{ page.title + ' — Roook Hosting' }}</title>
+        <meta name="description" :content="cleanDescription" />
+        <meta property="og:title" :content="page.title + ' — Roook Hosting'" />
+        <meta property="og:description" :content="cleanDescription" />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:title" :content="page.title + ' — Roook Hosting'" />
+        <meta name="twitter:description" :content="cleanDescription" />
+    </Head>
 
     <div class="page-layout">
         <!-- Header / Navbar -->

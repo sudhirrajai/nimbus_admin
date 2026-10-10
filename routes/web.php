@@ -113,7 +113,8 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\Admin\AdminReleaseController;
 
-// Public Static Pages
+// Public Static Pages & Sitemap
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/p/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 // Public Release Routes

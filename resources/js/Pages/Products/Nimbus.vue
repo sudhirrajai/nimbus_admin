@@ -335,7 +335,16 @@ const currentYear = new Date().getFullYear();
 </script>
 
 <template>
-    <Head title="Nimbus Control Panel — Modern Linux Server Software" />
+    <Head>
+        <title>Nimbus Control Panel — Next-Gen Linux Server Software</title>
+        <meta name="description" content="Modern, lightweight web hosting control panel alternative to cPanel. Effortlessly manage multi-PHP versions, SSL certificates, databases, domains, and Docker containers." />
+        <meta name="keywords" content="nimbus control panel, linux server management, cpanel alternative, web hosting panel, multi php management, automated ssl, cloud hosting panel" />
+        <meta property="og:title" content="Nimbus Control Panel — Next-Gen Linux Server Software" />
+        <meta property="og:description" content="Modern, lightweight web hosting control panel alternative to cPanel. Effortlessly manage multi-PHP versions, SSL certificates, databases, domains, and Docker containers." />
+        <meta property="og:type" content="product" />
+        <meta name="twitter:title" content="Nimbus Control Panel — Next-Gen Linux Server Software" />
+        <meta name="twitter:description" content="Modern, lightweight web hosting control panel alternative to cPanel. Effortlessly manage multi-PHP versions, SSL certificates, databases, domains, and Docker containers." />
+    </Head>
 
     <div
         class="rook-site"
