@@ -28,7 +28,7 @@ class AdminSettingsController extends Controller
             'company_name' => 'Roook Hosting',
             'company_address_line1' => '#104, Tech Park Boulevard',
             'company_address_line2' => 'Bangalore - 560038, Karnataka, India',
-            'company_email' => 'billing@vmcore.in',
+            'company_email' => 'billing@roook.host',
             'company_phone' => '+91 80 4567 8900',
             'company_website' => 'https://roook.host',
             'bank_name' => 'HDFC Bank Ltd.',
@@ -36,10 +36,10 @@ class AdminSettingsController extends Controller
             'bank_account' => '50200088991122',
             'bank_ifsc' => 'HDFC0001234',
             'bank_branch' => 'Indiranagar Branch, Bangalore',
-            'bank_upi' => 'vmcore@hdfcbank',
+            'bank_upi' => 'roook@hdfcbank',
 
             // Global SEO & Social Sharing Metadata
-            'meta_title' => 'Roook Hosting — Managed Cloud Servers & Nimbus Panel',
+            'meta_title' => 'Roook Hosting — Managed Cloud Servers',
             'meta_description' => 'High-performance managed cloud hosting with NVMe SSD infrastructure, isolated Docker architecture, automated daily backups, and a 2-hour provisioning SLA.',
             'meta_keywords' => 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers, linux server management',
             'meta_author' => 'Roook Hosting',

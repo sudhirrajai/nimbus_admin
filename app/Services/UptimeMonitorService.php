@@ -112,7 +112,7 @@ class UptimeMonitorService
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 6);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_USERAGENT, 'Nimbus-Uptime-Monitor/1.0 (+https://nimbus-host.vmcore.in)');
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Roook-Uptime-Monitor/1.0 (+https://roook.host)');
             curl_setopt($ch, CURLOPT_RESOLVE, [
                 "{$cleanDomain}:443:{$targetIp}",
                 "{$cleanDomain}:80:{$targetIp}",

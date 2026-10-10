@@ -35,7 +35,8 @@ const copyToClipboard = (text) => {
 };
 
 const getInstallCommand = (key) => {
-    return `curl -fsSL https://nimbus-host.vmcore.in/install.sh | bash -s -- --key=${key}`;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://roook.host';
+    return `curl -fsSL ${origin}/install.sh | bash -s -- --key=${key}`;
 };
 
 const formatDateTime = (dateStr) => {

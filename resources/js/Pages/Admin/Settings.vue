@@ -17,7 +17,7 @@ const form = useForm({
     company_name: props.settings.company_name || 'Roook Hosting',
     company_address_line1: props.settings.company_address_line1 || '#104, Tech Park Boulevard',
     company_address_line2: props.settings.company_address_line2 || 'Bangalore - 560038, Karnataka, India',
-    company_email: props.settings.company_email || 'billing@vmcore.in',
+    company_email: props.settings.company_email || 'billing@roook.host',
     company_phone: props.settings.company_phone || '+91 80 4567 8900',
     company_website: props.settings.company_website || 'https://roook.host',
     bank_name: props.settings.bank_name || 'HDFC Bank Ltd.',
@@ -25,10 +25,10 @@ const form = useForm({
     bank_account: props.settings.bank_account || '50200088991122',
     bank_ifsc: props.settings.bank_ifsc || 'HDFC0001234',
     bank_branch: props.settings.bank_branch || 'Indiranagar Branch, Bangalore',
-    bank_upi: props.settings.bank_upi || 'vmcore@hdfcbank',
+    bank_upi: props.settings.bank_upi || 'roook@hdfcbank',
 
     // SEO & Social Metadata
-    meta_title: props.settings.meta_title || 'Roook Hosting — Managed Cloud Servers & Nimbus Panel',
+    meta_title: props.settings.meta_title || 'Roook Hosting — Managed Cloud Servers',
     meta_description: props.settings.meta_description || 'High-performance managed cloud hosting with NVMe SSD infrastructure, isolated Docker architecture, automated daily backups, and a 2-hour provisioning SLA.',
     meta_keywords: props.settings.meta_keywords || 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers',
     meta_author: props.settings.meta_author || 'Roook Hosting',
@@ -225,7 +225,7 @@ const submit = () => {
                                 type="email"
                                 v-model="form.company_email"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="billing@vmcore.in"
+                                placeholder="billing@roook.host"
                             />
                         </div>
 
@@ -300,7 +300,7 @@ const submit = () => {
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-gray-600 mb-1">UPI ID</label>
-                                <input type="text" v-model="form.bank_upi" class="w-full text-xs rounded-lg border-gray-200" placeholder="vmcore@hdfcbank" />
+                                <input type="text" v-model="form.bank_upi" class="w-full text-xs rounded-lg border-gray-200" placeholder="roook@hdfcbank" />
                             </div>
                         </div>
                     </div>
@@ -324,7 +324,7 @@ const submit = () => {
                                 type="text"
                                 v-model="form.meta_title"
                                 class="w-full text-sm border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg shadow-sm transition-all"
-                                placeholder="Roook Hosting — Managed Cloud Servers &amp; Nimbus Panel"
+                                placeholder="Roook Hosting — Managed Cloud Servers"
                             />
                             <div class="text-[10px] text-gray-400 mt-1">Recommended length: 50–60 characters. Appears as the headline in Google search results.</div>
                             <div v-if="form.errors.meta_title" class="text-xs text-red-500 mt-1">{{ form.errors.meta_title }}</div>

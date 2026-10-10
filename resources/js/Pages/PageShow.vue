@@ -60,8 +60,8 @@ const cleanDescription = computed(() => {
                                 >
                                     {{ item.title }}
                                 </Link>
-                                <a href="https://nimbus-docs.vmcore.in/" target="_blank" class="page-sidebar__link">
-                                    Documentation <span class="ext-icon">↗</span>
+                                <a href="https://roook.host" class="page-sidebar__link">
+                                    Platform Home <span class="ext-icon">↗</span>
                                 </a>
                             </nav>
                         </div>
@@ -80,7 +80,7 @@ const cleanDescription = computed(() => {
         <!-- Footer -->
         <footer class="page-footer">
             <div class="page-container text-center">
-                <p>© {{ new Date().getFullYear() }} Roook Hosting by VMCore. All rights reserved.</p>
+                <p>© {{ new Date().getFullYear() }} Roook Hosting. All rights reserved.</p>
             </div>
         </footer>
     </div>

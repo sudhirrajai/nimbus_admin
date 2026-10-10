@@ -218,7 +218,7 @@ const formatDate = (dateStr) => {
                 </div>
                 <h3 class="text-sm font-bold text-gray-900">No Managed Hosting Instances</h3>
                 <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-                    Let VMCORE manage your high-speed cloud instances so you never have to configure Linux or manage server crashes.
+                    Let Roook manage your high-speed cloud instances so you never have to configure Linux or manage server crashes.
                 </p>
                 <div class="mt-4 flex items-center justify-center gap-3">
                     <button 

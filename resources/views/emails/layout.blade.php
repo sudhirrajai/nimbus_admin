@@ -57,7 +57,7 @@
                                     <a href="mailto:{{ $supportEmail ?? 'support@roook.host' }}">{{ $supportEmail ?? 'support@roook.host' }}</a>
                                 </p>
                                 <p style="margin: 0; font-size: 11px; color: #94a3b8;">
-                                    &copy; {{ date('Y') }} Roook Hosting by VMCore. All rights reserved.<br/>
+                                    &copy; {{ date('Y') }} Roook Hosting. All rights reserved.<br/>
                                     Automated cloud infrastructure notification.
                                 </p>
                             </td>

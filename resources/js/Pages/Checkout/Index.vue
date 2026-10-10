@@ -1089,7 +1089,7 @@ const handleCheckoutSubmit = async () => {
 
                     <div class="checkout-help">
                         <CircleHelp :size="14" aria-hidden="true" />
-                        <span>Questions before you start? <a href="mailto:support@vmcore.in?subject=Question%20about%20Roook%20Hosting%20Setup" data-testid="link-checkout-support">Talk with an engineer</a></span>
+                        <span>Questions before you start? <a href="mailto:support@roook.host?subject=Question%20about%20Roook%20Hosting%20Setup" data-testid="link-checkout-support">Talk with an engineer</a></span>
                     </div>
                 </aside>
             </form>

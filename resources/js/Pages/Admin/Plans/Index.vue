@@ -66,7 +66,7 @@ const openCreateModal = (defaultType = 'managed_hosting') => {
         createForm.renewal_monthly_price_usd = null;
         createForm.max_domains = 5;
         createForm.cta_text = 'Deploy Cloud';
-        featuresInput.value = "1 vCPU & 2GB RAM Cloud Node\n30GB NVMe High-Speed Storage\nFully Managed by VMCORE Team\nFree Auto-Renewing SSL\nAutomated Daily Backups";
+        featuresInput.value = "1 vCPU & 2GB RAM Cloud Node\n30GB NVMe High-Speed Storage\nFully Managed by Roook Team\nFree Auto-Renewing SSL\nAutomated Daily Backups";
     } else {
         createForm.name = 'Nimbus License';
         createForm.price_inr = 499;

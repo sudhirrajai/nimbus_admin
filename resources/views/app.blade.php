@@ -30,7 +30,7 @@
             $metaDescription = $seoSettings['meta_description'] ?? 'High-performance managed cloud hosting with NVMe SSD infrastructure, isolated Docker architecture, automated daily backups, and a 2-hour provisioning SLA.';
             $metaKeywords = $seoSettings['meta_keywords'] ?? 'managed cloud hosting, nimbus control panel, nvme cloud servers, fast hosting, roook hosting, dedicated servers';
             $metaAuthor = $seoSettings['meta_author'] ?? $siteName;
-            $ogImage = url($seoSettings['og_image'] ?? '/og-image.png');
+            $ogImage = url(($seoSettings['og_image'] ?? '/og-image.png') . '?v=2');
             $twitterHandle = $seoSettings['twitter_handle'] ?? '@roookhost';
             $robots = ($seoSettings['robots_index'] ?? true) ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, nofollow';
             $canonicalUrl = url()->current();
@@ -49,7 +49,7 @@
                             'width' => 180,
                             'height' => 180,
                         ],
-                        'email' => $seoSettings['company_email'] ?? 'billing@vmcore.in',
+                        'email' => $seoSettings['company_email'] ?? 'billing@roook.host',
                         'telephone' => $seoSettings['company_phone'] ?? '+91 80 4567 8900',
                         'address' => [
                             '@type' => 'PostalAddress',

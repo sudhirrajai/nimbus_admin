@@ -812,7 +812,7 @@ const isRouteActive = (routeName) => {
             <!-- Footer -->
             <footer class="border-t border-[var(--edge)] py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-[var(--panel)] print:hidden min-w-0">
                 <div class="mx-auto max-w-7xl text-center text-xs text-[var(--text-muted)]">
-                    &copy; {{ new Date().getFullYear() }} Roook Hosting by VMCore. All rights reserved.
+                    &copy; {{ new Date().getFullYear() }} Roook Hosting. All rights reserved.
                 </div>
             </footer>
         </div>

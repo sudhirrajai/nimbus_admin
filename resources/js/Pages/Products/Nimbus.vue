@@ -64,7 +64,9 @@ const copiedInstall = ref(false);
 const selectedCurrency = ref('USD');
 const billingCycle = ref('yearly');
 
-const installCommand = 'curl -fsSL https://nimbus-host.vmcore.in/install.sh | bash';
+const installCommand = typeof window !== 'undefined'
+    ? `curl -fsSL ${window.location.origin}/install.sh | bash`
+    : 'curl -fsSL https://roook.host/install.sh | bash';
 
 const copyInstall = async () => {
     try {
@@ -504,7 +506,7 @@ const currentYear = new Date().getFullYear();
                                 </p>
                                 <div class="p-2.5 sm:p-3 my-2 rounded-lg bg-[var(--surface-deep)] border border-[var(--edge)] flex items-center justify-between gap-2 sm:gap-3 min-w-0 max-w-full">
                                     <code class="text-[11px] sm:text-xs font-mono text-[var(--green-bright)] overflow-x-auto whitespace-nowrap min-w-0 flex-1 py-1">
-                                        curl -fsSL https://nimbus-host.vmcore.in/install.sh | bash
+                                        {{ installCommand }}
                                     </code>
                                     <button
                                         type="button"
@@ -708,7 +710,7 @@ const currentYear = new Date().getFullYear();
                         <div class="eyebrow">Common Questions</div>
                         <h2 class="section-heading" id="faq-title">About Nimbus Software.</h2>
                         <p class="section-intro">Have a question about installation, licensing, or server compatibility? Everything you need to know.</p>
-                        <a class="faq-contact" href="mailto:support@vmcore.in?subject=Nimbus%20Software%20Question">
+                        <a class="faq-contact" href="mailto:support@roook.host?subject=Nimbus%20Software%20Question">
                             <Mail :size="14" aria-hidden="true" /> Ask support team
                         </a>
                     </div>
@@ -724,7 +726,7 @@ const currentYear = new Date().getFullYear();
                                     type="button"
                                     :aria-expanded="openFaq === index"
                                     @click="openFaq = openFaq === index ? null : index"
-                                >
+                                    >
                                     <span>{{ faq.question }}</span>
                                     <Plus :size="17" aria-hidden="true" />
                                 </button>
@@ -748,7 +750,7 @@ const currentYear = new Date().getFullYear();
                             <span>roook</span>
                         </Link>
                         <p class="footer-brand-copy">
-                            Managed Cloud Hosting &amp; Developer Infrastructure by VMCore. High-performance software and 24/7 reliability care.
+                            Managed Cloud Hosting &amp; Developer Infrastructure. High-performance software and 24/7 reliability care.
                         </p>
                     </div>
                     <div class="footer-group">
@@ -772,7 +774,7 @@ const currentYear = new Date().getFullYear();
                     <div class="footer-group">
                         <h3>Contact</h3>
                         <div class="footer-links">
-                            <a href="mailto:support@vmcore.in">support@vmcore.in</a>
+                            <a href="mailto:support@roook.host">support@roook.host</a>
                             <Link :href="route('tickets.index')">Support Tickets</Link>
                             <a :href="`${route('home')}#status`">System Status</a>
                         </div>
@@ -785,7 +787,7 @@ const currentYear = new Date().getFullYear();
                         <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub">
                             <Github :size="15" aria-hidden="true" />
                         </a>
-                        <a href="mailto:support@vmcore.in" aria-label="Email">
+                        <a href="mailto:support@roook.host" aria-label="Email">
                             <Mail :size="15" aria-hidden="true" />
                         </a>
                     </div>
