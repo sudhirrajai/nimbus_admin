@@ -79,13 +79,14 @@ const buySelfHostPlan = async (plan) => {
             billing_cycle: billingCycle.value,
         });
         const data = response.data;
+        const cycleLabel = billingCycle.value === 'monthly' ? 'Monthly' : billingCycle.value === '2years' ? '2-Year' : billingCycle.value === '3years' ? '3-Year' : '1-Year';
 
         const options = {
             key: data.key_id,
             amount: data.amount,
             currency: "INR",
             name: "Roook Hosting",
-            description: `${plan.name} License Purchase (${billingCycle.value === 'monthly' ? 'Monthly' : 'Yearly'})`,
+            description: `${plan.name} License Purchase (${cycleLabel})`,
             order_id: data.order_id,
             handler: function (response) {
                 const form = document.createElement('form');
@@ -130,32 +131,42 @@ const buySelfHostPlan = async (plan) => {
 };
 
 const getSelfHostPrice = (plan) => {
+    if (plan.slug === 'free' || Number(plan.price_inr) === 0) return 'Free';
+
+    const isINR = selectedCurrency.value === 'INR';
+
     if (billingCycle.value === 'monthly') {
-        if (selectedCurrency.value === 'INR') {
-            const price = (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') ? plan.monthly_price_inr : plan.price_inr;
-            return price === 0 ? '₹0' : '₹' + Number(price).toLocaleString('en-IN');
-        } else {
-            const price = (plan.monthly_price_usd != null && plan.monthly_price_usd !== '') ? plan.monthly_price_usd : plan.price_usd;
-            return price === 0 ? '$0' : '$' + price;
-        }
+        const price = (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') ? plan.monthly_price_inr : plan.price_inr;
+        const priceUsd = (plan.monthly_price_usd != null && plan.monthly_price_usd !== '') ? plan.monthly_price_usd : plan.price_usd;
+        return isINR ? '₹' + Number(price).toLocaleString('en-IN') : '$' + priceUsd;
+    } else if (billingCycle.value === '2years') {
+        const price = (plan.price_2year_inr != null && plan.price_2year_inr !== '') ? plan.price_2year_inr : (Number(plan.price_inr) * 2);
+        const priceUsd = (plan.price_2year_usd != null && plan.price_2year_usd !== '') ? plan.price_2year_usd : (Number(plan.price_usd) * 2);
+        return isINR ? '₹' + Number(price).toLocaleString('en-IN') : '$' + priceUsd;
+    } else if (billingCycle.value === '3years') {
+        const price = (plan.price_3year_inr != null && plan.price_3year_inr !== '') ? plan.price_3year_inr : (Number(plan.price_inr) * 3);
+        const priceUsd = (plan.price_3year_usd != null && plan.price_3year_usd !== '') ? plan.price_3year_usd : (Number(plan.price_usd) * 3);
+        return isINR ? '₹' + Number(price).toLocaleString('en-IN') : '$' + priceUsd;
     } else {
-        if (selectedCurrency.value === 'INR') {
-            return plan.price_inr === 0 ? '₹0' : '₹' + Number(plan.price_inr).toLocaleString('en-IN');
-        } else {
-            return plan.price_usd === 0 ? '$0' : '$' + plan.price_usd;
-        }
+        return isINR ? '₹' + Number(plan.price_inr).toLocaleString('en-IN') : '$' + plan.price_usd;
     }
 };
 
 const getSelfHostPeriod = (plan) => {
-    if (plan.slug === 'free' || plan.price_inr === 0) return '/ forever';
+    if (plan.slug === 'free' || Number(plan.price_inr) === 0) return '/ forever';
     if (billingCycle.value === 'monthly') return '/ month';
-    return plan.billing_period || '/ year';
+    if (billingCycle.value === '2years') return '/ 2 years';
+    if (billingCycle.value === '3years') return '/ 3 years';
+    return '/ 1 year';
 };
 
 const getSelfHostChargeINR = (plan) => {
     if (billingCycle.value === 'monthly') {
         return (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') ? plan.monthly_price_inr : plan.price_inr;
+    } else if (billingCycle.value === '2years') {
+        return (plan.price_2year_inr != null && plan.price_2year_inr !== '') ? plan.price_2year_inr : (Number(plan.price_inr) * 2);
+    } else if (billingCycle.value === '3years') {
+        return (plan.price_3year_inr != null && plan.price_3year_inr !== '') ? plan.price_3year_inr : (Number(plan.price_inr) * 3);
     }
     return plan.price_inr;
 };
@@ -208,17 +219,37 @@ const getManagedRenewal = (plan) => {
 };
 
 const getSelfHostRenewal = (plan) => {
+    if (plan.slug === 'free' || Number(plan.price_inr) === 0) return null;
+
+    const isINR = selectedCurrency.value === 'INR';
+
     if (billingCycle.value === 'monthly') {
-        if (plan.renewal_monthly_price_inr || plan.renewal_monthly_price_usd) {
-            return selectedCurrency.value === 'INR' 
-                ? 'Renews at: ₹' + Number(plan.renewal_monthly_price_inr || plan.monthly_price_inr).toLocaleString('en-IN') + ' / month'
-                : 'Renews at: $' + (plan.renewal_monthly_price_usd || plan.monthly_price_usd) + ' / month';
+        const renewalInr = plan.renewal_monthly_price_inr || plan.monthly_price_inr;
+        const renewalUsd = plan.renewal_monthly_price_usd || plan.monthly_price_usd;
+        if (renewalInr || renewalUsd) {
+            return isINR 
+                ? 'Renews at: ₹' + Number(renewalInr || plan.price_inr).toLocaleString('en-IN') + ' / month'
+                : 'Renews at: $' + (renewalUsd || plan.price_usd) + ' / month';
         }
+    } else if (billingCycle.value === '2years') {
+        const renewalInr = plan.renewal_price_2year_inr || plan.price_2year_inr || (Number(plan.price_inr) * 2);
+        const renewalUsd = plan.renewal_price_2year_usd || plan.price_2year_usd || (Number(plan.price_usd) * 2);
+        return isINR
+            ? 'Renews at: ₹' + Number(renewalInr).toLocaleString('en-IN') + ' / 2 years'
+            : 'Renews at: $' + renewalUsd + ' / 2 years';
+    } else if (billingCycle.value === '3years') {
+        const renewalInr = plan.renewal_price_3year_inr || plan.price_3year_inr || (Number(plan.price_inr) * 3);
+        const renewalUsd = plan.renewal_price_3year_usd || plan.price_3year_usd || (Number(plan.price_usd) * 3);
+        return isINR
+            ? 'Renews at: ₹' + Number(renewalInr).toLocaleString('en-IN') + ' / 3 years'
+            : 'Renews at: $' + renewalUsd + ' / 3 years';
     } else {
-        if (plan.renewal_price_inr && plan.renewal_price_inr !== plan.price_inr) {
-            return selectedCurrency.value === 'INR'
-                ? 'Renews at: ₹' + Number(plan.renewal_price_inr).toLocaleString('en-IN') + ' ' + (plan.billing_period || '/ year')
-                : 'Renews at: $' + plan.renewal_price_usd + ' ' + (plan.billing_period || '/ year');
+        const renewalInr = plan.renewal_price_inr || plan.price_inr;
+        const renewalUsd = plan.renewal_price_usd || plan.price_usd;
+        if (renewalInr && renewalInr !== plan.price_inr) {
+            return isINR
+                ? 'Renews at: ₹' + Number(renewalInr).toLocaleString('en-IN') + ' / 1 year'
+                : 'Renews at: $' + renewalUsd + ' / 1 year';
         }
     }
     return null;
@@ -412,13 +443,13 @@ const getFeatures = (plan) => {
                         </div>
                     </div>
 
-                    <!-- Billing Cycle Selector -->
-                    <div class="flex items-center bg-white p-1 rounded-lg border border-emerald-200 shadow-xs shrink-0">
+                    <!-- Billing Cycle Selector (Self-Hosted Nimbus Licenses) -->
+                    <div class="flex items-center bg-white p-1 rounded-lg border border-emerald-200 shadow-xs shrink-0 flex-wrap gap-1">
                         <button 
                             type="button"
                             @click="billingCycle = 'monthly'"
                             :class="billingCycle === 'monthly' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
-                            class="px-3 py-1 text-xs rounded transition-all cursor-pointer"
+                            class="px-2.5 py-1 text-xs rounded transition-all cursor-pointer"
                         >
                             Monthly
                         </button>
@@ -426,9 +457,27 @@ const getFeatures = (plan) => {
                             type="button"
                             @click="billingCycle = 'yearly'"
                             :class="billingCycle === 'yearly' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
-                            class="px-3 py-1 text-xs rounded transition-all cursor-pointer"
+                            class="px-2.5 py-1 text-xs rounded transition-all cursor-pointer"
                         >
-                            Yearly
+                            1 Year
+                        </button>
+                        <button 
+                            type="button"
+                            @click="billingCycle = '2years'"
+                            :class="billingCycle === '2years' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="px-2.5 py-1 text-xs rounded transition-all cursor-pointer flex items-center gap-1"
+                        >
+                            <span>2 Years</span>
+                            <span class="text-[9px] px-1 py-0.2 rounded font-normal" :class="billingCycle === '2years' ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700'">-10%</span>
+                        </button>
+                        <button 
+                            type="button"
+                            @click="billingCycle = '3years'"
+                            :class="billingCycle === '3years' ? 'bg-emerald-500 text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="px-2.5 py-1 text-xs rounded transition-all cursor-pointer flex items-center gap-1"
+                        >
+                            <span>3 Years</span>
+                            <span class="text-[9px] px-1 py-0.2 rounded font-normal" :class="billingCycle === '3years' ? 'bg-emerald-600 text-white' : 'bg-amber-100 text-amber-800'">-15%</span>
                         </button>
                     </div>
                 </div>

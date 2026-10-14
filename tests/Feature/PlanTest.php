@@ -163,4 +163,28 @@ class PlanTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('PRO-TRIAL12345');
     }
+
+    public function test_multi_year_plan_pricing_helper()
+    {
+        $plan = Plan::where('slug', 'pro')->first();
+        $plan->update([
+            'monthly_price_inr' => 49,
+            'price_2year_inr' => 899,
+            'price_3year_inr' => 1299,
+            'monthly_price_usd' => 2,
+            'price_2year_usd' => 35,
+            'price_3year_usd' => 49,
+        ]);
+
+        $this->assertEquals(49, $plan->getPriceForCycle('monthly', 'INR'));
+        $this->assertEquals(499, $plan->getPriceForCycle('yearly', 'INR'));
+        $this->assertEquals(899, $plan->getPriceForCycle('2years', 'INR'));
+        $this->assertEquals(1299, $plan->getPriceForCycle('3years', 'INR'));
+
+        $this->assertEquals(2, $plan->getPriceForCycle('monthly', 'USD'));
+        $this->assertEquals(19, $plan->getPriceForCycle('yearly', 'USD'));
+        $this->assertEquals(35, $plan->getPriceForCycle('2years', 'USD'));
+        $this->assertEquals(49, $plan->getPriceForCycle('3years', 'USD'));
+    }
 }
+

@@ -37,6 +37,14 @@ const createForm = useForm({
     monthly_price_inr: null,
     renewal_price_inr: 4790,
     renewal_monthly_price_inr: null,
+    price_2year_inr: null,
+    price_2year_usd: null,
+    renewal_price_2year_inr: null,
+    renewal_price_2year_usd: null,
+    price_3year_inr: null,
+    price_3year_usd: null,
+    renewal_price_3year_inr: null,
+    renewal_price_3year_usd: null,
     price_usd: 49,
     monthly_price_usd: null,
     renewal_price_usd: 59,
@@ -73,6 +81,14 @@ const openCreateModal = (defaultType = 'managed_hosting') => {
         createForm.monthly_price_inr = 49;
         createForm.renewal_price_inr = 499;
         createForm.renewal_monthly_price_inr = 49;
+        createForm.price_2year_inr = 899;
+        createForm.price_2year_usd = 35;
+        createForm.renewal_price_2year_inr = 899;
+        createForm.renewal_price_2year_usd = 35;
+        createForm.price_3year_inr = 1299;
+        createForm.price_3year_usd = 49;
+        createForm.renewal_price_3year_inr = 1299;
+        createForm.renewal_price_3year_usd = 49;
         createForm.price_usd = 19;
         createForm.monthly_price_usd = 2;
         createForm.renewal_price_usd = 19;
@@ -280,6 +296,12 @@ const deletePlan = (plan) => {
                                     <div v-if="plan.monthly_price_inr" class="text-[11px] text-emerald-800 font-semibold mt-0.5">
                                         Monthly: {{ formatPrice(plan.monthly_price_inr, 'INR') }}/mo
                                     </div>
+                                    <div v-if="plan.price_2year_inr" class="text-[10px] text-indigo-700 font-medium mt-0.5">
+                                        2-Year: {{ formatPrice(plan.price_2year_inr, 'INR') }}
+                                    </div>
+                                    <div v-if="plan.price_3year_inr" class="text-[10px] text-amber-700 font-medium mt-0.5">
+                                        3-Year: {{ formatPrice(plan.price_3year_inr, 'INR') }}
+                                    </div>
                                     <div class="text-[10px] text-gray-500 font-medium mt-0.5">
                                         Renews: {{ formatPrice(plan.renewal_price_inr || plan.price_inr, 'INR') }}
                                     </div>
@@ -292,6 +314,12 @@ const deletePlan = (plan) => {
                                     </div>
                                     <div v-if="plan.monthly_price_usd" class="text-[11px] text-emerald-800 font-semibold mt-0.5">
                                         Monthly: {{ formatPrice(plan.monthly_price_usd, 'USD') }}/mo
+                                    </div>
+                                    <div v-if="plan.price_2year_usd" class="text-[10px] text-indigo-700 font-medium mt-0.5">
+                                        2-Year: {{ formatPrice(plan.price_2year_usd, 'USD') }}
+                                    </div>
+                                    <div v-if="plan.price_3year_usd" class="text-[10px] text-amber-700 font-medium mt-0.5">
+                                        3-Year: {{ formatPrice(plan.price_3year_usd, 'USD') }}
                                     </div>
                                     <div class="text-[10px] text-gray-500 mt-0.5">
                                         Renews: {{ formatPrice(plan.renewal_price_usd || plan.price_usd, 'USD') }}

@@ -28,6 +28,14 @@ class AdminPlanController extends Controller
             'monthly_price_inr' => 'nullable|numeric|min:0',
             'renewal_price_inr' => 'nullable|numeric|min:0',
             'renewal_monthly_price_inr' => 'nullable|numeric|min:0',
+            'price_2year_inr' => 'nullable|numeric|min:0',
+            'price_2year_usd' => 'nullable|numeric|min:0',
+            'renewal_price_2year_inr' => 'nullable|numeric|min:0',
+            'renewal_price_2year_usd' => 'nullable|numeric|min:0',
+            'price_3year_inr' => 'nullable|numeric|min:0',
+            'price_3year_usd' => 'nullable|numeric|min:0',
+            'renewal_price_3year_inr' => 'nullable|numeric|min:0',
+            'renewal_price_3year_usd' => 'nullable|numeric|min:0',
             'price_usd' => 'required|numeric|min:0',
             'monthly_price_usd' => 'nullable|numeric|min:0',
             'renewal_price_usd' => 'nullable|numeric|min:0',
@@ -60,6 +68,20 @@ class AdminPlanController extends Controller
         }
         if (!empty($validated['monthly_price_usd']) && empty($validated['renewal_monthly_price_usd'])) {
             $validated['renewal_monthly_price_usd'] = $validated['monthly_price_usd'];
+        }
+
+        if (!empty($validated['price_2year_inr']) && empty($validated['renewal_price_2year_inr'])) {
+            $validated['renewal_price_2year_inr'] = $validated['price_2year_inr'];
+        }
+        if (!empty($validated['price_2year_usd']) && empty($validated['renewal_price_2year_usd'])) {
+            $validated['renewal_price_2year_usd'] = $validated['price_2year_usd'];
+        }
+
+        if (!empty($validated['price_3year_inr']) && empty($validated['renewal_price_3year_inr'])) {
+            $validated['renewal_price_3year_inr'] = $validated['price_3year_inr'];
+        }
+        if (!empty($validated['price_3year_usd']) && empty($validated['renewal_price_3year_usd'])) {
+            $validated['renewal_price_3year_usd'] = $validated['price_3year_usd'];
         }
 
         if (empty($validated['slug'])) {
@@ -95,6 +117,14 @@ class AdminPlanController extends Controller
             'monthly_price_inr' => 'nullable|numeric|min:0',
             'renewal_price_inr' => 'nullable|numeric|min:0',
             'renewal_monthly_price_inr' => 'nullable|numeric|min:0',
+            'price_2year_inr' => 'nullable|numeric|min:0',
+            'price_2year_usd' => 'nullable|numeric|min:0',
+            'renewal_price_2year_inr' => 'nullable|numeric|min:0',
+            'renewal_price_2year_usd' => 'nullable|numeric|min:0',
+            'price_3year_inr' => 'nullable|numeric|min:0',
+            'price_3year_usd' => 'nullable|numeric|min:0',
+            'renewal_price_3year_inr' => 'nullable|numeric|min:0',
+            'renewal_price_3year_usd' => 'nullable|numeric|min:0',
             'price_usd' => 'required|numeric|min:0',
             'monthly_price_usd' => 'nullable|numeric|min:0',
             'renewal_price_usd' => 'nullable|numeric|min:0',
@@ -127,6 +157,20 @@ class AdminPlanController extends Controller
         }
         if (!empty($validated['monthly_price_usd']) && empty($validated['renewal_monthly_price_usd'])) {
             $validated['renewal_monthly_price_usd'] = $validated['monthly_price_usd'];
+        }
+
+        if (!empty($validated['price_2year_inr']) && empty($validated['renewal_price_2year_inr'])) {
+            $validated['renewal_price_2year_inr'] = $validated['price_2year_inr'];
+        }
+        if (!empty($validated['price_2year_usd']) && empty($validated['renewal_price_2year_usd'])) {
+            $validated['renewal_price_2year_usd'] = $validated['price_2year_usd'];
+        }
+
+        if (!empty($validated['price_3year_inr']) && empty($validated['renewal_price_3year_inr'])) {
+            $validated['renewal_price_3year_inr'] = $validated['price_3year_inr'];
+        }
+        if (!empty($validated['price_3year_usd']) && empty($validated['renewal_price_3year_usd'])) {
+            $validated['renewal_price_3year_usd'] = $validated['price_3year_usd'];
         }
 
         $plan->update($validated);

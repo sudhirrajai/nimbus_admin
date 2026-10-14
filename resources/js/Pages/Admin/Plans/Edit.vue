@@ -17,6 +17,14 @@ const form = useForm({
     monthly_price_inr: props.plan.monthly_price_inr ?? null,
     renewal_price_inr: props.plan.renewal_price_inr ?? props.plan.price_inr,
     renewal_monthly_price_inr: props.plan.renewal_monthly_price_inr ?? null,
+    price_2year_inr: props.plan.price_2year_inr ?? null,
+    price_2year_usd: props.plan.price_2year_usd ?? null,
+    renewal_price_2year_inr: props.plan.renewal_price_2year_inr ?? null,
+    renewal_price_2year_usd: props.plan.renewal_price_2year_usd ?? null,
+    price_3year_inr: props.plan.price_3year_inr ?? null,
+    price_3year_usd: props.plan.price_3year_usd ?? null,
+    renewal_price_3year_inr: props.plan.renewal_price_3year_inr ?? null,
+    renewal_price_3year_usd: props.plan.renewal_price_3year_usd ?? null,
     price_usd: props.plan.price_usd,
     monthly_price_usd: props.plan.monthly_price_usd ?? null,
     renewal_price_usd: props.plan.renewal_price_usd ?? props.plan.price_usd,
@@ -86,6 +94,17 @@ const submit = () => {
     if (form.renewal_monthly_price_inr === '' || form.renewal_monthly_price_inr === null) form.renewal_monthly_price_inr = null;
     if (form.monthly_price_usd === '' || form.monthly_price_usd === null) form.monthly_price_usd = null;
     if (form.renewal_monthly_price_usd === '' || form.renewal_monthly_price_usd === null) form.renewal_monthly_price_usd = null;
+
+    if (form.price_2year_inr === '' || form.price_2year_inr === null) form.price_2year_inr = null;
+    if (form.price_2year_usd === '' || form.price_2year_usd === null) form.price_2year_usd = null;
+    if (form.renewal_price_2year_inr === '' || form.renewal_price_2year_inr === null) form.renewal_price_2year_inr = null;
+    if (form.renewal_price_2year_usd === '' || form.renewal_price_2year_usd === null) form.renewal_price_2year_usd = null;
+
+    if (form.price_3year_inr === '' || form.price_3year_inr === null) form.price_3year_inr = null;
+    if (form.price_3year_usd === '' || form.price_3year_usd === null) form.price_3year_usd = null;
+    if (form.renewal_price_3year_inr === '' || form.renewal_price_3year_inr === null) form.renewal_price_3year_inr = null;
+    if (form.renewal_price_3year_usd === '' || form.renewal_price_3year_usd === null) form.renewal_price_3year_usd = null;
+
     if (form.renewal_price_inr === '' || form.renewal_price_inr === null) form.renewal_price_inr = form.price_inr;
     if (form.renewal_price_usd === '' || form.renewal_price_usd === null) form.renewal_price_usd = form.price_usd;
 
@@ -326,6 +345,128 @@ const submit = () => {
                         </div>
                     </div>
 
+                    <!-- 2-YEAR MULTI-YEAR PRICING SECTION -->
+                    <div class="bg-indigo-50/40 border border-indigo-200/80 rounded-xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="material-symbols-rounded text-indigo-600 text-base">date_range</span>
+                                2-Year Multi-Year Pricing (Optional)
+                            </div>
+                            <span class="text-[11px] text-indigo-700 font-medium">Billed every 2 years (24 months)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">2-Year Price (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.price_2year_inr" 
+                                    placeholder="e.g. 899"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.price_2year_inr" class="text-xs text-red-600 mt-1">{{ form.errors.price_2year_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next 2-Year Renewal (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_price_2year_inr" 
+                                    placeholder="e.g. 899"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.renewal_price_2year_inr" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_2year_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">2-Year Price (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.price_2year_usd" 
+                                    placeholder="e.g. 35"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.price_2year_usd" class="text-xs text-red-600 mt-1">{{ form.errors.price_2year_usd }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next 2-Year Renewal (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_price_2year_usd" 
+                                    placeholder="e.g. 35"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.renewal_price_2year_usd" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_2year_usd }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3-YEAR MULTI-YEAR PRICING SECTION -->
+                    <div class="bg-amber-50/40 border border-amber-200/80 rounded-xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="material-symbols-rounded text-amber-600 text-base">event_repeat</span>
+                                3-Year Multi-Year Pricing (Optional)
+                            </div>
+                            <span class="text-[11px] text-amber-700 font-medium">Billed every 3 years (36 months)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">3-Year Price (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.price_3year_inr" 
+                                    placeholder="e.g. 1299"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.price_3year_inr" class="text-xs text-red-600 mt-1">{{ form.errors.price_3year_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next 3-Year Renewal (INR ₹)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_price_3year_inr" 
+                                    placeholder="e.g. 1299"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.renewal_price_3year_inr" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_3year_inr }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">3-Year Price (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.price_3year_usd" 
+                                    placeholder="e.g. 49"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.price_3year_usd" class="text-xs text-red-600 mt-1">{{ form.errors.price_3year_usd }}</div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-700 block mb-1">Next 3-Year Renewal (USD $)</label>
+                                <input 
+                                    type="number" 
+                                    v-model="form.renewal_price_3year_usd" 
+                                    placeholder="e.g. 49"
+                                    class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-2.5 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                    min="0"
+                                />
+                                <div v-if="form.errors.renewal_price_3year_usd" class="text-xs text-red-600 mt-1">{{ form.errors.renewal_price_3year_usd }}</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Live Frontend Pricing Preview Box -->
                     <div class="bg-slate-900 text-white rounded-xl p-4 space-y-2 font-mono text-xs">
                         <div class="text-[10px] text-slate-400 uppercase tracking-widest font-sans font-bold flex items-center justify-between">
@@ -334,16 +475,26 @@ const submit = () => {
                                 Live Frontend Pricing Preview
                             </span>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 pt-1.5 border-t border-slate-800">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1.5 border-t border-slate-800">
                             <div>
-                                <span class="text-slate-400 block text-[10px] uppercase font-sans">Monthly Cycle:</span>
+                                <span class="text-slate-400 block text-[10px] uppercase font-sans">Monthly:</span>
                                 <span class="text-emerald-400 font-bold text-sm">₹{{ form.monthly_price_inr || Math.round((form.price_inr || 0) / 10) }}/mo</span>
-                                <span class="text-slate-400 text-xs ml-1.5">(${{ form.monthly_price_usd || Math.round((form.price_usd || 0) / 10) }}/mo)</span>
+                                <span class="text-slate-400 text-[11px] block">(${{ form.monthly_price_usd || Math.round((form.price_usd || 0) / 10) }}/mo)</span>
                             </div>
                             <div>
-                                <span class="text-slate-400 block text-[10px] uppercase font-sans">Yearly Cycle:</span>
+                                <span class="text-slate-400 block text-[10px] uppercase font-sans">1-Year:</span>
                                 <span class="text-emerald-400 font-bold text-sm">₹{{ form.price_inr || 0 }}/yr</span>
-                                <span class="text-slate-400 text-xs ml-1.5">(${{ form.price_usd || 0 }}/yr)</span>
+                                <span class="text-slate-400 text-[11px] block">(${{ form.price_usd || 0 }}/yr)</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-sans">2-Year:</span>
+                                <span class="text-indigo-400 font-bold text-sm">₹{{ form.price_2year_inr || (form.price_inr ? form.price_inr * 2 : 0) }}</span>
+                                <span class="text-slate-400 text-[11px] block">(${{ form.price_2year_usd || (form.price_usd ? form.price_usd * 2 : 0) }})</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-sans">3-Year:</span>
+                                <span class="text-amber-400 font-bold text-sm">₹{{ form.price_3year_inr || (form.price_inr ? form.price_inr * 3 : 0) }}</span>
+                                <span class="text-slate-400 text-[11px] block">(${{ form.price_3year_usd || (form.price_usd ? form.price_usd * 3 : 0) }})</span>
                             </div>
                         </div>
                     </div>

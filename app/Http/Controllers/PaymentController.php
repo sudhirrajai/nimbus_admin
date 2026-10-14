@@ -35,10 +35,12 @@ class PaymentController extends Controller
         }
 
         $billingCycle = $request->input('billing_cycle', 'yearly');
-        $amountInr = $plan->price_inr;
-        if ($billingCycle === 'monthly' && !empty($plan->monthly_price_inr) && $plan->monthly_price_inr > 0) {
-            $amountInr = $plan->monthly_price_inr;
-        }
+        $amountInr = match ($billingCycle) {
+            'monthly' => (!empty($plan->monthly_price_inr) && $plan->monthly_price_inr > 0) ? $plan->monthly_price_inr : $plan->price_inr,
+            '2years', '2year', '2_years' => (!empty($plan->price_2year_inr) && $plan->price_2year_inr > 0) ? $plan->price_2year_inr : ($plan->price_inr * 2),
+            '3years', '3year', '3_years' => (!empty($plan->price_3year_inr) && $plan->price_3year_inr > 0) ? $plan->price_3year_inr : ($plan->price_inr * 3),
+            default => $plan->price_inr,
+        };
 
         $api = new Api($this->razorpayId, $this->razorpayKey);
 
@@ -90,7 +92,12 @@ class PaymentController extends Controller
 
             if (!$license) {
                 $billingCycle = $order->notes->billing_cycle ?? 'yearly';
-                $expiresAt = ($billingCycle === 'monthly') ? now()->addMonth() : now()->addYear();
+                $expiresAt = match ($billingCycle) {
+                    'monthly' => now()->addMonth(),
+                    '2years', '2year', '2_years' => now()->addYears(2),
+                    '3years', '3year', '3_years' => now()->addYears(3),
+                    default => now()->addYear(),
+                };
 
                 $license = License::create([
                     'user_id' => Auth::id(),
@@ -109,8 +116,13 @@ class PaymentController extends Controller
             if (!$existingInvoice) {
                 $planModel = \App\Models\Plan::where('slug', $plan)->first();
                 $billingCycle = $order->notes->billing_cycle ?? 'yearly';
-                $amount = $order->amount ? ($order->amount / 100) : ($planModel ? $planModel->price_inr : 0);
-                $periodLabel = ($billingCycle === 'monthly') ? 'Monthly Subscription' : 'Annual Subscription';
+                $amount = $order->amount ? ($order->amount / 100) : ($planModel ? $planModel->getPriceForCycle($billingCycle, 'INR') : 0);
+                $periodLabel = match ($billingCycle) {
+                    'monthly' => 'Monthly Subscription',
+                    '2years', '2year', '2_years' => '2-Year License',
+                    '3years', '3year', '3_years' => '3-Year License',
+                    default => 'Annual Subscription',
+                };
 
                 \App\Models\Invoice::create([
                     'user_id' => Auth::id(),

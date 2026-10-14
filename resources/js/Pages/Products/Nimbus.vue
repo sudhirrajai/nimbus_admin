@@ -202,54 +202,51 @@ const isPlanFree = (plan) => {
 };
 
 const displayedPlans = computed(() => {
-    const list = props.plans || [];
-    if (!list.length) return [];
-
-    if (showBillingToggle.value) {
-        return list.filter((p) => {
-            if (isPlanFree(p)) return true;
-            if (billingCycle.value === 'monthly') {
-                return (Number(p.monthly_price_usd) > 0 || Number(p.monthly_price_inr) > 0) ||
-                    p.billing_period === '/month' || p.billing_period === 'monthly' || p.billing_period === '/mo';
-            }
-            return (Number(p.price_usd) > 0 || Number(p.price_inr) > 0) ||
-                p.billing_period === '/year' || p.billing_period === 'yearly' || p.billing_period === '/yr';
-        });
-    }
-
-    return list;
+    return props.plans || [];
 });
 
 const formatBillingPeriod = (period) => {
-    if (!period) return '/ year';
-    if (period === '/year' || period === 'yearly' || period === '/yr') return '/ year';
+    if (!period) return '/ 1 year';
+    if (period === '/year' || period === 'yearly' || period === '/yr') return '/ 1 year';
     if (period === '/month' || period === 'monthly' || period === '/mo') return '/ month';
+    if (period === '2years' || period === '2year' || period === '/2years') return '/ 2 years';
+    if (period === '3years' || period === '3year' || period === '/3years') return '/ 3 years';
     if (period === 'forever') return '/ forever';
     return period.startsWith('/') ? period : `/ ${period}`;
 };
 
 const getPlanPrice = (plan) => {
+    if (isPlanFree(plan)) return 0;
+
+    const isINR = selectedCurrency.value === 'INR';
+
     if (billingCycle.value === 'monthly') {
-        if (selectedCurrency.value === 'INR') {
+        if (isINR) {
             return (plan.monthly_price_inr != null && plan.monthly_price_inr !== '') ? plan.monthly_price_inr : plan.price_inr;
         }
         return (plan.monthly_price_usd != null && plan.monthly_price_usd !== '') ? plan.monthly_price_usd : plan.price_usd;
-    } else {
-        if (selectedCurrency.value === 'INR') {
-            return plan.price_inr;
+    } else if (billingCycle.value === '2years') {
+        if (isINR) {
+            return (plan.price_2year_inr != null && plan.price_2year_inr !== '') ? plan.price_2year_inr : (Number(plan.price_inr) * 2);
         }
-        return plan.price_usd;
+        return (plan.price_2year_usd != null && plan.price_2year_usd !== '') ? plan.price_2year_usd : (Number(plan.price_usd) * 2);
+    } else if (billingCycle.value === '3years') {
+        if (isINR) {
+            return (plan.price_3year_inr != null && plan.price_3year_inr !== '') ? plan.price_3year_inr : (Number(plan.price_inr) * 3);
+        }
+        return (plan.price_3year_usd != null && plan.price_3year_usd !== '') ? plan.price_3year_usd : (Number(plan.price_usd) * 3);
+    } else {
+        // 1 Year / default
+        return isINR ? plan.price_inr : plan.price_usd;
     }
 };
 
 const getPlanBillingPeriod = (plan) => {
     if (isPlanFree(plan) || plan.billing_period === 'forever') return '/ forever';
-    if (billingCycle.value === 'monthly') {
-        if ((Number(plan.monthly_price_usd) > 0 || Number(plan.monthly_price_inr) > 0) || plan.billing_period === '/month' || plan.billing_period === 'monthly' || plan.billing_period === '/mo') {
-            return '/ month';
-        }
-    }
-    return formatBillingPeriod(plan.billing_period);
+    if (billingCycle.value === 'monthly') return '/ month';
+    if (billingCycle.value === '2years') return '/ 2 years';
+    if (billingCycle.value === '3years') return '/ 3 years';
+    return '/ 1 year';
 };
 
 let revealObserver = null;
@@ -591,8 +588,8 @@ const currentYear = new Date().getFullYear();
                             </p>
                         </div>
                         <div class="billing-control flex-wrap gap-2" role="group" aria-label="Billing selection">
-                            <!-- Interval Toggle (when both monthly and yearly plans exist) -->
-                            <div v-if="showBillingToggle" class="inline-flex rounded-lg border border-[var(--edge)] p-0.5 bg-[var(--surface-deep)]">
+                            <!-- Interval Toggle (Monthly, 1 Year, 2 Years, 3 Years) -->
+                            <div class="inline-flex rounded-lg border border-[var(--edge)] p-0.5 bg-[var(--surface-deep)]">
                                 <button
                                     type="button"
                                     @click="billingCycle = 'monthly'"
@@ -607,7 +604,25 @@ const currentYear = new Date().getFullYear();
                                     :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': billingCycle === 'yearly' }"
                                     class="px-2.5 py-1 text-xs rounded transition"
                                 >
-                                    Yearly
+                                    1 Year
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="billingCycle = '2years'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': billingCycle === '2years' }"
+                                    class="px-2.5 py-1 text-xs rounded transition flex items-center gap-1"
+                                >
+                                    <span>2 Years</span>
+                                    <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-normal">Save 10%</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="billingCycle = '3years'"
+                                    :class="{ 'bg-[var(--panel-hi)] text-[var(--accent)] font-bold': billingCycle === '3years' }"
+                                    class="px-2.5 py-1 text-xs rounded transition flex items-center gap-1"
+                                >
+                                    <span>3 Years</span>
+                                    <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-amber-500/20 text-amber-400 font-normal">Save 15%</span>
                                 </button>
                             </div>
 

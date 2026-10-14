@@ -40,6 +40,14 @@ class WebhookController extends Controller
                 $existing = License::where('razorpay_payment_id', $paymentId)->first();
                 
                 if (!$existing) {
+                    $billingCycle = $order->notes->billing_cycle ?? 'yearly';
+                    $expiresAt = match ($billingCycle) {
+                        'monthly' => now()->addMonth(),
+                        '2years', '2year', '2_years' => now()->addYears(2),
+                        '3years', '3year', '3_years' => now()->addYears(3),
+                        default => now()->addYear(),
+                    };
+
                     $license = License::create([
                         'user_id' => $userId,
                         'license_key' => License::generateKey($plan),
@@ -47,24 +55,31 @@ class WebhookController extends Controller
                         'status' => 'active',
                         'razorpay_payment_id' => $paymentId,
                         'razorpay_order_id' => $orderId,
-                        'expires_at' => now()->addYear(),
+                        'expires_at' => $expiresAt,
                         'status_changed_at' => now(),
                     ]);
                     
-                    Log::info("License generated via Webhook for Payment ID: {$paymentId}");
+                    Log::info("License generated via Webhook for Payment ID: {$paymentId} with cycle {$billingCycle}");
 
                     // Check and create invoice
                     $existingInvoice = \App\Models\Invoice::where('payment_id', $paymentId)->first();
                     if (!$existingInvoice) {
                         $user = User::find($userId);
                         $planModel = \App\Models\Plan::where('slug', $plan)->first();
-                        $amount = $planModel ? $planModel->price_inr : (($payment['amount'] ?? 0) / 100);
+                        $amount = $planModel ? $planModel->getPriceForCycle($billingCycle, 'INR') : (($payment['amount'] ?? 0) / 100);
+                        $periodLabel = match ($billingCycle) {
+                            'monthly' => 'Monthly Subscription',
+                            '2years', '2year', '2_years' => '2-Year License',
+                            '3years', '3year', '3_years' => '3-Year License',
+                            default => 'Annual Subscription',
+                        };
+
                         \App\Models\Invoice::create([
                             'user_id' => $userId,
                             'invoice_number' => \App\Models\Invoice::generateInvoiceNumber(),
                             'type' => 'license_plan',
                             'plan_name' => $planModel->name ?? (ucfirst($plan) . ' Plan'),
-                            'description' => 'Nimbus ' . ($planModel->name ?? ucfirst($plan)) . ' Server License (Annual Subscription)',
+                            'description' => 'Nimbus ' . ($planModel->name ?? ucfirst($plan)) . ' Server License (' . $periodLabel . ')',
                             'amount' => $amount,
                             'currency' => 'INR',
                             'status' => 'paid',

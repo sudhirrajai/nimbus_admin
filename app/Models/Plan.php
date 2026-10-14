@@ -39,6 +39,14 @@ class Plan extends Model
         'monthly_price_usd',
         'renewal_price_usd',
         'renewal_monthly_price_usd',
+        'price_2year_inr',
+        'price_2year_usd',
+        'renewal_price_2year_inr',
+        'renewal_price_2year_usd',
+        'price_3year_inr',
+        'price_3year_usd',
+        'renewal_price_3year_inr',
+        'renewal_price_3year_usd',
         'billing_period',
         'max_domains',
         'features',
@@ -48,6 +56,38 @@ class Plan extends Model
         'cta_text',
         'description',
     ];
+
+    /**
+     * Get price for a specific billing cycle and currency.
+     */
+    public function getPriceForCycle(string $cycle, string $currency = 'INR'): float
+    {
+        $currency = strtoupper($currency);
+        $isUsd = ($currency === 'USD');
+
+        return match ($cycle) {
+            'monthly' => (float) ($isUsd ? ($this->monthly_price_usd ?: $this->price_usd) : ($this->monthly_price_inr ?: $this->price_inr)),
+            '2years', '2year', '2_years' => (float) ($isUsd ? ($this->price_2year_usd ?: $this->price_usd * 2) : ($this->price_2year_inr ?: $this->price_inr * 2)),
+            '3years', '3year', '3_years' => (float) ($isUsd ? ($this->price_3year_usd ?: $this->price_usd * 3) : ($this->price_3year_inr ?: $this->price_inr * 3)),
+            default => (float) ($isUsd ? $this->price_usd : $this->price_inr),
+        };
+    }
+
+    /**
+     * Get renewal price for a specific billing cycle and currency.
+     */
+    public function getRenewalPriceForCycle(string $cycle, string $currency = 'INR'): float
+    {
+        $currency = strtoupper($currency);
+        $isUsd = ($currency === 'USD');
+
+        return match ($cycle) {
+            'monthly' => (float) ($isUsd ? ($this->renewal_monthly_price_usd ?: $this->monthly_price_usd ?: $this->renewal_price_usd) : ($this->renewal_monthly_price_inr ?: $this->monthly_price_inr ?: $this->renewal_price_inr)),
+            '2years', '2year', '2_years' => (float) ($isUsd ? ($this->renewal_price_2year_usd ?: $this->price_2year_usd ?: $this->renewal_price_usd * 2) : ($this->renewal_price_2year_inr ?: $this->price_2year_inr ?: $this->renewal_price_inr * 2)),
+            '3years', '3year', '3_years' => (float) ($isUsd ? ($this->renewal_price_3year_usd ?: $this->price_3year_usd ?: $this->renewal_price_usd * 3) : ($this->renewal_price_3year_inr ?: $this->price_3year_inr ?: $this->renewal_price_inr * 3)),
+            default => (float) ($isUsd ? ($this->renewal_price_usd ?: $this->price_usd) : ($this->renewal_price_inr ?: $this->price_inr)),
+        };
+    }
 
     protected $casts = [
         'features' => 'array',
