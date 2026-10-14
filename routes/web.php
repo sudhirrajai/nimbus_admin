@@ -143,6 +143,9 @@ Route::get('/install.sh', [ReleaseController::class, 'install']);
 Route::get('/uninstall', [ReleaseController::class, 'uninstall'])->name('releases.uninstall');
 Route::get('/uninstall.sh', [ReleaseController::class, 'uninstall']);
 Route::get('/nimbus.zip', [ReleaseController::class, 'download'])->name('releases.download');
+Route::get('/v1/nimbus/updates/check', [ReleaseController::class, 'checkUpdates']);
+Route::get('/api/v1/nimbus/updates/check', [ReleaseController::class, 'checkUpdates']);
+
 
 // Invoices Routes (Client)
 Route::middleware(['auth'])->group(function () {

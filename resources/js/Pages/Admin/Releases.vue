@@ -13,7 +13,11 @@ const copiedField = ref(null);
 
 const form = useForm({
     release_file: null,
+    custom_changelog: '',
+    custom_commands: '',
 });
+
+const showAdvancedOptions = ref(false);
 
 const handleFileChange = (e) => {
     form.release_file = e.target.files[0];
@@ -100,18 +104,64 @@ const copyToClipboard = (text, fieldName) => {
                         </div>
 
                         <!-- Info Grid -->
-                        <div v-if="release" class="grid grid-cols-2 md:grid-cols-4 gap-6 py-2">
-                            <div>
-                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Version</span>
-                                <span class="text-sm font-extrabold text-gray-950 font-mono bg-slate-50 px-2 py-0.5 rounded border border-gray-200 inline-block">{{ release.version }}</span>
+                        <div v-if="release" class="space-y-4 py-2">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Version</span>
+                                    <span class="text-sm font-extrabold text-gray-950 font-mono bg-slate-50 px-2 py-0.5 rounded border border-gray-200 inline-block">{{ release.version }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">ZIP Size</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ release.size }}</span>
+                                </div>
+                                <div class="col-span-2">
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Uploaded On</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ release.uploaded_at }}</span>
+                                </div>
                             </div>
-                            <div>
-                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">ZIP Size</span>
-                                <span class="text-sm font-bold text-gray-800">{{ release.size }}</span>
+
+                            <!-- SHA-256 Checksum -->
+                            <div v-if="release.sha256" class="pt-2 border-t border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">SHA-256 Checksum</span>
+                                <div class="relative flex items-center bg-slate-900 text-slate-100 rounded-lg overflow-hidden border border-slate-800">
+                                    <code class="text-[11px] font-mono px-3 py-2 pr-20 overflow-x-auto whitespace-nowrap w-full text-emerald-400">
+                                        {{ release.sha256 }}
+                                    </code>
+                                    <button 
+                                        @click="copyToClipboard(release.sha256, 'sha256')"
+                                        class="absolute right-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white rounded px-2 py-1 text-[11px] font-bold transition-all shadow-md flex items-center gap-1"
+                                    >
+                                        <span class="material-symbols-rounded text-xs">
+                                            {{ copiedField === 'sha256' ? 'check' : 'content_copy' }}
+                                        </span>
+                                        <span>{{ copiedField === 'sha256' ? 'Copied' : 'Copy' }}</span>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-span-2">
-                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Uploaded On</span>
-                                <span class="text-sm font-bold text-gray-800">{{ release.uploaded_at }}</span>
+
+                            <!-- Changelog List -->
+                            <div v-if="release.changelog && release.changelog.length" class="pt-2 border-t border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Release Notes / Changelog</span>
+                                <ul class="space-y-1 bg-slate-50 border border-gray-150 rounded-lg p-3 text-xs text-gray-700">
+                                    <li v-for="(item, idx) in release.changelog" :key="idx" class="flex items-start gap-2">
+                                        <span class="material-symbols-rounded text-emerald-600 text-sm mt-0.5">check_circle</span>
+                                        <span>{{ item }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Ordered Execution Commands -->
+                            <div v-if="release.commands && release.commands.length" class="pt-2 border-t border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Ordered Execution Manifest (Post-Update Commands)</span>
+                                <div class="bg-slate-950 text-slate-200 rounded-lg p-3 font-mono text-[11px] space-y-1 border border-slate-800">
+                                    <div v-for="(cmd, idx) in release.commands" :key="idx" class="flex items-center gap-2">
+                                        <span class="text-slate-500 select-none">{{ idx + 1 }}.</span>
+                                        <span class="text-emerald-400">{{ cmd }}</span>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-1">
+                                    These commands will be safely executed in order by client Nimbus panels after extracting the build. If any step fails, an automatic rollback is initiated.
+                                </p>
                             </div>
                         </div>
 
@@ -127,7 +177,7 @@ const copyToClipboard = (text, fieldName) => {
                     <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm space-y-6">
                         <h3 class="text-sm font-bold uppercase tracking-wider text-gray-800 flex items-center gap-2">
                             <span class="material-symbols-rounded text-emerald-500">terminal</span>
-                            Client Setup Commands
+                            Client Setup & OTA Endpoints
                         </h3>
 
                         <!-- Command 1: Installer -->
@@ -186,6 +236,25 @@ const copyToClipboard = (text, fieldName) => {
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Command 4: OTA Updates Check API -->
+                        <div v-if="urls.update_check" class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block">OTA Update Check API Endpoint</label>
+                            <div class="relative flex items-center bg-slate-900 text-slate-100 rounded-lg overflow-hidden border border-slate-800">
+                                <code class="text-xs font-mono px-4 py-3.5 pr-20 overflow-x-auto whitespace-nowrap w-full text-cyan-400">
+                                    {{ urls.update_check }}
+                                </code>
+                                <button 
+                                    @click="copyToClipboard(urls.update_check, 'update_check')"
+                                    class="absolute right-2 bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white rounded px-2.5 py-1.5 text-xs font-bold transition-all shadow-md flex items-center gap-1"
+                                >
+                                    <span class="material-symbols-rounded text-sm">
+                                        {{ copiedField === 'update_check' ? 'check' : 'content_copy' }}
+                                    </span>
+                                    <span>{{ copiedField === 'update_check' ? 'Copied' : 'Copy' }}</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -220,6 +289,52 @@ const copyToClipboard = (text, fieldName) => {
                                     <p v-else class="text-[10px] text-emerald-600 mt-0.5 font-semibold">
                                         Size: {{ (form.release_file.size / 1024 / 1024).toFixed(2) }} MB
                                     </p>
+                                </div>
+                            </div>
+
+                            <!-- Advanced Manifest Options Toggle -->
+                            <div>
+                                <button 
+                                    type="button" 
+                                    @click="showAdvancedOptions = !showAdvancedOptions"
+                                    class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                                >
+                                    <span class="material-symbols-rounded text-base transition-transform" :class="{ 'rotate-90': showAdvancedOptions }">
+                                        chevron_right
+                                    </span>
+                                    <span>{{ showAdvancedOptions ? 'Hide Manifest Instructions' : 'Custom Changelog & Execution Commands (Optional)' }}</span>
+                                </button>
+
+                                <div v-if="showAdvancedOptions" class="mt-3 space-y-4 pt-3 border-t border-gray-150">
+                                    <div>
+                                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">
+                                            Changelog (One item per line)
+                                        </label>
+                                        <textarea 
+                                            v-model="form.custom_changelog" 
+                                            rows="3" 
+                                            placeholder="Added 2FA authentication&#10;Fixed login lockout and rate limit issue&#10;Performance and stability improvements"
+                                            class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                        ></textarea>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">
+                                            Leave empty to automatically extract from update-manifest.json or changelog.txt in the zip.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">
+                                            Custom Execution Commands (One per line in order)
+                                        </label>
+                                        <textarea 
+                                            v-model="form.custom_commands" 
+                                            rows="4" 
+                                            placeholder="composer install --no-dev --optimize-autoloader --no-interaction&#10;php artisan migrate --force&#10;npm run build&#10;php artisan config:clear&#10;systemctl restart nimbus-php-fpm"
+                                            class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                        ></textarea>
+                                        <p class="text-[10px] text-gray-400 mt-0.5">
+                                            Leave empty to use commands from update-manifest.json, requirements.txt, or default standard upgrade workflow.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
