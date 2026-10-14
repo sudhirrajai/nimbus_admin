@@ -13,8 +13,9 @@ class AdminLicenseController extends Controller
 {
     public function index()
     {
-        $licenses = License::with(['user', 'planDetails'])->latest()->get()->map(function ($license) {
+        $licenses = License::with(['user', 'planDetails', 'activations'])->latest()->get()->map(function ($license) {
             $license->effective_modules = $license->getEffectiveModules();
+            $license->max_servers_computed = $license->getMaxServers();
             return $license;
         });
 
@@ -30,6 +31,7 @@ class AdminLicenseController extends Controller
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'plan' => 'required|string',
+            'max_servers' => 'nullable|integer|min:1',
             'expires_at' => 'nullable|date',
             'feature_overrides' => 'nullable|array',
         ]);
@@ -40,6 +42,7 @@ class AdminLicenseController extends Controller
             'user_id' => $user->id,
             'license_key' => License::generateKey($request->plan),
             'plan' => $request->plan,
+            'max_servers' => $request->max_servers,
             'feature_overrides' => $request->feature_overrides,
             'status' => 'active',
             'expires_at' => $request->expires_at,
@@ -78,12 +81,13 @@ class AdminLicenseController extends Controller
         $request->validate([
             'status' => 'required|in:active,suspended,expired,revoked',
             'plan' => 'required|string',
+            'max_servers' => 'nullable|integer|min:1',
             'expires_at' => 'nullable|date',
             'feature_overrides' => 'nullable|array',
         ]);
 
         $license->update(array_merge(
-            $request->only('status', 'plan', 'expires_at', 'feature_overrides'),
+            $request->only('status', 'plan', 'max_servers', 'expires_at', 'feature_overrides'),
             ['status_changed_at' => now()]
         ));
 
@@ -102,6 +106,24 @@ class AdminLicenseController extends Controller
         ]);
 
         return back()->with('success', "Feature overrides updated for {$license->license_key}.");
+    }
+
+    public function disconnectActivation(\App\Models\LicenseActivation $activation)
+    {
+        $license = $activation->license;
+        $serverIp = $activation->server_ip;
+        $activation->delete();
+
+        if ($license && $license->activations()->count() === 0) {
+            $license->update([
+                'server_ip' => null,
+                'machine_id' => null,
+                'domain' => null,
+                'status_changed_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', "Server {$serverIp} disconnected successfully from license {$license->license_key}.");
     }
 
     public function destroy(License $license)

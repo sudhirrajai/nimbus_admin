@@ -138,4 +138,141 @@ class LicenseTest extends TestCase
 
         $responseRevoke->assertStatus(403);
     }
+
+    public function test_multi_server_activation_allows_concurrent_servers_for_enterprise(): void
+    {
+        $user = User::factory()->create();
+        $license = License::create([
+            'user_id' => $user->id,
+            'license_key' => 'ENT-MULTISERVER1',
+            'plan' => 'enterprise',
+            'status' => 'active',
+        ]);
+
+        // Server 1 activation
+        $response1 = $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '1.1.1.1',
+            'machine_id' => 'mach-node-1',
+            'domain' => 'node1.example.com',
+        ]);
+        $response1->assertOk();
+        $response1->assertJson(['status' => true]);
+
+        // Server 2 activation (same key, different machine)
+        $response2 = $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '2.2.2.2',
+            'machine_id' => 'mach-node-2',
+            'domain' => 'node2.example.com',
+        ]);
+        $response2->assertOk();
+        $response2->assertJson(['status' => true]);
+
+        $this->assertEquals(2, $license->activations()->count());
+        $this->assertDatabaseHas('license_activations', ['license_id' => $license->id, 'machine_id' => 'mach-node-1']);
+        $this->assertDatabaseHas('license_activations', ['license_id' => $license->id, 'machine_id' => 'mach-node-2']);
+    }
+
+    public function test_activation_limit_enforced_dynamically(): void
+    {
+        $user = User::factory()->create();
+        $license = License::create([
+            'user_id' => $user->id,
+            'license_key' => 'PRO-LIMIT-TEST',
+            'plan' => 'pro',
+            'max_servers' => 2, // Admin set custom limit to 2
+            'status' => 'active',
+        ]);
+
+        // Node 1: OK
+        $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '10.0.0.1',
+            'machine_id' => 'mach-1',
+        ])->assertOk();
+
+        // Node 2: OK
+        $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '10.0.0.2',
+            'machine_id' => 'mach-2',
+        ])->assertOk();
+
+        // Node 3: Rejects because max_servers = 2
+        $response3 = $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '10.0.0.3',
+            'machine_id' => 'mach-3',
+        ]);
+        $response3->assertStatus(403);
+        $response3->assertJson(['status' => false]);
+        $this->assertStringContainsString('Activation limit reached', $response3->json('message'));
+
+        // Disconnect Node 1
+        $activation1 = $license->activations()->where('machine_id', 'mach-1')->first();
+        $this->actingAs($user)->post("/activations/{$activation1->id}/disconnect")->assertRedirect();
+
+        // Node 3 can now register successfully!
+        $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '10.0.0.3',
+            'machine_id' => 'mach-3',
+        ])->assertOk();
+
+        $this->assertEquals(2, $license->activations()->count());
+        $this->assertDatabaseHas('license_activations', ['license_id' => $license->id, 'machine_id' => 'mach-3']);
+    }
+
+    public function test_admin_can_disconnect_activation_and_override_max_servers(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $user = User::factory()->create();
+
+        $license = License::create([
+            'user_id' => $user->id,
+            'license_key' => 'ADMIN-OVERRIDE',
+            'plan' => 'free',
+            'status' => 'active',
+        ]);
+
+        // Default free plan has max_servers = 1
+        $this->assertEquals(1, $license->getMaxServers());
+
+        // Admin updates max_servers to 10
+        $response = $this->actingAs($admin)->patch("/admin/licenses/{$license->id}", [
+            'status' => 'active',
+            'plan' => 'free',
+            'max_servers' => 10,
+        ]);
+        $response->assertRedirect();
+
+        $license->refresh();
+        $this->assertEquals(10, $license->max_servers);
+        $this->assertEquals(10, $license->getMaxServers());
+
+        // Now multiple servers can register under this free license
+        $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '1.1.1.1',
+            'machine_id' => 'node-a',
+        ])->assertOk();
+
+        $this->postJson('/api/v1/verify', [
+            'license_key' => $license->license_key,
+            'server_ip' => '2.2.2.2',
+            'machine_id' => 'node-b',
+        ])->assertOk();
+
+        $this->assertEquals(2, $license->activations()->count());
+
+        // Admin disconnects node-a
+        $nodeA = $license->activations()->where('machine_id', 'node-a')->first();
+        $this->actingAs($admin)
+            ->post("/admin/licenses/activations/{$nodeA->id}/disconnect")
+            ->assertRedirect();
+
+        $this->assertEquals(1, $license->activations()->count());
+        $this->assertDatabaseMissing('license_activations', ['machine_id' => 'node-a']);
+    }
 }

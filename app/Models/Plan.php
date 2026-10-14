@@ -49,6 +49,7 @@ class Plan extends Model
         'renewal_price_3year_usd',
         'billing_period',
         'max_domains',
+        'max_servers',
         'features',
         'modules',
         'is_active',

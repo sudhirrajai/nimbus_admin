@@ -38,6 +38,7 @@ class PlanSeeder extends Seeder
                 'renewal_price_3year_usd'   => null,
                 'billing_period'            => 'forever',
                 'max_domains'               => 3,
+                'max_servers'               => 1,
                 'features'                  => [
                     '1 Server Node',
                     '3 Domains Limit',
@@ -75,6 +76,7 @@ class PlanSeeder extends Seeder
                 'renewal_price_3year_usd'   => 47,
                 'billing_period'            => '/year',
                 'max_domains'               => 50,
+                'max_servers'               => 5,
                 'features'                  => [
                     'Up to 5 Servers',
                     '50 Domains per Server',
@@ -112,6 +114,7 @@ class PlanSeeder extends Seeder
                 'renewal_price_3year_usd'   => 129,
                 'billing_period'            => '/year',
                 'max_domains'               => 9999,
+                'max_servers'               => 9999,
                 'features'                  => [
                     'Unlimited Servers',
                     'Unlimited Domains',

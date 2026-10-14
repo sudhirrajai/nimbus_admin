@@ -26,14 +26,14 @@ class LicenseController extends Controller
      * Create a signed license token containing license metadata.
      * The token is a base64url-encoded JSON payload + '.' + base64url-encoded RSA signature.
      */
-    private function createSignedToken(License $license): string
+    private function createSignedToken(License $license, string $machineId, string $serverIp): string
     {
         $modules = $license->getEffectiveModules();
 
         $payload = json_encode([
             'license_key' => $license->license_key,
-            'machine_id'  => $license->machine_id,
-            'server_ip'   => $license->server_ip,
+            'machine_id'  => $machineId,
+            'server_ip'   => $serverIp,
             'plan'        => $license->plan,
             'modules'     => $modules,
             'feature_overrides' => $license->feature_overrides ?? (object)[],
@@ -80,6 +80,7 @@ class LicenseController extends Controller
 
     /**
      * Verify a license key and return a cryptographically signed token.
+     * Supports dynamic multi-server activations up to the plan or admin limit.
      */
     public function verify(Request $request)
     {
@@ -124,35 +125,52 @@ class LicenseController extends Controller
             ], 403);
         }
 
-        // Lock to IP/Machine if not already locked
-        if (!$license->server_ip) {
-            $license->server_ip = $request->server_ip;
+        // Multi-server activation management
+        $activation = $license->activations()->where('machine_id', $request->machine_id)->first();
+
+        if ($activation) {
+            // Already registered machine: update details and refresh heartbeat
+            $activation->update([
+                'server_ip'         => $request->server_ip,
+                'domain'            => $request->domain ?? $activation->domain,
+                'admin_name'        => $request->admin_name ?? $activation->admin_name,
+                'admin_email'       => $request->admin_email ?? $activation->admin_email,
+                'last_heartbeat_at' => now(),
+            ]);
+        } else {
+            // New machine registration: enforce max server activation limit
+            $maxServers = $license->getMaxServers();
+            $currentCount = $license->activations()->count();
+
+            if ($currentCount >= $maxServers) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Activation limit reached ({$currentCount}/{$maxServers} servers). Please disconnect an existing server or upgrade.",
+                ], 403);
+            }
+
+            $activation = $license->activations()->create([
+                'machine_id'        => $request->machine_id,
+                'server_ip'         => $request->server_ip,
+                'domain'            => $request->domain,
+                'admin_name'        => $request->admin_name,
+                'admin_email'       => $request->admin_email,
+                'last_heartbeat_at' => now(),
+            ]);
         }
 
-        if (!$license->machine_id) {
-            $license->machine_id = $request->machine_id;
-        }
-
-        // Validate Lock (matches either the client's reported SERVER_ADDR or their public IP seen by the server)
-        $clientIp = $request->ip();
-        $ipMatches = ($license->server_ip === $request->server_ip) || ($license->server_ip === $clientIp);
-
-        if (!$ipMatches || $license->machine_id !== $request->machine_id) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'License is locked to another server.'
-            ], 403);
-        }
-
+        // Update legacy fields for fast indexing / backwards compatibility
         $license->update([
             'last_checked_at' => now(),
+            'server_ip'       => $request->server_ip,
+            'machine_id'      => $request->machine_id,
             'domain'          => $request->domain ?? $license->domain,
             'admin_name'      => $request->admin_name ?? $license->admin_name,
             'admin_email'     => $request->admin_email ?? $license->admin_email,
         ]);
 
-        // Generate signed token
-        $signedToken = $this->createSignedToken($license);
+        // Generate signed token specifically for this machine
+        $signedToken = $this->createSignedToken($license, $request->machine_id, $request->server_ip);
         $modules = $license->getEffectiveModules();
 
         return response()->json([
@@ -164,13 +182,15 @@ class LicenseController extends Controller
             'message'      => 'License is valid.',
             'signed_token' => $signedToken,
             'max_domains'  => $this->getMaxDomains($license->plan),
+            'max_servers'  => $license->getMaxServers(),
+            'active_servers' => $license->activations()->count(),
             'status_changed_at' => $license->status_changed_at?->toIso8601String(),
         ]);
     }
 
     /**
      * Heartbeat ping — lightweight check to confirm license is still active
-     * and the installation hasn't migrated to a different server.
+     * on this specific registered machine.
      */
     public function heartbeat(Request $request)
     {
@@ -198,23 +218,21 @@ class LicenseController extends Controller
             return response()->json(['status' => false, 'message' => 'License is ' . $license->status . '.'], 403);
         }
 
-        // Validate machine lock
-        $clientIp = $request->ip();
-        $ipMatches = ($license->server_ip === $request->server_ip) || ($license->server_ip === $clientIp);
+        // Validate that this machine has an active activation
+        $activation = $license->activations()->where('machine_id', $request->machine_id)->first();
 
-        if (!$ipMatches || $license->machine_id !== $request->machine_id) {
-            // IP or machine mismatch — potential license sharing / cloning
-            Log::warning("License heartbeat mismatch for {$request->license_key}: " .
-                "expected IP={$license->server_ip}, got={$request->server_ip} (client={$clientIp}), " .
-                "expected MID={$license->machine_id}, got={$request->machine_id}");
-
-            $license->update(['status' => 'suspended']);
-
+        if (!$activation) {
+            Log::warning("Heartbeat received for unregistered or disconnected machine: key={$request->license_key}, mid={$request->machine_id}, ip={$request->server_ip}");
             return response()->json([
                 'status'  => false,
-                'message' => 'License suspended due to server mismatch.',
+                'message' => 'Server activation not found or has been disconnected from dashboard.',
             ], 403);
         }
+
+        $activation->update([
+            'server_ip'         => $request->server_ip,
+            'last_heartbeat_at' => now(),
+        ]);
 
         $license->update([
             'last_heartbeat_at' => now(),
@@ -226,13 +244,13 @@ class LicenseController extends Controller
             'message' => 'OK',
             'license_status' => $license->status,
             'modules' => $license->getEffectiveModules(),
-            'signed_token' => $this->createSignedToken($license),
+            'signed_token' => $this->createSignedToken($license, $request->machine_id, $request->server_ip),
             'status_changed_at' => $license->status_changed_at?->toIso8601String(),
         ]);
     }
 
     /**
-     * Deactivate / Disconnect a license from a machine
+     * Deactivate / Disconnect a license from a specific machine
      */
     public function deactivate(Request $request)
     {
@@ -258,22 +276,27 @@ class LicenseController extends Controller
             ], 404);
         }
 
-        // Verify machine lock matches
-        if ($license->machine_id !== $request->machine_id) {
+        // Look for the machine activation
+        $activation = $license->activations()->where('machine_id', $request->machine_id)->first();
+
+        if (!$activation) {
             return response()->json([
                 'status'  => false,
                 'message' => 'License is not active on this machine.'
-            ], 403);
+            ], 404);
         }
 
-        // Disconnect
-        $license->update([
-            'server_ip'    => null,
-            'machine_id'   => null,
-            'domain'       => null,
-            'admin_name'   => null,
-            'admin_email'  => null,
-        ]);
+        $activation->delete();
+
+        // If no more activations, clear the primary cached machine lock
+        if ($license->activations()->count() === 0) {
+            $license->update([
+                'server_ip'    => null,
+                'machine_id'   => null,
+                'domain'       => null,
+                'status_changed_at' => now(),
+            ]);
+        }
 
         return response()->json([
             'status'  => true,

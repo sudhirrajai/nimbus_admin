@@ -19,6 +19,7 @@ class License extends Model
         'admin_name',
         'admin_email',
         'plan',
+        'max_servers',
         'feature_overrides',
         'status',
         'expires_at',
@@ -35,6 +36,7 @@ class License extends Model
         'last_heartbeat_at' => 'datetime',
         'status_changed_at' => 'datetime',
         'feature_overrides' => 'array',
+        'max_servers' => 'integer',
     ];
 
     /**
@@ -58,6 +60,40 @@ class License extends Model
     public function planDetails()
     {
         return $this->belongsTo(Plan::class, 'plan', 'slug');
+    }
+
+    public function activations()
+    {
+        return $this->hasMany(LicenseActivation::class);
+    }
+
+    /**
+     * Get maximum allowed server activations for this license.
+     * Admin custom override on the license takes precedence,
+     * otherwise falls back to the plan's default server quota.
+     */
+    public function getMaxServers(): int
+    {
+        if ($this->max_servers !== null) {
+            return (int) $this->max_servers;
+        }
+
+        return $this->planDetails?->max_servers ?? match ($this->plan) {
+            'free' => 1,
+            'pro' => 5,
+            'enterprise' => 9999,
+            default => 1,
+        };
+    }
+
+    public function getActiveServerCount(): int
+    {
+        return $this->activations()->count();
+    }
+
+    public function isServerLimitReached(): bool
+    {
+        return $this->getActiveServerCount() >= $this->getMaxServers();
     }
 
     /**

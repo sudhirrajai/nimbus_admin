@@ -12,17 +12,20 @@ const props = defineProps({
 const form = useForm({
     status: '',
     plan: '',
+    max_servers: '',
     expires_at: '',
 });
 
 const generateForm = useForm({
     email: '',
     plan: 'free',
+    max_servers: '',
     expires_at: '',
 });
 
 const editingLicense = ref(null);
 const generatingLicense = ref(false);
+const viewingServersLicense = ref(null);
 
 // Feature Overrides Modal State
 const featureLicense = ref(null);
@@ -93,6 +96,7 @@ const editLicense = (license) => {
     editingLicense.value = license;
     form.status = license.status;
     form.plan = license.plan;
+    form.max_servers = license.max_servers ?? '';
     form.expires_at = license.expires_at ? new Date(license.expires_at).toISOString().split('T')[0] : '';
 };
 
@@ -105,6 +109,23 @@ const updateLicense = () => {
 const deleteLicense = (id) => {
     if (confirm('Are you sure you want to delete this license?')) {
         form.delete(route('admin.licenses.destroy', id));
+    }
+};
+
+const openServersModal = (license) => {
+    viewingServersLicense.value = license;
+};
+
+const disconnectServerNode = (activation) => {
+    if (confirm(`Disconnect server node ${activation.server_ip}? It will lose access on its next validation.`)) {
+        router.post(route('admin.licenses.activations.disconnect', activation.id), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                if (viewingServersLicense.value) {
+                    viewingServersLicense.value.activations = viewingServersLicense.value.activations.filter(a => a.id !== activation.id);
+                }
+            }
+        });
     }
 };
 
@@ -170,9 +191,27 @@ const formatDateTime = (dateStr) => {
                                     <code class="text-xs text-gray-800 font-mono bg-slate-50 px-2 py-1 border border-gray-200 rounded">{{ license.license_key }}</code>
                                 </td>
                                 <td class="px-6 py-4.5">
-                                    <div v-if="license.domain" class="text-xs font-bold text-gray-900">{{ license.domain }}</div>
-                                    <div v-if="license.server_ip" class="text-[10px] text-gray-500 font-mono mt-0.5">IP: {{ license.server_ip }}</div>
-                                    <div v-if="!license.domain && !license.server_ip" class="text-xs text-gray-400 italic">Not activated yet</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold"
+                                            :class="(license.activations || []).length > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-50 text-gray-500 border border-gray-200'">
+                                            <span class="material-symbols-rounded text-sm">dns</span>
+                                            {{ (license.activations || []).length }} / {{ (license.max_servers_computed >= 9999 ? '∞' : license.max_servers_computed) }} Servers
+                                        </span>
+                                        <button 
+                                            v-if="(license.activations || []).length > 0"
+                                            @click="openServersModal(license)"
+                                            class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold underline p-1 cursor-pointer"
+                                            title="View & manage active server nodes"
+                                        >
+                                            Manage
+                                        </button>
+                                    </div>
+                                    <div v-if="license.max_servers !== null && license.max_servers !== undefined" class="text-[10px] font-semibold text-purple-600 mt-1">
+                                        Custom limit: {{ license.max_servers >= 9999 ? 'Unlimited' : license.max_servers }}
+                                    </div>
+                                    <div v-else class="text-[10px] text-gray-400 mt-0.5">
+                                        Plan limit: {{ license.max_servers_computed >= 9999 ? 'Unlimited' : license.max_servers_computed }}
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4.5">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border" 
@@ -317,12 +356,70 @@ const formatDateTime = (dateStr) => {
             </div>
         </div>
 
+        <!-- Connected Servers Modal -->
+        <div v-if="viewingServersLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
+            <div class="bg-white border border-gray-200 rounded-lg p-5 sm:p-8 w-full max-w-2xl shadow-2xl animate-fade-in relative text-gray-900 max-h-[90vh] overflow-y-auto my-auto">
+                <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <span class="material-symbols-rounded text-emerald-600">dns</span>
+                            Connected Server Nodes
+                        </h3>
+                        <p class="text-xs text-gray-500 font-mono mt-0.5">{{ viewingServersLicense.license_key }}</p>
+                    </div>
+                    <button @click="viewingServersLicense = null" class="text-gray-400 hover:text-gray-650 cursor-pointer">
+                        <span class="material-symbols-rounded text-sm">close</span>
+                    </button>
+                </div>
+
+                <div v-if="(!viewingServersLicense.activations || viewingServersLicense.activations.length === 0)" class="p-8 text-center bg-slate-50 border border-dashed border-gray-200 rounded-lg">
+                    <p class="text-xs text-gray-500">No active server nodes currently connected.</p>
+                </div>
+
+                <div v-else class="space-y-3">
+                    <div 
+                        v-for="act in viewingServersLicense.activations" 
+                        :key="act.id"
+                        class="p-4 rounded-lg border border-gray-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="text-xs font-bold font-mono text-gray-900">{{ act.server_ip }}</span>
+                                <span v-if="act.domain" class="text-xs text-gray-600 font-medium">({{ act.domain }})</span>
+                            </div>
+                            <div class="text-[10px] text-gray-400 font-mono flex items-center gap-2 flex-wrap">
+                                <span>Machine ID: {{ (act.machine_id || '').slice(0, 16) }}...</span>
+                                <span>•</span>
+                                <span>Last Seen: {{ formatDateTime(act.last_heartbeat_at || act.updated_at) }}</span>
+                            </div>
+                        </div>
+
+                        <button 
+                            type="button"
+                            @click="disconnectServerNode(act)"
+                            class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1 self-start sm:self-auto cursor-pointer"
+                        >
+                            <span class="material-symbols-rounded text-sm">phonelink_off</span>
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-5 border-t border-gray-200 mt-6">
+                    <button type="button" @click="viewingServersLicense = null" class="px-5 py-2 border border-gray-200 bg-white text-gray-700 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Edit Modal Dialog (Breeze style) -->
         <div v-if="editingLicense" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
             <div class="bg-white border border-gray-200 rounded-lg p-5 sm:p-8 w-full max-w-md shadow-2xl animate-fade-in relative text-gray-900 max-h-[90vh] overflow-y-auto my-auto">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
                     <h3 class="text-lg font-bold text-gray-900">Edit License</h3>
-                    <button @click="editingLicense = null" class="text-gray-400 hover:text-gray-650">
+                    <button @click="editingLicense = null" class="text-gray-400 hover:text-gray-650 cursor-pointer">
                         <span class="material-symbols-rounded text-sm">close</span>
                     </button>
                 </div>
@@ -349,13 +446,29 @@ const formatDateTime = (dateStr) => {
                     </div>
 
                     <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
+                            Allowed Server Activations (Max Servers)
+                        </label>
+                        <input 
+                            type="number" 
+                            min="1" 
+                            v-model="form.max_servers" 
+                            placeholder="Leave empty for plan default (e.g. Pro=5, Enterprise=Unlimited)" 
+                            class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors" 
+                        />
+                        <span class="text-[10px] text-gray-400 mt-1 block">
+                            Set custom limit e.g. 10, 25, or 9999 for unlimited. Empty = use plan quota.
+                        </span>
+                    </div>
+
+                    <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Expiry Date</label>
                         <input type="date" v-model="form.expires_at" class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors" />
                     </div>
 
                     <div class="flex gap-3 pt-4 border-t border-gray-200">
-                        <button type="button" @click="editingLicense = null" class="flex-1 px-4 py-2 border border-gray-200 bg-white text-gray-700 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-slate-50 transition-colors">Cancel</button>
-                        <button type="submit" class="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm">Save Changes</button>
+                        <button type="button" @click="editingLicense = null" class="flex-1 px-4 py-2 border border-gray-200 bg-white text-gray-700 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer">Cancel</button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm cursor-pointer">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -366,7 +479,7 @@ const formatDateTime = (dateStr) => {
             <div class="bg-white border border-gray-200 rounded-lg p-5 sm:p-8 w-full max-w-md shadow-2xl animate-fade-in relative text-gray-900 max-h-[90vh] overflow-y-auto my-auto">
                 <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
                     <h3 class="text-lg font-bold text-gray-900">Generate License</h3>
-                    <button @click="generatingLicense = false; generateForm.reset()" class="text-gray-400 hover:text-gray-650">
+                    <button @click="generatingLicense = false; generateForm.reset()" class="text-gray-400 hover:text-gray-650 cursor-pointer">
                         <span class="material-symbols-rounded text-sm">close</span>
                     </button>
                 </div>
@@ -388,13 +501,26 @@ const formatDateTime = (dateStr) => {
                     </div>
 
                     <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
+                            Allowed Server Activations (Max Servers)
+                        </label>
+                        <input 
+                            type="number" 
+                            min="1" 
+                            v-model="generateForm.max_servers" 
+                            placeholder="Leave empty for plan default (e.g. Free=1, Pro=5, Enterprise=Unlimited)" 
+                            class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors" 
+                        />
+                    </div>
+
+                    <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Expiry Date (Optional)</label>
                         <input type="date" v-model="generateForm.expires_at" class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors" />
                     </div>
 
                     <div class="flex gap-3 pt-4 border-t border-gray-200">
-                        <button type="button" @click="generatingLicense = false; generateForm.reset()" class="flex-1 px-4 py-2 border border-gray-200 bg-white text-gray-700 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-slate-50 transition-colors">Cancel</button>
-                        <button type="submit" class="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm" :disabled="generateForm.processing">
+                        <button type="button" @click="generatingLicense = false; generateForm.reset()" class="flex-1 px-4 py-2 border border-gray-200 bg-white text-gray-700 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer">Cancel</button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm cursor-pointer" :disabled="generateForm.processing">
                             {{ generateForm.processing ? 'Generating...' : 'Generate' }}
                         </button>
                     </div>

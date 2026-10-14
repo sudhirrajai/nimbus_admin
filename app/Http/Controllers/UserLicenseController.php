@@ -14,8 +14,14 @@ class UserLicenseController extends Controller
         $userId = auth()->id();
 
         $licenses = License::where('user_id', $userId)
+            ->with(['planDetails', 'activations'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($license) {
+                $license->max_servers_computed = $license->getMaxServers();
+                $license->active_servers_count = $license->activations->count();
+                return $license;
+            });
 
         $hostingAccounts = \App\Models\HostingAccount::where('user_id', $userId)
             ->with('server:id,name,ip_address,nimbus_url')
@@ -45,8 +51,14 @@ class UserLicenseController extends Controller
         $userId = auth()->id();
 
         $licenses = License::where('user_id', $userId)
+            ->with(['planDetails', 'activations'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($license) {
+                $license->max_servers_computed = $license->getMaxServers();
+                $license->active_servers_count = $license->activations->count();
+                return $license;
+            });
 
         $selfHostedPlans = \App\Models\Plan::where('is_active', true)
             ->selfHosted()
@@ -92,6 +104,8 @@ class UserLicenseController extends Controller
             return back()->withErrors(['error' => 'Only active licenses can be disconnected.']);
         }
 
+        $license->activations()->delete();
+
         $license->update([
             'server_ip' => null,
             'machine_id' => null,
@@ -101,7 +115,29 @@ class UserLicenseController extends Controller
             'status_changed_at' => now(),
         ]);
 
-        return back()->with('success', 'Machine installation disconnected successfully.');
+        return back()->with('success', 'All connected server installations disconnected successfully.');
+    }
+
+    public function disconnectActivation(\App\Models\LicenseActivation $activation)
+    {
+        $license = $activation->license;
+        if (!$license || $license->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $serverIp = $activation->server_ip;
+        $activation->delete();
+
+        if ($license->activations()->count() === 0) {
+            $license->update([
+                'server_ip' => null,
+                'machine_id' => null,
+                'domain' => null,
+                'status_changed_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', "Server node {$serverIp} disconnected successfully.");
     }
 
     public function revoke(License $license)
@@ -113,6 +149,8 @@ class UserLicenseController extends Controller
         if ($license->status !== 'active') {
             return back()->withErrors(['error' => 'Only active licenses can be revoked.']);
         }
+
+        $license->activations()->delete();
 
         $license->update([
             'status' => 'revoked',
@@ -126,9 +164,14 @@ class UserLicenseController extends Controller
     {
         $licenses = License::where('user_id', auth()->id())
             ->where('status', 'active')
-            ->with('planDetails')
+            ->with(['planDetails', 'activations'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($license) {
+                $license->max_servers_computed = $license->getMaxServers();
+                $license->active_servers_count = $license->activations->count();
+                return $license;
+            });
 
         $hostingAccounts = \App\Models\HostingAccount::where('user_id', auth()->id())
             ->with(['server:id,name,ip_address,nimbus_url', 'latestInvoice'])

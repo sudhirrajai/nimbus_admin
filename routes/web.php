@@ -99,6 +99,9 @@ Route::post('/licenses/free', [UserLicenseController::class, 'generateFree'])
 Route::post('/licenses/{license}/disconnect', [UserLicenseController::class, 'disconnect'])
     ->middleware(['auth', 'verified'])->name('licenses.disconnect');
 
+Route::post('/activations/{activation}/disconnect', [UserLicenseController::class, 'disconnectActivation'])
+    ->middleware(['auth', 'verified'])->name('activations.disconnect');
+
 Route::post('/licenses/{license}/revoke', [UserLicenseController::class, 'revoke'])
     ->middleware(['auth', 'verified'])->name('licenses.revoke');
 
@@ -159,6 +162,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/licenses/generate', [AdminLicenseController::class, 'generate'])->name('licenses.generate');
     Route::patch('/licenses/{license}', [AdminLicenseController::class, 'update'])->name('licenses.update');
     Route::delete('/licenses/{license}', [AdminLicenseController::class, 'destroy'])->name('licenses.destroy');
+    Route::post('/licenses/activations/{activation}/disconnect', [AdminLicenseController::class, 'disconnectActivation'])->name('licenses.activations.disconnect');
 
     // Users Management
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');

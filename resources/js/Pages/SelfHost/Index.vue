@@ -18,8 +18,14 @@ const generateFreeLicense = () => {
 };
 
 const disconnectMachine = (license) => {
-    if (confirm('Are you sure you want to disconnect this machine installation? The device using this license will stop working until it registers again or another device claims it.')) {
+    if (confirm('Are you sure you want to disconnect all machine installations under this license?')) {
         router.post(route('licenses.disconnect', { license: license.id }));
+    }
+};
+
+const disconnectActivation = (act) => {
+    if (confirm(`Disconnect server node ${act.server_ip}? The panel on that server will lose its active license.`)) {
+        router.post(route('activations.disconnect', act.id));
     }
 };
 
@@ -166,12 +172,48 @@ const formatDateTime = (dateStr) => {
                         <!-- Details Grid -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
-                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Connected Server IP</div>
-                                <div class="text-xs text-gray-900 font-mono font-bold truncate">{{ license.server_ip || 'Awaiting install...' }}</div>
+                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Connected Server Nodes</div>
+                                <div class="text-xs text-gray-900 font-bold truncate flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full" :class="(license.activations || []).length > 0 ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+                                    <span>{{ (license.activations || []).length }} / {{ (license.max_servers_computed >= 9999 ? 'Unlimited' : license.max_servers_computed) }} Active</span>
+                                </div>
                             </div>
                             <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
                                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expires / Term</div>
                                 <div class="text-xs text-gray-900 font-semibold truncate">{{ formatDateTime(license.expires_at) }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Connected Nodes List -->
+                        <div v-if="(license.activations || []).length > 0" class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                                Active Server Deployments
+                            </label>
+                            <div class="space-y-1.5 max-h-44 overflow-y-auto">
+                                <div 
+                                    v-for="act in license.activations" 
+                                    :key="act.id" 
+                                    class="bg-slate-50 border border-gray-200 rounded-lg p-2.5 flex items-center justify-between gap-3 text-xs"
+                                >
+                                    <div class="space-y-0.5 truncate">
+                                        <div class="flex items-center gap-2 truncate">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                                            <span class="font-mono font-bold text-gray-900 truncate">{{ act.server_ip }}</span>
+                                            <span v-if="act.domain" class="text-gray-500 text-[11px] truncate">({{ act.domain }})</span>
+                                        </div>
+                                        <div class="text-[9px] text-gray-400 font-mono">
+                                            Last active: {{ formatDateTime(act.last_heartbeat_at || act.updated_at) }}
+                                        </div>
+                                    </div>
+                                    <button 
+                                        @click="disconnectActivation(act)"
+                                        class="px-2 py-1 text-[10px] font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
+                                        title="Disconnect this server node"
+                                    >
+                                        <span class="material-symbols-rounded text-xs">phonelink_off</span>
+                                        Disconnect
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -200,16 +242,16 @@ const formatDateTime = (dateStr) => {
                     <div v-if="license.status === 'active'" class="bg-slate-50/50 px-4 sm:px-6 py-3 sm:py-3.5 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                         <button 
                             @click="disconnectMachine(license)" 
-                            :disabled="!license.machine_id && !license.server_ip"
+                            :disabled="!license.activations || license.activations.length === 0"
                             :class="[
-                                (!license.machine_id && !license.server_ip) 
+                                (!license.activations || license.activations.length === 0) 
                                     ? 'text-gray-400 bg-transparent border-gray-200 cursor-not-allowed opacity-50' 
                                     : 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100'
                             ]"
                             class="flex-1 px-3 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider border transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                             <span class="material-symbols-rounded text-sm">phonelink_off</span>
-                            Disconnect IP
+                            Disconnect All Nodes
                         </button>
                         <button 
                             @click="revokeLicense(license)"
