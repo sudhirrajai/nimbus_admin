@@ -18,6 +18,7 @@ class ReleaseController extends Controller
             abort(404, 'Release installer script not found.');
         }
 
+        $content = Storage::get('releases/install.sh');
         $vmcoreUrl = request()->getSchemeAndHttpHost();
         
         // Convert to ZIP install mode and inject the VMCore domain
