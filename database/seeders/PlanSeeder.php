@@ -114,9 +114,9 @@ class PlanSeeder extends Seeder
                 'renewal_price_3year_usd'   => 129,
                 'billing_period'            => '/year',
                 'max_domains'               => 9999,
-                'max_servers'               => 9999,
+                'max_servers'               => 20,
                 'features'                  => [
-                    'Unlimited Servers',
+                    'Up to 20 Servers',
                     'Unlimited Domains',
                     'All Nimbus Modules & Features',
                     'Supervisor Worker Daemons',

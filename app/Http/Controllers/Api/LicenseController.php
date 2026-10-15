@@ -39,6 +39,8 @@ class LicenseController extends Controller
             'feature_overrides' => $license->feature_overrides ?? (object)[],
             'expires_at'  => $license->expires_at ? $license->expires_at->toIso8601String() : null,
             'max_domains' => $this->getMaxDomains($license->plan),
+            'max_servers' => $license->getMaxServers(),
+            'active_servers' => $license->activations()->count(),
             'issued_at'   => now()->toIso8601String(),
             'valid_until' => now()->addHours(24)->toIso8601String(),
         ]);
@@ -245,6 +247,8 @@ class LicenseController extends Controller
             'license_status' => $license->status,
             'modules' => $license->getEffectiveModules(),
             'signed_token' => $this->createSignedToken($license, $request->machine_id, $request->server_ip),
+            'max_servers' => $license->getMaxServers(),
+            'active_servers' => $license->activations()->count(),
             'status_changed_at' => $license->status_changed_at?->toIso8601String(),
         ]);
     }

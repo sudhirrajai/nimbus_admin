@@ -693,7 +693,7 @@ const currentYear = new Date().getFullYear();
                                     </li>
                                 </template>
                                 <template v-else>
-                                    <li><Check :size="14" aria-hidden="true" />{{ plan.slug === 'free' ? '1 Active Server Node' : plan.slug === 'pro' ? 'Up to 5 Server Nodes' : 'Unlimited Server Nodes' }}</li>
+                                    <li><Check :size="14" aria-hidden="true" />{{ (plan.max_servers >= 9999 ? 'Unlimited Server Nodes' : (plan.max_servers === 1 || plan.slug === 'free' ? '1 Active Server Node' : `Up to ${plan.max_servers || 5} Server Nodes`)) }}</li>
                                     <li><Check :size="14" aria-hidden="true" />Unlimited domains &amp; web applications</li>
                                     <li><Check :size="14" aria-hidden="true" />Docker &amp; Compose container orchestration</li>
                                     <li><Check :size="14" aria-hidden="true" />Automated Let’s Encrypt SSL &amp; Nginx tuning</li>

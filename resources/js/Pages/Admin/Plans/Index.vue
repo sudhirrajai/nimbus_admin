@@ -51,6 +51,7 @@ const createForm = useForm({
     renewal_monthly_price_usd: null,
     billing_period: '/year',
     max_domains: 5,
+    max_servers: 1,
     features: [],
     modules: [],
     is_active: true,
@@ -73,6 +74,7 @@ const openCreateModal = (defaultType = 'managed_hosting') => {
         createForm.renewal_price_usd = 59;
         createForm.renewal_monthly_price_usd = null;
         createForm.max_domains = 5;
+        createForm.max_servers = 1;
         createForm.cta_text = 'Deploy Cloud';
         featuresInput.value = "1 vCPU & 2GB RAM Cloud Node\n30GB NVMe High-Speed Storage\nFully Managed by Roook Team\nFree Auto-Renewing SSL\nAutomated Daily Backups";
     } else {
@@ -94,9 +96,10 @@ const openCreateModal = (defaultType = 'managed_hosting') => {
         createForm.renewal_price_usd = 19;
         createForm.renewal_monthly_price_usd = 2;
         createForm.billing_period = '/year';
-        createForm.max_domains = 10;
+        createForm.max_domains = 50;
+        createForm.max_servers = 5;
         createForm.cta_text = 'Buy License';
-        featuresInput.value = "Self-Hosted on Your Server\n10 Domains Limit\nSSL Automation\nGit Auto-Deploy\nCommunity Support";
+        featuresInput.value = "Self-Hosted on Your Server\n5 Server Nodes Limit\n50 Domains Limit\nSSL Automation\nGit Auto-Deploy\nCommunity Support";
     }
     showCreateModal.value = true;
 };
@@ -257,6 +260,7 @@ const deletePlan = (plan) => {
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">INR Rates (Term &amp; Renewal)</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">USD Rates</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Max Domains</th>
+                                <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Max Servers</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
                                 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
                             </tr>
@@ -329,6 +333,11 @@ const deletePlan = (plan) => {
                                 <!-- Max Domains -->
                                 <td class="px-6 py-4.5 text-center text-sm font-mono font-semibold text-gray-700">
                                     {{ plan.max_domains }}
+                                </td>
+
+                                <!-- Max Servers -->
+                                <td class="px-6 py-4.5 text-center text-sm font-mono font-semibold text-purple-700">
+                                    {{ (plan.max_servers >= 9999 ? '∞' : (plan.max_servers || 1)) }}
                                 </td>
 
                                 <!-- Status Toggle -->
@@ -623,16 +632,30 @@ const deletePlan = (plan) => {
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 mb-1">Max Domains Allowed</label>
-                        <input 
-                            v-model="createForm.max_domains" 
-                            type="number" 
-                            min="1" 
-                            required 
-                            class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
-                        />
-                        <div v-if="createForm.errors.max_domains" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.max_domains }}</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Max Domains Allowed</label>
+                            <input 
+                                v-model="createForm.max_domains" 
+                                type="number" 
+                                min="1" 
+                                required 
+                                class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
+                            />
+                            <div v-if="createForm.errors.max_domains" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.max_domains }}</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Max Servers (Nodes)</label>
+                            <input 
+                                v-model="createForm.max_servers" 
+                                type="number" 
+                                min="1" 
+                                required 
+                                class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 font-mono" 
+                            />
+                            <div v-if="createForm.errors.max_servers" class="text-xs text-rose-600 mt-1 font-semibold">{{ createForm.errors.max_servers }}</div>
+                        </div>
                     </div>
 
                     <!-- Features text list -->

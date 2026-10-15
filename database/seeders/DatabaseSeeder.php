@@ -71,6 +71,7 @@ class DatabaseSeeder extends Seeder
         // Seed Plans & Forms
         $this->call([
             PlanSeeder::class,
+            NimbusPricingSeeder::class,
             FeedbackFormSeeder::class,
         ]);
     }

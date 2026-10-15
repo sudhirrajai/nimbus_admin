@@ -31,6 +31,7 @@ const form = useForm({
     renewal_monthly_price_usd: props.plan.renewal_monthly_price_usd ?? null,
     billing_period: props.plan.billing_period,
     max_domains: props.plan.max_domains,
+    max_servers: props.plan.max_servers ?? 1,
     features: props.plan.features || [],
     modules: props.plan.modules || [],
     is_active: props.plan.is_active,
@@ -499,7 +500,7 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                         <!-- Max Domains -->
                         <div>
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Max Allowed Domains</label>
@@ -511,6 +512,20 @@ const submit = () => {
                                 min="1"
                             />
                             <div v-if="form.errors.max_domains" class="text-xs text-red-600 mt-1">{{ form.errors.max_domains }}</div>
+                        </div>
+
+                        <!-- Max Servers (Nodes) -->
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">Max Servers (Nodes)</label>
+                            <input 
+                                type="number" 
+                                v-model="form.max_servers" 
+                                class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors"
+                                required
+                                min="1"
+                            />
+                            <div class="text-[10px] text-gray-400 mt-1">E.g., 1 for Free, 5 for Pro, 20 for Enterprise.</div>
+                            <div v-if="form.errors.max_servers" class="text-xs text-red-600 mt-1">{{ form.errors.max_servers }}</div>
                         </div>
 
                         <!-- CTA Button Text -->

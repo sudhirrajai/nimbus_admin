@@ -36,13 +36,17 @@ const formatDateTime = (dateStr) => {
     });
 };
 
-const getFallbackFeatures = (planSlug) => {
+const getFallbackFeatures = (licenseOrSlug) => {
+    const planSlug = typeof licenseOrSlug === 'string' ? licenseOrSlug : licenseOrSlug?.plan;
+    const maxServers = typeof licenseOrSlug === 'object' ? (licenseOrSlug.max_servers_computed ?? licenseOrSlug.planDetails?.max_servers) : null;
+    const serverLimitText = maxServers >= 9999 ? 'Unlimited Servers' : (maxServers ? `${maxServers} Server Nodes` : (planSlug === 'free' ? '1 Server Node' : (planSlug === 'pro' ? '5 Server Nodes' : '20 Server Nodes')));
+
     if (planSlug === 'free') {
-        return ['1 Server Node', '3 Domains Limit', 'SSL Automation', 'File Manager & Ace Editor', 'Web Terminal', 'Basic Monitoring'];
+        return [serverLimitText, '3 Domains Limit', 'SSL Automation', 'File Manager & Ace Editor', 'Web Terminal', 'Basic Monitoring'];
     } else if (planSlug === 'pro') {
-        return ['5 Server Nodes', '50 Domains Limit', 'Git Auto-Deploy', 'Priority Support', 'Team Access', 'WordPress Manager', 'Cron & Supervisor'];
+        return [serverLimitText, '50 Domains Limit', 'Git Auto-Deploy', 'Priority Support', 'Team Access', 'WordPress Manager', 'Cron & Supervisor'];
     } else if (planSlug === 'enterprise') {
-        return ['Unlimited Servers', '9999 Domains Limit', 'White Label Support', 'SLA Guarantee', 'Dedicated Manager', 'API Access', 'Custom Integrations'];
+        return [serverLimitText, 'Unlimited Domains', 'White Label Support', 'SLA Guarantee', 'Dedicated Manager', 'API Access', 'Custom Integrations'];
     }
     return ['Basic server management features'];
 };
@@ -149,12 +153,19 @@ const getFallbackFeatures = (planSlug) => {
                             </div>
 
                             <!-- Meta Grid -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                                <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Server Quota</div>
+                                    <div class="text-xs font-bold text-gray-900 truncate flex items-center gap-1.5">
+                                        <span class="h-2 w-2 rounded-full" :class="(license.activations || []).length > 0 ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+                                        <span>{{ (license.activations || []).length }} / {{ (license.max_servers_computed >= 9999 ? 'Unlimited' : (license.max_servers_computed || 1)) }} Active</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
                                     <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Connected IP</div>
                                     <div class="text-xs font-mono font-bold text-gray-900 truncate">{{ license.server_ip || 'Awaiting installation' }}</div>
                                 </div>
-                                <div class="bg-slate-50 p-4 border border-gray-200 rounded-lg">
+                                <div class="bg-slate-50 p-3.5 border border-gray-200 rounded-lg">
                                     <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Expiry Date</div>
                                     <div class="text-xs font-semibold text-gray-900 truncate">{{ formatDateTime(license.expires_at) }}</div>
                                 </div>
@@ -164,7 +175,7 @@ const getFallbackFeatures = (planSlug) => {
                             <div class="border-t border-gray-200 pt-5">
                                 <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-3">Plan Benefits &amp; Features</label>
                                 <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600">
-                                    <li v-for="feat in (license.planDetails?.features || getFallbackFeatures(license.plan))" :key="feat" class="flex items-center gap-2">
+                                    <li v-for="feat in (license.planDetails?.features || getFallbackFeatures(license))" :key="feat" class="flex items-center gap-2">
                                         <span class="material-symbols-rounded text-emerald-500 text-base shrink-0">check_circle</span>
                                         <span class="truncate">{{ feat }}</span>
                                     </li>

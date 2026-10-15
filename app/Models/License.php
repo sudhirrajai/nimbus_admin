@@ -81,7 +81,7 @@ class License extends Model
         return $this->planDetails?->max_servers ?? match ($this->plan) {
             'free' => 1,
             'pro' => 5,
-            'enterprise' => 9999,
+            'enterprise' => 20,
             default => 1,
         };
     }

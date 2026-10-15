@@ -453,11 +453,11 @@ const formatDateTime = (dateStr) => {
                             type="number" 
                             min="1" 
                             v-model="form.max_servers" 
-                            placeholder="Leave empty for plan default (e.g. Pro=5, Enterprise=Unlimited)" 
+                            placeholder="Leave empty for plan default (e.g. Free=1, Pro=5, Enterprise=20)" 
                             class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors" 
                         />
                         <span class="text-[10px] text-gray-400 mt-1 block">
-                            Set custom limit e.g. 10, 25, or 9999 for unlimited. Empty = use plan quota.
+                            Set custom limit e.g. 1, 5, 20, or 9999 for unlimited. Empty = use plan quota.
                         </span>
                     </div>
 
@@ -508,7 +508,7 @@ const formatDateTime = (dateStr) => {
                             type="number" 
                             min="1" 
                             v-model="generateForm.max_servers" 
-                            placeholder="Leave empty for plan default (e.g. Free=1, Pro=5, Enterprise=Unlimited)" 
+                            placeholder="Leave empty for plan default (e.g. Free=1, Pro=5, Enterprise=20)" 
                             class="w-full bg-white border border-gray-200 rounded-lg text-sm text-gray-900 p-3 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors" 
                         />
                     </div>
