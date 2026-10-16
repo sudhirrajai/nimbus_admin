@@ -8,6 +8,7 @@ const props = defineProps({
     filters: Object,
     stats: Object,
     users: Array,
+    plans: Array,
 });
 
 const search = ref(props.filters?.search || '');
@@ -28,28 +29,103 @@ const clearFilter = () => {
 
 // Create Manual Invoice Modal
 const showCreateModal = ref(false);
+const selectedPlanSlug = ref('pro'); // 'free', 'pro', 'enterprise', 'custom'
+const billingCycle = ref('1year'); // '1month', '1year', '2years', '3years', 'custom'
+const customDurationText = ref('');
+
 const invoiceForm = useForm({
     user_id: props.users?.[0]?.id || '',
-    type: 'hosting_plan',
-    plan_name: 'Managed Cloud VPS',
-    description: 'Managed Cloud Hosting Service',
-    amount: 2999.00,
+    type: 'license_plan',
+    plan_name: 'Nimbus Pro License (1 Year)',
+    description: 'Nimbus Control Panel - Pro License (1 Year, up to 5 Servers)',
+    amount: 1999.00,
     currency: 'INR',
     status: 'paid',
     payment_method: 'Admin Assignment',
     payment_id: '',
 });
 
+// Calculate price and pre-fill details based on selected plan & cycle
+const updateLicensePlanDetails = () => {
+    if (invoiceForm.type !== 'license_plan') return;
+
+    if (selectedPlanSlug.value === 'custom') {
+        invoiceForm.plan_name = 'Custom Nimbus License';
+        invoiceForm.description = 'Nimbus Control Panel - Custom License (' + (customDurationText.value || 'Custom Duration') + ')';
+        return;
+    }
+
+    const plan = (props.plans || []).find(p => p.slug === selectedPlanSlug.value);
+    const planName = plan ? plan.name : (selectedPlanSlug.value.charAt(0).toUpperCase() + selectedPlanSlug.value.slice(1));
+    const isUsd = invoiceForm.currency === 'USD';
+    const serverLimit = plan?.max_servers ? `${plan.max_servers} Server${plan.max_servers > 1 ? 's' : ''}` : 'Servers';
+
+    let cycleLabel = '1 Year';
+    let calculatedAmount = 0;
+
+    if (billingCycle.value === '1month') {
+        cycleLabel = '1 Month';
+        calculatedAmount = isUsd ? (plan?.monthly_price_usd ?? 0) : (plan?.monthly_price_inr ?? 0);
+    } else if (billingCycle.value === '1year') {
+        cycleLabel = '1 Year';
+        calculatedAmount = isUsd ? (plan?.price_usd ?? 0) : (plan?.price_inr ?? 0);
+    } else if (billingCycle.value === '2years') {
+        cycleLabel = '2 Years';
+        calculatedAmount = isUsd 
+            ? (plan?.price_2year_usd ?? ((plan?.price_usd ?? 0) * 2)) 
+            : (plan?.price_2year_inr ?? ((plan?.price_inr ?? 0) * 2));
+    } else if (billingCycle.value === '3years') {
+        cycleLabel = '3 Years';
+        calculatedAmount = isUsd 
+            ? (plan?.price_3year_usd ?? ((plan?.price_usd ?? 0) * 3)) 
+            : (plan?.price_3year_inr ?? ((plan?.price_inr ?? 0) * 3));
+    } else if (billingCycle.value === 'custom') {
+        cycleLabel = customDurationText.value ? customDurationText.value : 'Custom Period';
+        // Base starting price on 1 year if not modified
+        calculatedAmount = isUsd ? (plan?.price_usd ?? 0) : (plan?.price_inr ?? 0);
+    }
+
+    invoiceForm.plan_name = `Nimbus ${planName} License (${cycleLabel})`;
+    invoiceForm.description = `Nimbus Control Panel - ${planName} License (${cycleLabel}, up to ${serverLimit})`;
+    if (billingCycle.value !== 'custom' || invoiceForm.amount === 0) {
+        invoiceForm.amount = Number(calculatedAmount) || 0;
+    }
+};
+
+const onCategoryChange = () => {
+    if (invoiceForm.type === 'license_plan') {
+        selectedPlanSlug.value = 'pro';
+        billingCycle.value = '1year';
+        updateLicensePlanDetails();
+    } else if (invoiceForm.type === 'hosting_plan') {
+        invoiceForm.plan_name = 'Managed Cloud VPS';
+        invoiceForm.description = 'Managed Cloud Hosting Service';
+        invoiceForm.amount = invoiceForm.currency === 'USD' ? 39.00 : 2999.00;
+    } else {
+        invoiceForm.plan_name = 'Custom Service';
+        invoiceForm.description = 'Custom Engineering / Consultation Service';
+        invoiceForm.amount = invoiceForm.currency === 'USD' ? 99.00 : 4999.00;
+    }
+};
+
+const onCurrencyChange = () => {
+    if (invoiceForm.type === 'license_plan') {
+        updateLicensePlanDetails();
+    }
+};
+
 const openCreateModal = () => {
     invoiceForm.reset();
     invoiceForm.user_id = props.users?.[0]?.id || '';
-    invoiceForm.type = 'hosting_plan';
-    invoiceForm.plan_name = 'Managed Cloud VPS';
-    invoiceForm.description = 'Managed Cloud Hosting Service';
-    invoiceForm.amount = 2999.00;
+    invoiceForm.type = 'license_plan';
     invoiceForm.currency = 'INR';
     invoiceForm.status = 'paid';
     invoiceForm.payment_method = 'Admin Assignment';
+    invoiceForm.payment_id = '';
+    selectedPlanSlug.value = 'pro';
+    billingCycle.value = '1year';
+    customDurationText.value = '';
+    updateLicensePlanDetails();
     showCreateModal.value = true;
 };
 
@@ -452,16 +528,96 @@ const formatDate = (dateStr) => {
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Category / Type</label>
-                            <select v-model="invoiceForm.type" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
-                                <option value="hosting_plan">Managed Hosting</option>
+                            <select v-model="invoiceForm.type" @change="onCategoryChange" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
                                 <option value="license_plan">License Plan</option>
+                                <option value="hosting_plan">Managed Hosting</option>
                                 <option value="custom">Custom Service</option>
                             </select>
                         </div>
-                        <div>
+                        <div v-if="invoiceForm.type === 'license_plan'">
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Nimbus Plan</label>
+                            <select v-model="selectedPlanSlug" @change="updateLicensePlanDetails" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
+                                <option v-for="p in (plans || []).filter(p => !p.type || p.type === 'self_hosted')" :key="p.id" :value="p.slug">
+                                    {{ p.name }} Plan ({{ p.max_servers }} Server{{ p.max_servers > 1 ? 's' : '' }})
+                                </option>
+                                <option value="custom">Custom Nimbus Plan</option>
+                            </select>
+                        </div>
+                        <div v-else>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Plan / Title</label>
                             <input type="text" v-model="invoiceForm.plan_name" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" required />
                         </div>
+                    </div>
+
+                    <!-- Nimbus License Duration / Billing Cycle Selector -->
+                    <div v-if="invoiceForm.type === 'license_plan'" class="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider">
+                                Billing Duration / Period
+                            </label>
+                            <span class="text-[10px] text-gray-400">Pre-calculates recommended plan rates</span>
+                        </div>
+                        <div class="grid grid-cols-5 gap-1.5">
+                            <button 
+                                type="button" 
+                                @click="billingCycle = '1month'; updateLicensePlanDetails()"
+                                :class="billingCycle === '1month' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'"
+                                class="py-1.5 px-2 text-xs rounded text-center transition-colors"
+                            >
+                                1 Month
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="billingCycle = '1year'; updateLicensePlanDetails()"
+                                :class="billingCycle === '1year' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'"
+                                class="py-1.5 px-2 text-xs rounded text-center transition-colors"
+                            >
+                                1 Year
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="billingCycle = '2years'; updateLicensePlanDetails()"
+                                :class="billingCycle === '2years' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'"
+                                class="py-1.5 px-2 text-xs rounded text-center transition-colors"
+                            >
+                                2 Years
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="billingCycle = '3years'; updateLicensePlanDetails()"
+                                :class="billingCycle === '3years' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'"
+                                class="py-1.5 px-2 text-xs rounded text-center transition-colors"
+                            >
+                                3 Years
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="billingCycle = 'custom'; updateLicensePlanDetails()"
+                                :class="billingCycle === 'custom' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'"
+                                class="py-1.5 px-2 text-xs rounded text-center transition-colors"
+                            >
+                                Custom
+                            </button>
+                        </div>
+
+                        <!-- Custom duration input if 'custom' period or 'custom' plan selected -->
+                        <div v-if="billingCycle === 'custom' || selectedPlanSlug === 'custom'" class="pt-1.5 flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-semibold text-gray-600 mb-1">Custom Time Period / Notes</label>
+                                <input 
+                                    type="text" 
+                                    v-model="customDurationText" 
+                                    @input="updateLicensePlanDetails"
+                                    placeholder="e.g. 6 Months, 5 Years, or Lifetime Access" 
+                                    class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" 
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="invoiceForm.type === 'license_plan'">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Invoice Item Title</label>
+                        <input type="text" v-model="invoiceForm.plan_name" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500" required />
                     </div>
 
                     <div>
@@ -476,7 +632,7 @@ const formatDate = (dateStr) => {
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Currency</label>
-                            <select v-model="invoiceForm.currency" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
+                            <select v-model="invoiceForm.currency" @change="onCurrencyChange" class="w-full text-xs rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500">
                                 <option value="INR">INR (₹)</option>
                                 <option value="USD">USD ($)</option>
                                 <option value="EUR">EUR (€)</option>

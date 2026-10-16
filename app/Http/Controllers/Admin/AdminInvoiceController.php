@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -41,12 +42,14 @@ class AdminInvoiceController extends Controller
         ];
 
         $users = User::select('id', 'name', 'email')->orderBy('name')->get();
+        $plans = Plan::where('is_active', true)->get();
 
         return Inertia::render('Admin/Invoices/Index', [
             'invoices' => $invoices,
             'filters' => $request->only(['status', 'search']),
             'stats' => $stats,
             'users' => $users,
+            'plans' => $plans,
         ]);
     }
 
